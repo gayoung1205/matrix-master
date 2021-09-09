@@ -1,0 +1,383 @@
+{% extends 'base.html' %} {% block content %}
+<div class="container">
+  <div class="card" style="width: 100%; margin-top: 20px">
+    <div class="card-body">
+      <h5 class="card-title" style="display: inline-block">프로파일 관리</h5>
+      <button
+        type="button"
+        class="btn btn-primary btn-sm"
+        data-toggle="modal"
+        data-target="#profileCreate"
+        style="display: inline-block; float: right; margin-bottom: 0.2rem; margin-left: 0.3rem"
+      >
+        추가
+      </button>
+      <button
+        type="button"
+        class="btn btn-primary btn-sm"
+        data-toggle="modal"
+        data-target="#profileImport"
+        style="display: inline-block; float: right; margin-bottom: 0.2rem; margin-left: 0.3rem"
+      >
+        불러오기
+      </button>
+      <button
+        type="button"
+        class="btn btn-primary btn-sm"
+        data-toggle="modal"
+        data-target="#profileExport"
+        style="display: inline-block; float: right; margin-bottom: 0.2rem; margin-left: 0.3rem"
+      >
+        내보내기
+      </button>
+
+      <table class="table">
+        <thead class="thead-light">
+          <tr>
+            <th scope="col">이름</th>
+            <th scope="col">Action</th>
+          </tr>
+        </thead>
+        {% if profile %}
+        <tbody>
+          {% for pro in profile %}
+          <tr>
+            <th scope="row">{{pro.name}}</th>
+            <td>
+              {% comment %}
+              <button
+                type="button"
+                class="btn btn-primary btn-sm"
+                data-toggle="modal"
+                data-target="#profileUpdate"
+                data-whatever="{{mat.id}},{{mat.name}},{{mat.ip_address}},{{mat.port}}"
+              >
+                수정
+              </button>
+              {% endcomment %}
+              <button
+                type="button"
+                class="btn btn-danger btn-sm"
+                data-toggle="modal"
+                data-target="#profileDelete"
+                data-whatever="{{pro.id}}"
+              >
+                삭제
+              </button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+        {% endif %}
+      </table>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal fade"
+  id="profileCreate"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="exampleModalCenterTitle"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalCenterTitle">프로파일 추가</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form method="post" action="{% url 'profile' %}" id="profileCreateForm">
+        {% csrf_token %}
+        <input type="hidden" id="mat_id_list" name="mat_id_list" />
+        <input type="hidden" id="input_1" name="input_a" />
+        <input type="hidden" id="input_2" name="input_b" />
+        <input type="hidden" id="input_3" name="input_c" />
+        <input type="hidden" id="input_4" name="input_d" />
+        <input type="hidden" id="input_5" name="input_e" />
+        <input type="hidden" id="input_6" name="input_f" />
+        <input type="hidden" id="input_7" name="input_g" />
+        <input type="hidden" id="input_8" name="input_h" />
+        <input type="hidden" id="input_kvm" name="input_kvm" />
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="inputName">프로파일명</label>
+            <input hidden="hidden" />
+            <input
+              type="text"
+              class="form-control"
+              id="inputName"
+              name="name"
+              placeholder="Enter name"
+              value="{{ form.name.value|default_if_none:'' }}"
+              required
+            />
+            <div id="name-feedback" class="invalid-feedback">이름을 입력해주세요.</div>
+          </div>
+          {% load filter_tags %}
+          {% if main %}{% for m in main %}<h5>{{m.name}}</h5>
+          <input type="hidden" name="mat_id" value="{{m.id}}" />
+          <div class="form-row">
+            {% for i in 1|range_tag:5 %}
+            <div class="form-group col-md-3">
+              <label for="inputState">{{connect_list|list_index:i}}</label>
+              <select id="inputState" class="form-control" name="{{i}}">
+                {% for j in 1|range_tag:7 %}
+                <option {% if i == j %}selected{% endif %} value="0{{j}}">{% if j < 7 %}{{connect_list|list_index:j}}{% else %}입력0{{j}}{% endif %}</option>
+                {% endfor %}
+              </select>
+            </div>
+            {% endfor %}
+          </div>
+          <div class="form-row">
+            {% for i in 5|range_tag:9 %}
+            <div class="form-group col-md-3">
+              <label for="inputState">{{connect_list|list_index:i}}</label>
+              <select id="inputState" class="form-control" name="{{i}}" {% if i > 6 %}disabled{% endif %}>
+                {% for j in 1|range_tag:7 %}
+                <option {% if i == j %}selected{% endif %} value="0{{j}}">{% if j < 7 %}{{connect_list|list_index:j}}{% else %}입력0{{j}}{% endif %}</option>
+                {% endfor %}
+              </select>
+            </div>
+            {% endfor %}
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-3">
+              <label for="inputKvm">USB</label>
+              <select id="inputKvm" class="form-control" name="inputKvm">
+                {% for j in 1|range_tag:22 %}
+                <option {% if j == 1 %}selected{% endif %} value="0{{j}}">{{connect_list|kvm_index:j}}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>{% endfor %}{% endif %} 
+
+          {% if matrix %} {% for mat in matrix %}
+          <h5>{{mat.name}}</h5>
+          <input type="hidden" name="mat_id" value="{{mat.id}}" />
+          <div class="form-row">
+            {% for i in 1|range_tag:5 %}
+            <div class="form-group col-md-3">
+              <label for="inputState">{{mat.main_connect|group_index:i}}</label>
+              <select id="inputState" class="form-control" name="{{i}}">
+                {% for j in 1|range_tag:8 %}
+                <option {% if i == j %}selected{% endif %} value="0{{j}}">{{mat.main_connect|group_index:j}}</option>
+                {% endfor %}
+              </select>
+            </div>
+            {% endfor %}
+          </div>
+          <div class="form-row">
+            {% for i in 5|range_tag:9 %}
+            <div class="form-group col-md-3">
+              <label for="inputState">{{mat.main_connect|group_index:i}}</label>
+              <select id="inputState" class="form-control" name="{{i}}" {% if i > 7 %}disabled{% endif %}>
+                {% for j in 1|range_tag:8 %}
+                <option {% if i == j %}selected{% endif %} value="0{{j}}">{{mat.main_connect|group_index:j}}</option>
+                {% endfor %}
+              </select>
+            </div>
+            {% endfor %}
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-3">
+              <label for="inputKvm">USB</label>
+              <select id="inputKvm" class="form-control" name="inputKvm">
+                {% for j in 1|range_tag:8 %}
+                <option {% if j == 1 %}selected{% endif %} value="0{{j}}">{{mat.main_connect|group_index:j}}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          {% endfor %} {% endif %}
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
+          <button type="button" onClick="profileCreate()" class="btn btn-primary">생성</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal fade"
+  id="profileUpdate"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="exampleModalCenterTitle"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalCenterTitle">프로파일 수정</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form id="profileUpdateForm" method="post" action="{% url 'profile_detail' %}">
+        {% csrf_token %}
+        <input type="hidden" name="_method" value="put" />
+        <input type="hidden" id="updateId" name="id" />
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="inputName">프로파일명</label>
+            <input
+              type="text"
+              class="form-control"
+              id="inputName"
+              name="name"
+              placeholder="Enter name"
+              value="{{ form.name.value|default_if_none:'' }}"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="inputIp">IP 주소</label>
+            <input
+              type="text"
+              class="form-control"
+              id="inputIp"
+              name="ip_address"
+              placeholder="Enter Ip"
+              value="{{ form.ip_address.value|default_if_none:'' }}"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="inputPort">PORT 번호</label>
+            <input
+              type="number"
+              class="form-control"
+              id="inputPort"
+              name="port"
+              placeholder="Enter port"
+              value="{{ form.port.value|default_if_none:0 }}"
+              required
+            />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
+          <button type="submit" class="btn btn-primary">수정</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal fade"
+  id="profileDelete"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="exampleModalCenterTitle"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalCenterTitle">프로파일을 삭제하시겠습니까?</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form id="profileDeleteForm" method="post" action="{% url 'profile_detail' %}">
+        {% csrf_token %}
+        <input type="hidden" name="_method" value="delete" />
+        <input type="hidden" id="deleteId" name="id" />
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
+          <button type="submit" class="btn btn-danger">삭제</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal fade"
+  id="profileImport"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="exampleModalCenterTitle"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalCenterTitle">파일 선택</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form id="profileImportForm" method="post" action="{% url 'profile_import' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="modal-body">
+          <input class="form-control" type="file" id="formFile" name="profile_file" style="height: auto" />
+          <div id="file-feedback" class="invalid-feedback"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
+          <button type="button" class="btn btn-primary" onClick="profileImport()">불러오기</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal fade"
+  id="profileExport"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="exampleModalCenterTitle"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalCenterTitle">선택</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form id="profileExportForm" method="post" action="{% url 'profile_export' %}">
+        {% csrf_token %}
+        <div class="modal-body">
+          <ul class="list-group">
+            {% for pro in profile %}
+            <li class="list-group-item">
+              <input
+                class="form-check-input me-1"
+                type="checkbox"
+                id="{{pro.id}}-{{pro.name}}"
+                name="profile_check"
+                value="{{pro.id}}"
+                aria-label="..."
+                style="position: relative; margin-left: 0"
+              />
+              <label for="{{pro.id}}-{{pro.name}}" style="cursor: pointer; margin-bottom: 0"> {{pro.name}} </label>
+            </li>
+            {% endfor %}
+          </ul>
+          <input type="hidden" id="export_pro_list" name="export_pro_list" />
+          <div class="invalid-feedback">최소 1개 이상 선택해주세요.</div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-sm btn-secondary" data-dismiss="modal">취소</button>
+          <button type="button" class="btn-sm btn-primary" onClick="profileExport()">내보내기</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% load static %} {% load static %}
+<script src="{% static 'vendor/jquery/jquery.slim.min.js' %}"></script>
+<script src="{% static 'js/profile_table.js' %}"></script>
+<script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+{% endblock content %}

@@ -1,0 +1,116 @@
+<div
+  class="modal fade"
+  id="matrixCreate"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="exampleModalCenterTitle"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalCenterTitle">시스템 추가</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form id="matrixCreateForm" method="post" action="{% url 'matrix' %}">
+        {% csrf_token %}
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="create-input-name">시스템명</label>
+            <input
+              type="text"
+              class="form-control"
+              id="create-input-name"
+              name="name"
+              placeholder="Enter name"
+              value="{{ form.name.value|default_if_none:'' }}"
+            />
+            <div id="create-name-feedback" class="invalid-feedback"></div>
+          </div>
+          <div class="form-group">
+            <label for="create-input-matrix-ip">시스템IP1</label>
+            <input
+              type="text"
+              class="form-control"
+              id="create-input-matrix-ip"
+              name="matrix_ip_address"
+              placeholder="Enter Ip"
+              value="{{ form.matrix_ip_address.value|default_if_none:'' }}"
+            />
+            <div id="create-matrix-ip-feedback" class="invalid-feedback"></div>
+          </div>
+          <div class="form-group">
+            <label for="create-input-kvm-ip">시스템IP2</label>
+            <input
+              type="text"
+              class="form-control"
+              id="create-input-kvm-ip"
+              name="kvm_ip_address"
+              placeholder="Enter Ip"
+              value="{{ form.kvm_ip_address.value|default_if_none:'' }}"
+            />
+            <div id="create-kvm-ip-feedback" class="invalid-feedback"></div>
+          </div>
+          <div class="form-group">
+            <label for="create-input-kvm-ip2">시스템IP3</label>
+            <input
+              type="text"
+              class="form-control"
+              id="create-input-kvm-ip2"
+              name="kvm_ip_address2"
+              placeholder="Enter Ip"
+              value="{{ form.kvm_ip_address2.value|default_if_none:'' }}"
+              disabled
+            />
+            <div id="create-kvm-ip-feedback2" class="invalid-feedback"></div>
+          </div>
+          <div class="form-group">
+            <label for="create-input-port">포트번호</label>
+            <input
+              type="number"
+              class="form-control"
+              id="create-input-port"
+              name="port"
+              placeholder="Enter port"
+              value="{{ form.port.value|default_if_none:0 }}"
+            />
+            <div id="create-port-feedback" class="invalid-feedback"></div>
+          </div>
+          <div class="form-group">
+            <label for="create-input-main-connect">메인 연결 번호</label>
+            <select id="create-input-main-connect" class="form-control" name="main_connect">
+              <option id="create-option" selected>번호 선택</option>
+              {% for main_connect in main_connect_list %}
+              <option value="{{main_connect}}">{{main_connect}}</option>
+              {% endfor %}
+            </select>
+            <div id="create-input-main-connect-feedback" class="invalid-feedback">
+              연결 번호를 선택해주세요. 선택 가능한 번호가 없다면 연결 초과입니다.
+            </div>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="is_main" id="is-main-create-true" value="True" />
+            <label class="form-check-label" for="is-main-create-true">main</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="is_main"
+              id="is-main-create-false"
+              value="False"
+              checked
+            />
+            <label class="form-check-label" for="is-main-create-false">sub</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
+          <button type="button" class="btn btn-primary" onClick="matrixCreate()">생성</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

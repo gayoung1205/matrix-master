@@ -1,0 +1,124 @@
+<div
+  class="modal fade"
+  id="matrixUpdate"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="exampleModalCenterTitle"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalCenterTitle">시스템수정</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form id="matrixUpdateForm" method="post" action="{% url 'matrix_detail' %}">
+        {% csrf_token %}
+        <input type="hidden" name="_method" value="put" />
+        <input type="hidden" id="updateId" name="id" />
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="update-input-name">시스템명</label>
+            <input
+              type="text"
+              class="form-control"
+              id="update-input-name"
+              name="name"
+              placeholder="Enter name"
+              value="{{ form.name.value|default_if_none:'' }}"
+            />
+            <div id="update-name-feedback" class="invalid-feedback"></div>
+          </div>
+          <div class="form-group">
+            <label for="update-input-matrix-ip">시스템IP1</label>
+            <input
+              type="text"
+              class="form-control"
+              id="update-input-matrix-ip"
+              name="matrix_ip_address"
+              placeholder="Enter Ip"
+              value="{{ form.matrix_ip_address.value|default_if_none:'' }}"
+            />
+            <div id="update-matrix-ip-feedback" class="invalid-feedback"></div>
+          </div>
+          <div class="form-group">
+            <label for="update-input-kvm-ip">시스템IP2</label>
+            <input
+              type="text"
+              class="form-control"
+              id="update-input-kvm-ip"
+              name="kvm_ip_address"
+              placeholder="Enter Ip"
+              value="{{ form.kvm_ip_address.value|default_if_none:'' }}"
+            />
+            <div id="update-kvm-ip-feedback" class="invalid-feedback"></div>
+          </div>
+          <div class="form-group">
+            <label for="update-input-kvm-ip2">시스템IP3</label>
+            <input
+              type="text"
+              class="form-control"
+              id="update-input-kvm-ip2"
+              name="kvm_ip_address2"
+              placeholder="Enter Ip"
+              value="{{ form.kvm_ip_address2.value|default_if_none:'' }}"
+            />
+            <div id="update-kvm-ip-feedback2" class="invalid-feedback"></div>
+          </div>
+          <div class="form-group">
+            <label for="update-input-port">포트번호</label>
+            <input
+              type="number"
+              class="form-control"
+              id="update-input-port"
+              name="port"
+              placeholder="Enter port"
+              value="{{ form.port.value|default_if_none:0 }}"
+            />
+            <div id="update-port-feedback" class="invalid-feedback"></div>
+          </div>
+          <div class="form-group">
+            <label for="update-input-main-connect">메인 연결 번호</label>
+            <select id="update-input-main-connect" class="form-control" name="main_connect">
+              <option id="update-option" selected>번호 선택</option>
+              {% for main_connect in main_connect_list %}
+              <option value="{{main_connect}}">{{main_connect}}</option>
+              {% endfor %}
+            </select>
+            <div id="update-input-main-connect-feedback" class="invalid-feedback">
+              연결 번호를 선택해주세요. 선택 가능한 번호가 없다면 연결 초과입니다.
+            </div>
+          </div>
+          <div class="form-check form-check-inline">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="is_main"
+              id="is-main-update-true"
+              value="True"
+              disabled
+            />
+            <label class="form-check-label" for="is-main-update-true">main</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="is_main"
+              id="is-main-update-false"
+              value="False"
+              disabled
+            />
+            <label class="form-check-label" for="is-main-update-false">sub</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
+          <button type="button" class="btn btn-primary" onClick="matrixUpdate()">수정</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

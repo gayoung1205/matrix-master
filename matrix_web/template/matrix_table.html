@@ -1,0 +1,417 @@
+{% extends 'base.html' %} {% block content %}
+<div class="container">
+  <div class="card" style="width: 100%; margin-top: 20px">
+    <div class="card-body">
+      <h5 class="card-title" style="display: inline-block">시스템관리</h5>
+      <button
+        type="button"
+        class="btn btn-primary btn-sm"
+        data-toggle="modal"
+        data-target="#matrixCreate"
+        style="display: inline-block; float: right; margin-bottom: 0.2rem; margin-left: 0.3rem"
+      >
+        추가
+      </button>
+      <button
+        type="button"
+        class="btn btn-primary btn-sm"
+        data-toggle="modal"
+        data-target="#matrixImport"
+        style="display: inline-block; float: right; margin-bottom: 0.2rem; margin-left: 0.3rem"
+      >
+        불러오기
+      </button>
+      <button
+        type="button"
+        class="btn btn-primary btn-sm"
+        data-toggle="modal"
+        data-target="#matrixExport"
+        style="display: inline-block; float: right; margin-bottom: 0.2rem; margin-left: 0.3rem"
+      >
+        내보내기
+      </button>
+      <div class="table-responsive">
+        <table class="table">
+          <thead class="thead-light">
+            <tr>
+              <th scope="col">이름</th>
+              <th scope="col">시스템ip1</th>
+              <th scope="col">시스템ip2</th>
+              <th scope="col">시스템ip3</th>
+              <th scope="col">port</th>
+              <th scope="col">main/sub</th>
+              <th scope="col">Action</th>
+            </tr>
+          </thead>
+          {% if matrix %}
+          <tbody>
+            {% for mat in matrix %}
+            <tr>
+              <td>{{mat.name}}</th>
+              <td>{{mat.matrix_ip_address}}</td>
+              <td>{{mat.kvm_ip_address}}</td>
+              <td>{% if mat.kvm_ip_address2 is not None %}{{mat.kvm_ip_address2}}{% endif %}</td>
+              <td>{{mat.port}}</td>
+              <td>{% if mat.is_main %}main{% else %}sub{% endif %}</td>
+              <td>
+                <button
+                  type="button"
+                  class="btn btn-primary btn-sm"
+                  data-toggle="modal"
+                  data-target="#matrixUpdate"
+                  data-whatever="{{mat.id}},{{mat.name}},{{mat.matrix_ip_address}},{{mat.kvm_ip_address}},{{mat.kvm_ip_address2}},{{mat.port}},{{mat.is_main}},{{mat.main_connect}}"
+                >
+                  수정</button
+                ><button
+                  type="button"
+                  class="btn btn-danger btn-sm"
+                  data-toggle="modal"
+                  data-target="#matrixDelete"
+                  data-whatever="{{mat.id}}"
+                >
+                  삭제
+                </button>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+          {% endif %}
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal fade"
+  id="matrixCreate"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="exampleModalCenterTitle"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalCenterTitle">시스템 추가</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form id="matrixCreateForm" method="post" action="{% url 'matrix' %}">
+        {% csrf_token %}
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="create-input-name">시스템명</label>
+            <input
+              type="text"
+              class="form-control"
+              id="create-input-name"
+              name="name"
+              placeholder="Enter name"
+              value="{{ form.name.value|default_if_none:'' }}"
+            />
+            <div id="create-name-feedback" class="invalid-feedback"></div>
+          </div>
+          <div class="form-group">
+            <label for="create-input-matrix-ip">시스템IP1</label>
+            <input
+              type="text"
+              class="form-control"
+              id="create-input-matrix-ip"
+              name="matrix_ip_address"
+              placeholder="Enter Ip"
+              value="{{ form.matrix_ip_address.value|default_if_none:'' }}"
+            />
+            <div id="create-matrix-ip-feedback" class="invalid-feedback"></div>
+          </div>
+          <div class="form-group">
+            <label for="create-input-kvm-ip">시스템IP2</label>
+            <input
+              type="text"
+              class="form-control"
+              id="create-input-kvm-ip"
+              name="kvm_ip_address"
+              placeholder="Enter Ip"
+              value="{{ form.kvm_ip_address.value|default_if_none:'' }}"
+            />
+            <div id="create-kvm-ip-feedback" class="invalid-feedback"></div>
+          </div>
+          <div class="form-group">
+            <label for="create-input-kvm-ip2">시스템IP3</label>
+            <input
+              type="text"
+              class="form-control"
+              id="create-input-kvm-ip2"
+              name="kvm_ip_address2"
+              placeholder="Enter Ip"
+              value="{{ form.kvm_ip_address2.value|default_if_none:'' }}"
+              disabled
+            />
+            <div id="create-kvm-ip-feedback2" class="invalid-feedback"></div>
+          </div>
+          <div class="form-group">
+            <label for="create-input-port">포트번호</label>
+            <input
+              type="number"
+              class="form-control"
+              id="create-input-port"
+              name="port"
+              placeholder="Enter port"
+              value="{{ form.port.value|default_if_none:0 }}"
+            />
+            <div id="create-port-feedback" class="invalid-feedback"></div>
+          </div>
+          <div class="form-group">
+            <label for="create-input-main-connect">메인 연결 번호</label>
+            <select id="create-input-main-connect" class="form-control" name="main_connect">
+              <option id="create-option" selected>번호 선택</option>
+              {% for main_connect in main_connect_list %}
+              <option value="{{main_connect}}">{{main_connect}}</option>
+              {% endfor %}
+            </select>
+            <div id="create-input-main-connect-feedback" class="invalid-feedback">
+              연결 번호를 선택해주세요. 선택 가능한 번호가 없다면 연결 초과입니다.
+            </div>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="is_main" id="is-main-create-true" value="True" />
+            <label class="form-check-label" for="is-main-create-true">main</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="is_main" id="is-main-create-false" value="False" checked />
+            <label class="form-check-label" for="is-main-create-false">sub</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
+          <button type="button" class="btn btn-primary" onClick="matrixCreate()">생성</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal fade"
+  id="matrixUpdate"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="exampleModalCenterTitle"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalCenterTitle">시스템수정</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form id="matrixUpdateForm" method="post" action="{% url 'matrix_detail' %}">
+        {% csrf_token %}
+        <input type="hidden" name="_method" value="put" />
+        <input type="hidden" id="updateId" name="id" />
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="update-input-name">시스템명</label>
+            <input
+              type="text"
+              class="form-control"
+              id="update-input-name"
+              name="name"
+              placeholder="Enter name"
+              value="{{ form.name.value|default_if_none:'' }}"
+            />
+            <div id="update-name-feedback" class="invalid-feedback"></div>
+          </div>
+          <div class="form-group">
+            <label for="update-input-matrix-ip">시스템IP1</label>
+            <input
+              type="text"
+              class="form-control"
+              id="update-input-matrix-ip"
+              name="matrix_ip_address"
+              placeholder="Enter Ip"
+              value="{{ form.matrix_ip_address.value|default_if_none:'' }}"
+            />
+            <div id="update-matrix-ip-feedback" class="invalid-feedback"></div>
+          </div>
+          <div class="form-group">
+            <label for="update-input-kvm-ip">시스템IP2</label>
+            <input
+              type="text"
+              class="form-control"
+              id="update-input-kvm-ip"
+              name="kvm_ip_address"
+              placeholder="Enter Ip"
+              value="{{ form.kvm_ip_address.value|default_if_none:'' }}"
+            />
+            <div id="update-kvm-ip-feedback" class="invalid-feedback"></div>
+          </div>
+          <div class="form-group">
+            <label for="update-input-kvm-ip2">시스템IP3</label>
+            <input
+              type="text"
+              class="form-control"
+              id="update-input-kvm-ip2"
+              name="kvm_ip_address2"
+              placeholder="Enter Ip"
+              value="{{ form.kvm_ip_address2.value|default_if_none:'' }}"
+            />
+            <div id="update-kvm-ip-feedback2" class="invalid-feedback"></div>
+          </div>
+          <div class="form-group">
+            <label for="update-input-port">포트번호</label>
+            <input
+              type="number"
+              class="form-control"
+              id="update-input-port"
+              name="port"
+              placeholder="Enter port"
+              value="{{ form.port.value|default_if_none:0 }}"
+            />
+            <div id="update-port-feedback" class="invalid-feedback"></div>
+          </div>
+          <div class="form-group">
+            <label for="update-input-main-connect">메인 연결 번호</label>
+            <select id="update-input-main-connect" class="form-control" name="main_connect">
+              <option id="update-option" selected>번호 선택</option>
+              {% for main_connect in main_connect_list %}
+              <option value="{{main_connect}}">{{main_connect}}</option>
+              {% endfor %}
+            </select>
+            <div id="update-input-main-connect-feedback" class="invalid-feedback">
+              연결 번호를 선택해주세요. 선택 가능한 번호가 없다면 연결 초과입니다.
+            </div>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="is_main" id="is-main-update-true" value="True" disabled/>
+            <label class="form-check-label" for="is-main-update-true">main</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="is_main" id="is-main-update-false" value="False" disabled/>
+            <label class="form-check-label" for="is-main-update-false">sub</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
+          <button type="button" class="btn btn-primary" onClick="matrixUpdate()">수정</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal fade"
+  id="matrixDelete"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="exampleModalCenterTitle"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalCenterTitle">시스템를 삭제하시겠습니까?</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form id="matrixDeleteForm" method="post" action="{% url 'matrix_detail' %}">
+        {% csrf_token %}
+        <input type="hidden" name="_method" value="delete" />
+        <input type="hidden" id="deleteId" name="id" />
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
+          <button type="submit" class="btn btn-danger">삭제</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal fade"
+  id="matrixImport"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="exampleModalCenterTitle"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalCenterTitle">파일 선택</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form id="matrixImportForm" method="post" action="{% url 'matrix_import' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="modal-body">
+          <input class="form-control" type="file" id="formFile" name="matrix_file" style="height: auto" />
+          <div id="file-feedback" class="invalid-feedback"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
+          <button type="button" class="btn btn-primary" onClick="matrixImport()">불러오기</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal fade"
+  id="matrixExport"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="exampleModalCenterTitle"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalCenterTitle">선택</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form id="matrixExportForm" method="post" action="{% url 'matrix_export' %}">
+        {% csrf_token %}
+        <div class="modal-body">
+          <ul class="list-group">
+            {% for mat in matrix %}
+            <li class="list-group-item">
+              <input
+                class="form-check-input me-1"
+                type="checkbox"
+                id="{{mat.id}}-{{mat.name}}"
+                name="matrix_check"
+                value="{{mat.id}}"
+                aria-label="..."
+                style="position: relative; margin-left: 0"
+              />
+              <label for="{{mat.id}}-{{mat.name}}" style="cursor: pointer; margin-bottom: 0"> {{mat.name}} </label>
+            </li>
+            {% endfor %}
+          </ul>
+          <input type="hidden" id="export_mat_list" name="export_mat_list" />
+          <div class="invalid-feedback">최소 1개 이상 선택해주세요.</div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-sm btn-secondary" data-dismiss="modal">취소</button>
+          <button type="button" class="btn-sm btn-primary" onClick="matrixExport()">내보내기</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% load static %}
+<script src="{% static 'vendor/jquery/jquery.slim.min.js' %}"></script>
+<script src="{% static 'js/matrix_table.js' %}"></script>
+<script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+{% endblock content %}

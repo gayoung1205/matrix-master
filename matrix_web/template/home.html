@@ -1,0 +1,234 @@
+{% extends 'base.html' %} {% block content %} {% load static %} {% load filter_tags %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-10">
+      {% if main %} {% for m in main %}
+      <div class="card matrix-card main">
+        <div class="card-body">
+          <h5 class="card-title">{{m.name}}</h5>
+          <div class="row align-items-center">
+            <div class="col-6">
+              <div class="row">
+                {% for i in 1|range_tag:5 %}
+                <div class="col-3">
+                  <div class="control">
+                    <img src="{% static 'img/imac.svg' %}" />
+                    <p>{{connect_list|list_index:i}}</p>
+                  </div>
+                  <div class="form-group">
+                    <select class="form-control form-control-sm" name="input_select" id="input_select-0{{i}}-{{m.id}}">
+                      {% for j in 1|range_tag:7 %}
+                      <option {% if m|option_selected:i == j %}selected{% endif %} value="0{{j}}">
+                        {{connect_list|list_index:j}}
+                      </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="row">
+                {% for i in 5|range_tag:9 %}
+                <div class="col-3">
+                  <div class="control">
+                    <img src="{% static 'img/imac.svg' %}" />
+                    <p>{{connect_list|list_index:i}}</p>
+                  </div>
+                  <div class="form-group">
+                    <select class="form-control form-control-sm" name="input_select" id="input_select-0{{i}}-{{m.id}}" {% if i > 6 %}disabled{% endif %}>
+                      {% for j in 1|range_tag:7 %}
+                      <option {% if m|option_selected:i == j %}selected{% endif %} value="0{{j}}">
+                        {{connect_list|list_index:j}}
+                      </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>  
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card matrix-card main">
+        <div class="card-body">
+          <h5 class="card-title">터치 PC</h5>
+          {% for i in 1|range_tag:22 %}
+            {% if i|remainder:6 == 1 %}
+              <div class="row align-items-center">
+            {% endif %}
+            <div class="col-2"><button class="btn btn-outline-primary kvm" name="kvm_button" value="{{m.id}}-{{i}}">{{connect_list|kvm_index:i}}</button></div>
+            {% if i|remainder:6 == 0 or i == 21 %}
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+      {% endfor %} {% endif %} {% if matrix %} {% for mat in matrix %}{% if mat.count|divisibleby:"2" is False %}
+      <div class="row align-items-center">
+        {% endif %}
+        <div class="col-6">
+          <div class="card matrix-card">
+            <div class="card-body">
+              <h5 class="card-title">{{mat.name}}</h5>
+              <div class="row">
+                {% for i in 1|range_tag:5 %}
+                <div class="col-3">
+                  <div class="control">
+                    <img src="{% static 'img/imac.svg' %}" />
+                    {% comment %} <p>{{mat.main_connect|group_index:i}}</p> {% endcomment %}
+                  </div>
+                  <button class="btn btn-outline-primary kvm" name="kvm_button" value="{{mat.id}}-{{i}}">{{mat.main_connect|group_index:i}}</button>
+                  <div class="form-group">
+                    <select class="form-control form-control-sm" name="input_select" id="input_select-0{{i}}-{{mat.id}}">
+                      {% for j in 1|range_tag:8 %}
+                      <option {% if mat|option_selected:i == j %}selected{% endif %} value="0{{j}}">
+                        {{mat.main_connect|group_index:j}}
+                      </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+              <div class="row">
+                {% for i in 5|range_tag:9 %}
+                <div class="col-3">
+                  <div class="control">
+                    <img src="{% static 'img/imac.svg' %}" />
+                    {% comment %} <p>{{mat.main_connect|group_index:i}}</p> {% endcomment %}
+                  </div>
+                  <button class="btn btn-outline-primary kvm" name="kvm_button" value="{{mat.id}}-{{i}}" {% if i == 8 %}disabled{% endif %}>{{mat.main_connect|group_index:i}}</button>
+                  <div class="form-group">
+                    <select class="form-control form-control-sm" name="input_select" id="input_select-0{{i}}-{{mat.id}}" {% if i == 8 %}disabled{% endif %}>
+                      {% for j in 1|range_tag:8 %}
+                      <option {% if mat|option_selected:i == j %}selected{% endif %} value="0{{j}}">
+                        {{mat.main_connect|group_index:j}}
+                      </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+        {% if mat.count|divisibleby:"2" is True or matrix|length_is:mat.count %}
+      </div>
+      {% endif %}{% endfor %}{% endif %}
+    </div>
+    <div class="col-2" style="padding-left:0">
+      <div class="card profile-card">
+        {% if profile %}
+        <div class="card-body" style="overflow: scroll; max-height:100vh;">
+          <h5 class="card-title" style="text-align:center;">프로파일</h5>
+          {% for pro in profile %}
+          <div class="row">
+            <button class="btn btn-outline-primary control" name="profile_button" value="{{pro.id}}">{{pro.name}}</button>
+          </div>
+          {% endfor %}
+          <div class="row align-items-center h-50"></div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Error Modal -->
+<div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="errorModalLabel">ERROR</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+      <span></span>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Loading Modal -->
+<div class="modal fade" id="loadingModal" tabindex="-1" data-backdrop="static" data-keyboard="false" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content" style="background-color:rgba( 255, 255, 255, 0 ); border:none">
+      <div class="modal-body">
+        <div class="text-center">
+          <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"  role="status"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %} 
+
+{% block javascript %}
+<script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
+<script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+<script>
+  $('select[name=input_select]').on('change', function () {
+    var id = $(this).attr('id').split('-');
+    var target = id[1];
+    var mat_id = id[2];
+    var input = $(this).val();
+    $.ajax({
+      type: 'GET',
+      url: `{% url 'control' %}?id=${mat_id}&input=${input}&target=${target}`,
+      success: function (res) {
+      },
+      error: function (res) {
+        $('#errorModal').modal('show')
+        $('#errorModal .modal-body span').text(JSON.stringify(res.responseText))
+      },
+    });
+  });
+
+  $('button[name=kvm_button]').on('click', function () {
+    var val = $(this).val().split('-');
+    var mat_id = val[0];
+    var input = val[1];
+    
+    $.ajax({
+      type: 'GET',
+      url: `{% url 'kvm' %}?id=${mat_id}&input=${input}`,
+      success: function (res) {
+      },
+      error: function (res) {
+        $('#errorModal').modal('show')
+        $('#errorModal .modal-body span').text(JSON.stringify(res.responseText))
+      },
+    });
+  });
+
+  $('button[name=profile_button]').on('click', function () {
+    var id = $(this).val()
+    $.ajax({
+      type: 'GET',
+      url: `{% url 'profile_control' %}?id=${id}`,
+      success: function (res) {
+        location.reload()
+      },
+      error: function (res) {
+        $('#errorModal').modal('show')
+        $('#errorModal .modal-body span').text(JSON.stringify(res.responseText))
+      },
+      beforeSend: function() { 
+        $('#loadingModal').modal('show')
+      },
+      complete: function() { 
+        $('#loadingModal').modal('hide')
+      },
+    });
+  });
+</script>
+{% endblock javascript %}

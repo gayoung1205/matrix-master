@@ -1,0 +1,80 @@
+{% extends 'base.html' %} {% block content %}
+<div class="container">
+  <div class="card" style="width: 100%; margin-top: 20px">
+    <div class="card-body">
+      <h5 class="card-title" style="display: inline-block">프로파일 관리</h5>
+      <button
+        type="button"
+        class="btn btn-primary btn-sm"
+        data-toggle="modal"
+        data-target="#profileCreate"
+        style="display: inline-block; float: right; margin-bottom: 0.2rem; margin-left: 0.3rem"
+      >
+        추가
+      </button>
+      <button
+        type="button"
+        class="btn btn-primary btn-sm"
+        data-toggle="modal"
+        data-target="#profileImport"
+        style="display: inline-block; float: right; margin-bottom: 0.2rem; margin-left: 0.3rem"
+      >
+        불러오기
+      </button>
+      <button
+        type="button"
+        class="btn btn-primary btn-sm"
+        data-toggle="modal"
+        data-target="#profileExport"
+        style="display: inline-block; float: right; margin-bottom: 0.2rem; margin-left: 0.3rem"
+      >
+        내보내기
+      </button>
+
+      <table class="table">
+        <thead class="thead-light">
+          <tr>
+            <th scope="col">이름</th>
+            <th scope="col">Action</th>
+          </tr>
+        </thead>
+        {% if profile %}
+        <tbody>
+          {% for pro in profile %}
+          <tr>
+            <th scope="row">{{pro.name}}</th>
+            <td>
+              {% comment %}
+              <button
+                type="button"
+                class="btn btn-primary btn-sm"
+                data-toggle="modal"
+                data-target="#profileUpdate"
+                data-whatever="{{mat.id}},{{mat.name}},{{mat.ip_address}},{{mat.port}}"
+              >
+                수정
+              </button>
+              {% endcomment %}
+              <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#profileDelete" data-whatever="{{pro.id}}">
+                삭제
+              </button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+        {% endif %}
+      </table>
+    </div>
+  </div>
+</div>
+
+{% include 'profile_template/profile_template_create.html' %}
+{% include 'profile_template/profile_template_update.html' %}
+{% include 'profile_template/profile_template_delete.html' %}
+{% include 'profile_template/profile_template_import.html' %}
+{% include 'profile_template/profile_template_export.html' %}
+{% load static %}
+<script src="{% static 'vendor/jquery/jquery.slim.min.js' %}"></script>
+<script src="{% static 'js/profile_template.js' %}"></script>
+<script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+{% endblock content %}

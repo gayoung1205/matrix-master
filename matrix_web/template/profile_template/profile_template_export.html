@@ -1,0 +1,46 @@
+<div
+  class="modal fade"
+  id="profileExport"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="exampleModalCenterTitle"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalCenterTitle">선택</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form id="profileExportForm" method="post" action="{% url 'profile_export' %}">
+        {% csrf_token %}
+        <div class="modal-body">
+          <ul class="list-group">
+            {% for pro in profile %}
+            <li class="list-group-item">
+              <input
+                class="form-check-input me-1"
+                type="checkbox"
+                id="{{pro.id}}-{{pro.name}}"
+                name="profile_check"
+                value="{{pro.id}}"
+                aria-label="..."
+                style="position: relative; margin-left: 0"
+              />
+              <label for="{{pro.id}}-{{pro.name}}" style="cursor: pointer; margin-bottom: 0"> {{pro.name}} </label>
+            </li>
+            {% endfor %}
+          </ul>
+          <input type="hidden" id="export_pro_list" name="export_pro_list" />
+          <div class="invalid-feedback">최소 1개 이상 선택해주세요.</div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-sm btn-secondary" data-dismiss="modal">취소</button>
+          <button type="button" class="btn-sm btn-primary" onClick="profileExport()">내보내기</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

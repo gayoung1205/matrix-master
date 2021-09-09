@@ -1,0 +1,66 @@
+<div
+  class="modal fade"
+  id="profileUpdate"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="exampleModalCenterTitle"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalCenterTitle">프로파일 수정</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form id="profileUpdateForm" method="post" action="{% url 'profile_detail' %}">
+        {% csrf_token %}
+        <input type="hidden" name="_method" value="put" />
+        <input type="hidden" id="updateId" name="id" />
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="inputName">프로파일명</label>
+            <input
+              type="text"
+              class="form-control"
+              id="inputName"
+              name="name"
+              placeholder="Enter name"
+              value="{{ form.name.value|default_if_none:'' }}"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="inputIp">IP 주소</label>
+            <input
+              type="text"
+              class="form-control"
+              id="inputIp"
+              name="ip_address"
+              placeholder="Enter Ip"
+              value="{{ form.ip_address.value|default_if_none:'' }}"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="inputPort">PORT 번호</label>
+            <input
+              type="number"
+              class="form-control"
+              id="inputPort"
+              name="port"
+              placeholder="Enter port"
+              value="{{ form.port.value|default_if_none:0 }}"
+              required
+            />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
+          <button type="submit" class="btn btn-primary">수정</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

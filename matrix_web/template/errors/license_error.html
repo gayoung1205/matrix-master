@@ -1,0 +1,34 @@
+{% extends 'base.html' %} {% block content %}
+<div class="card text-center" style="width: 100%">
+  <div class="card-header">
+    <h5 class="card-title">License 인증이 필요합니다.</h5>
+  </div>
+  <div class="card-body">
+    <form id="licenseAuthForm" method="post" action="{% url 'license_auth' %}">
+      <div class="mb-3">
+        <input type="text" class="form-control" id="inputLicense" name="license">
+        <div id="inputLicenseFeedback" class="invalid-feedback">
+          License를 입력해주세요.
+        </div>
+      </div>
+      <button type="button" class="btn btn-primary" onClick="licenseAuth()">인증</button>
+    </form>
+    
+  </div>
+  <div class="card-footer text-muted">
+    <span class="card-text">License 문의</span>
+    </br>
+    <span class="card-text">(주)인지솔루션</span>
+    </br>
+    <span class="card-text">tel : 061-727-0981</span>
+    </br>
+    <span class="card-text">email : aisolution@hanmail.net</span>
+  </div>
+</div>
+{% endblock content %}
+
+{% block javascript %}
+{% load static %}
+<script src="{% static 'vendor/jquery/jquery.slim.min.js' %}"></script>
+<script src="{% static 'js/license_error.js' %}"></script>
+{% endblock javascript %}
