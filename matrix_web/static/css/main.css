@@ -569,7 +569,6 @@ select option {
   background-position: calc(100% - 12px) center !important;
   padding-left: 8px !important;
   padding-right: 8px !important;
-  background-position: calc(100% - 12px) center !important;
   background-size: 12px !important;
 }
 
@@ -583,25 +582,6 @@ select option {
     font-size: 11px;
     padding: 2px 20px 2px 8px !important;
   }
-}
-
-.fav.fav--glass .fav-btn{
-  background: rgba(255,255,255,.65);
-  border: 1px solid rgba(0,0,0,.15) !important;
-  box-shadow: 0 8px 24px rgba(15,23,42,.08), inset 0 1px 0 rgba(255,255,255,.6);
-  backdrop-filter: blur(8px);
-  color:#0f172a;
-}
-
-.fav.fav--glass .fav-btn:hover{
-  transform: translateY(-1px);
-  box-shadow: 0 12px 28px rgba(15,23,42,.12);
-  border-color: rgba(55, 60, 62, 0.6) !important;
-}
-
-.fav.fav--glass .fav-btn:focus{
-  outline:none;
-  box-shadow: 0 0 0 .2rem rgba(59,130,246,.18);
 }
 
 .modal-body .form-control {
