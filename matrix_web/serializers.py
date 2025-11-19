@@ -10,6 +10,7 @@ from .models import (
 class MatrixSettingSerializer(serializers.ModelSerializer):
     matrix_name = serializers.SerializerMethodField()
     profile_name = serializers.SerializerMethodField()
+    main_connect = serializers.SerializerMethodField()
 
     class Meta:
         model = MatrixSetting
@@ -20,6 +21,9 @@ class MatrixSettingSerializer(serializers.ModelSerializer):
 
     def get_profile_name(self, obj):
         return obj.profile.name
+
+    def get_main_connect(self, obj):
+        return obj.matrix.main_connect
     
 class MatrixSerializer(serializers.ModelSerializer):
     class Meta:

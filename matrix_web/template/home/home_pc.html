@@ -1,0 +1,599 @@
+{% load static %}
+{% load filter_tags %}
+{% csrf_token %}
+
+<link rel="stylesheet" href="{% static 'css/profile_modal.css' %}">
+
+<!-- 레이아웃 편집 버튼 -->
+<button class="btn btn-primary layout-toggle-btn" id="layoutToggleBtn" title="레이아웃 편집">
+    <i class="fas fa-grip-horizontal"></i>
+</button>
+
+<!-- 레이아웃 편집 제어 패널 -->
+<div class="layout-controls hidden" id="layoutControls">
+    <div class="layout-controls-title">
+        <h6><i class="fas fa-pen"></i> 레이아웃 편집</h6>
+        <p class="layout-controls-subtitle">- 모니터 배치를 자유롭게 조정하세요.</p>
+        <p class="layout-controls-subtitle">- 이름을 자유롭게 수정하세요.</p>
+    </div>
+    <div class="text-center">
+        <button class="btn btn-save btn-sm" id="saveLayoutBtn">
+            <i class="fas fa-save"></i> 저장
+        </button>
+        <button class="btn btn-reset btn-sm" id="resetLayoutBtn">
+            <i class="fas fa-undo"></i> 초기화
+        </button>
+        <button class="btn btn-close btn-sm" id="closeLayoutBtn">
+            <i class="fas fa-times"></i> 닫기
+        </button>
+    </div>
+    <hr style="margin: 15px 0;">
+    <h6><i class="fas fa-eye-slash"></i> 숨겨진 모니터</h6>
+    <div id="hiddenMonitors" style="max-height: 150px; overflow-y: auto;">
+        <small class="text-muted">숨겨진 모니터가 없습니다.</small>
+    </div>
+</div>
+
+<!-- 이름 수정 모달 -->
+<div class="modal fade" id="updateNamesModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">이름 수정</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <form id="updateNamesForm">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="modal-monitor-name">모니터 이름</label>
+                        <input type="text" class="form-control" id="modal-monitor-name" placeholder="모니터 이름을 입력하세요">
+                    </div>
+                    <div class="form-group">
+                        <label for="modal-device-name">디바이스 이름</label>
+                        <input type="text" class="form-control" id="modal-device-name" placeholder="디바이스 이름을 입력하세요">
+                    </div>
+                    <input type="hidden" id="modal-position">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
+                    <button type="submit" class="btn btn-primary">저장</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* 16포트용 스타일 */
+    .kvm, .monitor-label, .monitor-select {
+        display: block;
+        width: 100%;
+        margin-top: .25rem;
+        padding: .375rem .75rem;
+        border: 1px solid #d1d5db;
+        border-radius: .375rem;
+        background-color: #fff;
+        color: #000000;
+        font-weight: 500;
+        text-align: center;
+        line-height: 1.5;
+        box-shadow: none;
+    }
+
+    .monitor-select {
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-image: none;
+        outline: 0;
+    }
+
+    .monitor-select:focus,
+    .monitor-select:hover {
+        border-color: #cfd4da;
+        box-shadow: none;
+    }
+
+    .monitor-select:disabled {
+        background-color: #f8f9fa;
+        color: #9ca3af;
+        border-style: dashed;
+        cursor: not-allowed;
+    }
+
+    .kvm-active-border {
+        border: 3px solid #343a40;
+        border-radius: 12px;
+        padding: 4px;
+    }
+
+    .sortable-row {
+        display: grid;
+        grid-template-columns: repeat(8, minmax(0, 1fr)); /* 이 부분 수정! */
+        gap: 8px; /* 10px → 8px */
+        padding: 8px; /* 10px → 8px */
+        min-height: 60px;
+    }
+
+    .matrix-card .card-body {
+        overflow-x: auto !important; /* 혹시 넘치면 스크롤 */
+    }
+
+    .monitor-item {
+        min-width: 0 !important; /* 최소 너비 제한 없앰 */
+    }
+
+    .monitor-item {
+        position: relative;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+        border-radius: 8px;
+        padding: 8px;
+        background: #f8f9fa;
+    }
+
+    .monitor-item.hidden {
+        opacity: 0.3;
+        filter: grayscale(100%);
+    }
+
+    .monitor-item.dragging {
+        opacity: 0.8;
+        transform: scale(1.05);
+        z-index: 1000;
+    }
+
+    .drag-over {
+        background-color: rgba(102, 126, 234, 0.1);
+        border: 2px dashed #667eea;
+        border-radius: 8px;
+    }
+
+    .drag-over-element {
+        border: 2px solid #667eea;
+        border-radius: 8px;
+    }
+
+    .col-1_5 {
+        flex: 0 0 12.5%;
+        max-width: 12.5%;
+    }
+
+    /* 프로필 스타일 */
+    .fav { --gap:10px; --radius:12px; --padY:10px; --padX:14px; --h:42px; }
+    .fav { margin:0; padding:8px; list-style:none; }
+
+    .fav .list-group-item{
+        display:flex; align-items:center; gap:12px;
+        padding:6px 4px; border:0; background:transparent;
+    }
+    .fav .list-group-item + .list-group-item{ margin-top: var(--gap); }
+
+    .fav .fav-btn{
+        flex:1 1 auto; width:100%; height:var(--h);
+        padding: var(--padY) var(--padX);
+        border-radius: var(--radius);
+        border:1px solid transparent;
+        font-weight:600; letter-spacing:.2px; text-align:center;
+        transition: .15s ease;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        line-height: 1 !important;
+    }
+
+    .fav.fav--glass .fav-btn{
+        background: rgba(255,255,255,.65);
+        border: 1px solid rgba(0,0,0,.15) !important;
+        box-shadow: 0 8px 24px rgba(15,23,42,.08), inset 0 1px 0 rgba(255,255,255,.6);
+        backdrop-filter: blur(8px);
+        color:#0f172a;
+    }
+    .fav.fav--glass .fav-btn:hover{
+        transform: translateY(-1px);
+        box-shadow: 0 12px 28px rgba(15,23,42,.12);
+        border-color: rgba(55, 60, 62, 0.6) !important;
+    }
+    .fav.fav--glass .fav-btn:focus{ outline:none; box-shadow: 0 0 0 .2rem rgba(59,130,246,.18); }
+
+    /* 레이아웃 편집 스타일 */
+    .layout-toggle-btn {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        z-index: 1000;
+        font-size: 18px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        border: none;
+        color: white;
+        transition: all 0.3s ease;
+    }
+
+    .layout-toggle-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+    }
+
+    .layout-toggle-btn.editing {
+        background: linear-gradient(45deg, #dc3545, #c82333);
+        animation: pulse 2s infinite;
+    }
+
+    .layout-controls {
+        position: fixed;
+        bottom: 90px;
+        right: 20px;
+        width: 280px;
+        background: rgba(255,255,255,0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        z-index: 999;
+        transform: translateY(20px);
+        opacity: 0;
+        transition: all 0.3s ease;
+    }
+
+    .layout-controls.show {
+        transform: translateY(0);
+        opacity: 1;
+    }
+
+    .layout-controls.hidden {
+        display: none;
+    }
+
+    .monitor-controls {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        display: none;
+        gap: 5px;
+        z-index: 10;
+    }
+
+    .editing-mode .monitor-controls {
+        display: flex;
+    }
+
+    .monitor-controls .btn {
+        width: 24px;
+        height: 24px;
+        padding: 0;
+        font-size: 12px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid #ddd;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .monitor-controls .btn:hover {
+        background: #fff;
+        transform: scale(1.1);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    .btn-edit-names {
+        display: none;
+    }
+
+    .editing-mode .btn-edit-names {
+        display: inline-flex;
+    }
+
+    .btn.active-kvm {
+        background-color: #2196F3 !important;
+        color: white !important;
+        box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
+    }
+
+    /* 반응형 조정 */
+    @media (max-width: 1200px) {
+        .sortable-row {
+            grid-template-columns: repeat(4, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .sortable-row {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .layout-toggle-btn {
+            width: 50px;
+            height: 50px;
+            font-size: 16px;
+        }
+
+        .layout-controls {
+            right: 10px;
+            left: 10px;
+            width: auto;
+        }
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.8; }
+    }
+</style>
+
+<div class="container-fluid matrix-list" style="overflow-y:auto; max-height:calc(100vh - 80px);">
+    <div class="row">
+        <div class="col-10">
+
+            <!-- 메인 매트릭스 (16포트) -->
+            {% if main %}
+                {% for m in main %}
+                    <div class="card matrix-card main" data-matrix-id="{{ m.id }}">
+                        <div class="card-body">
+                            <h5 class="card-title text-center">{{ m.name }}</h5>
+
+                            <!-- 첫 번째 행 (1-8) -->
+                            <div class="sortable-row" data-row="1">
+                                {% for i in 1|range_tag:9 %}
+                                    <div class="monitor-item"
+                                         data-position="{{ i }}"
+                                         data-matrix="{{ m.id }}"
+                                         data-row="1"
+                                         data-col="{{ i }}"
+                                         draggable="false">
+
+                                        <!-- 모니터 컨트롤 버튼들 -->
+                                        <div class="monitor-controls">
+                                            <button class="btn btn-outline-secondary btn-toggle-visibility"
+                                                    data-position="{{ i }}"
+                                                    data-matrix="{{ m.id }}"
+                                                    title="숨기기">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-outline-primary btn-edit-names"
+                                                    data-toggle="modal"
+                                                    data-target="#updateNamesModal"
+                                                    data-matrix="{{ m.id }}"
+                                                    data-position="{{ i }}"
+                                                    title="이름 수정">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                        </div>
+
+                                        <div class="control">
+                                            <p class="monitor-label">{{ m|monitor_name:i|default:"모니터"|add:" "|add:i }}</p>
+                                            <img src="{% static 'img/monitor.png' %}" alt="Monitor">
+                                            <div class="form-group mt-2">
+                                                <select class="form-control form-control-sm monitor-select"
+                                                        name="input_select"
+                                                        id="input_select-{{ i|stringformat:"02d" }}-{{ m.id }}">
+                                                    {% for j in 0|range_tag:17 %}
+                                                        <option {% if j == 0 %}selected{% endif %}
+                                                                {% if m|option_selected:i == j %}selected{% endif %}
+                                                                value="{{ j|stringformat:"02d" }}">
+                                                            {% if j == 0 %}-{% else %}{{ m|device_name:j|default:"PC"|add:j }}{% endif %}
+                                                        </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- 두 번째 행 (9-16) -->
+                            <div class="sortable-row" data-row="2">
+                                {% for i in 9|range_tag:17 %}
+                                    <div class="monitor-item"
+                                         data-position="{{ i }}"
+                                         data-matrix="{{ m.id }}"
+                                         data-row="2"
+                                         data-col="{{ i|add:"-8" }}"
+                                         draggable="false">
+
+                                        <!-- 모니터 컨트롤 버튼들 -->
+                                        <div class="monitor-controls">
+                                            <button class="btn btn-outline-secondary btn-toggle-visibility"
+                                                    data-position="{{ i }}"
+                                                    data-matrix="{{ m.id }}"
+                                                    title="숨기기">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-outline-primary btn-edit-names"
+                                                    data-toggle="modal"
+                                                    data-target="#updateNamesModal"
+                                                    data-matrix="{{ m.id }}"
+                                                    data-position="{{ i }}"
+                                                    title="이름 수정">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                        </div>
+
+                                        <div class="control">
+                                            <p class="monitor-label">{{ m|monitor_name:i|default:"모니터"|add:" "|add:i }}</p>
+                                            <img src="{% static 'img/monitor.png' %}" alt="Monitor">
+                                            <div class="form-group mt-2">
+                                                <select class="form-control form-control-sm monitor-select"
+                                                        name="input_select"
+                                                        id="input_select-{{ i|stringformat:"02d" }}-{{ m.id }}">
+                                                    {% for j in 0|range_tag:17 %}
+                                                        <option {% if j == 0 %}selected{% endif %}
+                                                                {% if m|option_selected:i == j %}selected{% endif %}
+                                                                value="{{ j|stringformat:"02d" }}">
+                                                            {% if j == 0 %}-{% else %}{{ m|device_name:j|default:"PC"|add:j }}{% endif %}
+                                                        </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 터치 PC (KVM) 카드 -->
+                    <div class="card matrix-card main">
+                        <div class="card-body">
+                            <h5 class="card-title">터치 PC</h5>
+                            {% for i in 1|range_tag:33 %}
+                                {% if i|remainder:8 == 1 %}
+                                    <div class="row align-items-center">
+                                {% endif %}
+                            <div class="col-1_5 mb-2">
+                                <button class="btn btn-outline-primary w-100 kvm"
+                                        name="kvm_button"
+                                        value="{{ m.id }}-{{ i }}">
+                                    {{ connect_list|kvm_index:i }}
+                                </button>
+                            </div>
+                            {% if i|remainder:8 == 0 or i == 32 %}
+                                </div>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- 서브 매트릭스들 (16포트) -->
+            {% if matrix %}
+                {% for mat in matrix %}
+                    <div class="card matrix-card" data-matrix-id="{{ mat.id }}">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ mat.name }}</h5>
+
+                            <!-- 첫 번째 행 (1-8) -->
+                            <div class="sortable-row" data-row="1">
+                                {% for i in 1|range_tag:9 %}
+                                    <div class="monitor-item"
+                                         data-position="{{ i }}"
+                                         data-matrix="{{ mat.id }}"
+                                         data-row="1"
+                                         data-col="{{ i }}"
+                                         draggable="false">
+
+                                        <!-- 모니터 컨트롤 버튼들 -->
+                                        <div class="monitor-controls">
+                                            <button class="btn btn-outline-secondary btn-toggle-visibility"
+                                                    data-position="{{ i }}"
+                                                    data-matrix="{{ mat.id }}"
+                                                    title="숨기기">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-outline-primary btn-edit-names"
+                                                    data-toggle="modal"
+                                                    data-target="#updateNamesModal"
+                                                    data-matrix="{{ mat.id }}"
+                                                    data-position="{{ i }}"
+                                                    title="이름 수정">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                        </div>
+
+                                        <div class="control">
+                                            <p class="monitor-label">{{ mat|monitor_name:i|default:"모니터"|add:" "|add:i }}</p>
+                                            <img src="{% static 'img/monitor.png' %}" alt="Monitor">
+                                            <div class="form-group mt-2">
+                                                <select class="form-control form-control-sm monitor-select"
+                                                        name="input_select"
+                                                        id="input_select-{{ i|stringformat:"02d" }}-{{ mat.id }}">
+                                                    {% for j in 0|range_tag:17 %}
+                                                        <option {% if j == 0 %}selected{% endif %}
+                                                                {% if mat|option_selected:i == j %}selected{% endif %}
+                                                                value="{{ j|stringformat:"02d" }}">
+                                                            {% if j == 0 %}-{% else %}{{ mat|device_name:j|default:"PC"|add:j }}{% endif %}
+                                                        </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- 두 번째 행 (9-16) -->
+                            <div class="sortable-row" data-row="2">
+                                {% for i in 9|range_tag:17 %}
+                                    <div class="monitor-item"
+                                         data-position="{{ i }}"
+                                         data-matrix="{{ mat.id }}"
+                                         data-row="2"
+                                         data-col="{{ i|add:"-8" }}"
+                                         draggable="false">
+
+                                        <!-- 모니터 컨트롤 버튼들 -->
+                                        <div class="monitor-controls">
+                                            <button class="btn btn-outline-secondary btn-toggle-visibility"
+                                                    data-position="{{ i }}"
+                                                    data-matrix="{{ mat.id }}"
+                                                    title="숨기기">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-outline-primary btn-edit-names"
+                                                    data-toggle="modal"
+                                                    data-target="#updateNamesModal"
+                                                    data-matrix="{{ mat.id }}"
+                                                    data-position="{{ i }}"
+                                                    title="이름 수정">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                        </div>
+
+                                        <div class="control">
+                                            <p class="monitor-label">{{ mat|monitor_name:i|default:"모니터"|add:" "|add:i }}</p>
+                                            <img src="{% static 'img/monitor.png' %}" alt="Monitor">
+                                            <div class="form-group mt-2">
+                                                <select class="form-control form-control-sm monitor-select"
+                                                        name="input_select"
+                                                        id="input_select-{{ i|stringformat:"02d" }}-{{ mat.id }}">
+                                                    {% for j in 0|range_tag:17 %}
+                                                        <option {% if j == 0 %}selected{% endif %}
+                                                                {% if mat|option_selected:i == j %}selected{% endif %}
+                                                                value="{{ j|stringformat:"02d" }}">
+                                                            {% if j == 0 %}-{% else %}{{ mat|device_name:j|default:"PC"|add:j }}{% endif %}
+                                                        </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+        </div>
+
+        <!-- 우측 즐겨찾기 -->
+        <div class="col-2 profile-column">
+            <div class="card profile-card">
+                <div class="card-header">
+                    <h5 class="card-title">즐겨찾기</h5>
+                </div>
+                {% if profile %}
+                    <div class="card-body">
+                        <ul class="fav fav--glass">
+                            {% for pro in profile %}
+                                <li class="list-group-item">
+                                    <button class="fav-btn btn btn-outline-primary"
+                                            name="profile_button"
+                                            value="{{ pro.id }}">{{ pro.name }}</button>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>

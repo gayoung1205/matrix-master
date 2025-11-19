@@ -1,81 +1,146 @@
 <!DOCTYPE html>
+{% load static %}
 <html lang="en">
-  <head>
+<head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <meta name="description" content="" />
     <meta name="author" content="" />
 
-    <title>Matrix</title>
-
-    <!-- Bootstrap core CSS -->
+    <title>AIPBL</title>
     {% load static %}
+    <link rel="icon" href="{% static 'img/favicon.png' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" />
-    <link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}?after" />
-  </head>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}?v=3" />
+    <link rel="stylesheet" type="text/css" href="{% static 'css/header-redesign.css' %}?v=1" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/ui-lightness/jquery-ui.css">
+    <link rel="stylesheet" href="{% static 'simplebar/dist/simplebar.css' %}"/>
+    <script src="{% static 'simplebar/dist/simplebar.min.js' %}"></script>
+</head>
 
-  <body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark static-top">
-      <div class="container">
-        <a class="navbar-brand" href="{% url 'home' %}">AIGLS</a>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark static-top">
+    <div class="container-fluid">
+        <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
+            <img src="{% static 'img/logo.png' %}" alt="Logo" class="brand-logo">
+            <span class="brand-text">AIPBL</span>
+        </a>
+
         <button
-          class="navbar-toggler"
-          type="button"
-          data-toggle="collapse"
-          data-target="#navbarResponsive"
-          aria-controls="navbarResponsive"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span class="navbar-toggler-icon"></span>
+                class="navbar-toggler"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#navbarResponsive"
+                aria-controls="navbarResponsive"
+                aria-expanded="false"
+                aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon" style="width: 1em; height: 1em;"></span>
         </button>
-        <div class="collapse navbar-collapse" id="navbarResponsive">
-          <ul class="navbar-nav ml-auto">
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'home' %}"
-                >홈
-                <span class="sr-only">(current)</span>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a
-                class="nav-link {% if permission and permission != 0 %}disabled{% endif %}"
-                href="{% url 'system_template' %}"
-                >시스템관리</a
-              >
-            </li>
-            <li class="nav-item">
-              <a
-                class="nav-link {% if permission and permission == 2 %}disabled{% endif %}"
-                href="{% url 'profile_template' %}"
-                >프로파일</a
-              >
-            </li>
-            <li class="nav-item">
-              <div class="dropdown">
-                <button
-                  class="btn dropdown-toggle"
-                  type="button"
-                  id="dropdownMenuButton"
-                  data-toggle="dropdown"
-                  aria-haspopup="true"
-                  aria-expanded="false"
-                  style="color: rgba(255, 255, 255, 0.5); box-shadow: none"
-                >
-                  계정
-                </button>
-                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                  <a class="dropdown-item" href="{% url 'logout_auth' %}">로그아웃</a>
-                </div>
-              </div>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </nav>
 
-    <!-- Page Content -->
-    {% block content %}{% endblock content %} {% block javascript %}{% endblock javascript %}
-  </body>
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">홈</a></li>
+
+                <li class="nav-item dropdown">
+                    <button class="btn dropdown-toggle {% if permission and permission != 0 %}disabled{% endif %}"
+                            type="button" id="systemDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        시스템관리
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="systemDropdown">
+                        <a class="dropdown-item" href="{% url 'system_template' %}">시스템 관리</a>
+                        <a class="dropdown-item" href="{% url 'on_device' %}">온디바이스 관리</a>
+                    </div>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link {% if permission and permission > 1 %}disabled{% endif %}" href="{% url 'profile_template' %}">즐겨찾기</a>
+                </li>
+
+                <li class="nav-item">
+                    <button id="toggleBtn" class="btn btn-link nav-link text-light">비디오월</button>
+                </li>
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="manualDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-download"></i> 매뉴얼 다운로드
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="manualDropdown">
+                        <li><a class="dropdown-item" href="{% static 'manuals/user_manual.pdf' %}" download="AI그룹러닝시스템_사용자매뉴얼.pdf">
+                            <i class="fas fa-file-pdf text-danger"></i> PDF 버전</a></li>
+                        <li><a class="dropdown-item" href="{% static 'manuals/user_manual.pptx' %}" download="AI그룹러닝시스템_사용자매뉴얼.pptx">
+                            <i class="fas fa-file-powerpoint text-primary"></i> PowerPoint 버전</a></li>
+                    </ul>
+                </li>
+
+                <li class="nav-item">
+                    <div class="dropdown">
+                        <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton"
+                                data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            계정
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
+                            <a class="dropdown-item" href="{% url 'logout_auth' %}">로그아웃</a>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+{% include 'file/file_opening_modal.html' %}
+
+{% block content %}{% endblock content %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const dropdownToggles = document.querySelectorAll('[data-bs-toggle="dropdown"]');
+
+        dropdownToggles.forEach(toggle => {
+            toggle.addEventListener('shown.bs.dropdown', function(e) {
+                // 반응형 화면 (모바일)에서만 중앙 정렬 적용
+                if (window.innerWidth <= 991.98) {
+                    const menu = this.nextElementSibling;
+
+                    // "계정" 드롭다운(id="dropdownMenuButton")은 제외
+                    if (menu && menu.classList.contains('dropdown-menu') && this.id !== 'dropdownMenuButton') {
+                        const rect = this.getBoundingClientRect();
+
+                        menu.classList.add('navbar-dropdown-menu');
+                        document.body.appendChild(menu);
+
+                        menu.style.position = 'fixed';
+                        menu.style.top = (rect.bottom + 5) + 'px';
+                        menu.style.left = '50%';
+                        menu.style.transform = 'translateX(-50%)';
+                        menu.style.zIndex = '999999';
+                        menu.style.minWidth = '200px';
+                        menu.style.background = 'rgba(255, 255, 255, 0.95)';
+                        menu.style.backdropFilter = 'blur(10px)';
+                        menu.style.border = '1px solid rgba(255, 255, 255, 0.2)';
+                        menu.style.borderRadius = '15px';
+                        menu.style.boxShadow = '0 10px 40px rgba(0,0,0,0.1)';
+                        menu.style.padding = '8px';
+                    }
+                }
+            });
+
+            toggle.addEventListener('hidden.bs.dropdown', function(e) {
+                if (window.innerWidth <= 991.98) {
+                    const menu = document.querySelector('.dropdown-menu[style*="position: fixed"]');
+                    if (menu) {
+                        this.parentElement.appendChild(menu);
+                        menu.classList.remove('navbar-dropdown-menu');
+                        menu.style = '';
+                    }
+                }
+            });
+        });
+    });
+</script>
+{% block javascript %}
+{% endblock javascript %}
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+</body>
 </html>

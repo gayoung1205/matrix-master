@@ -1,28 +1,30 @@
-<div
-  class="modal fade"
-  id="matrixDelete"
-  tabindex="-1"
-  role="dialog"
-  aria-labelledby="exampleModalCenterTitle"
-  aria-hidden="true"
->
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalCenterTitle">시스템를 삭제하시겠습니까?</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <form id="matrixDeleteForm" method="post" action="{% url 'matrix_detail' %}">
-        {% csrf_token %}
-        <input type="hidden" name="_method" value="delete" />
-        <input type="hidden" id="deleteId" name="id" />
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
-          <button type="submit" class="btn btn-danger">삭제</button>
+<div class="modal fade" id="matrixDelete" tabindex="-1" aria-labelledby="matrixDeleteTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content modal-modern">
+            <div class="modal-header">
+                <h5 class="modal-title" id="matrixDeleteTitle">
+                    <i class="fas fa-triangle-exclamation me-2 text-danger"></i>
+                    시스템을 삭제하시겠습니까?
+                </h5>
+                <button type="button" class="close btn-close-custom" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <form id="matrixDeleteForm" method="post" action="{% url 'matrix_detail' %}">
+                {% csrf_token %}
+                <input type="hidden" name="_method" value="delete" />
+                <input type="hidden" id="deleteId" name="id" />
+
+                <div class="modal-body">
+                    <p class="mb-0 text-secondary">삭제하면 되돌릴 수 없습니다. 계속하시겠습니까?</p>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-modal-secondary" data-dismiss="modal">취소</button>
+                    <button type="submit" class="btn btn-modal-danger">삭제</button>
+                </div>
+            </form>
         </div>
-      </form>
     </div>
-  </div>
 </div>

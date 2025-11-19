@@ -1,234 +1,1781 @@
-{% extends 'base.html' %} {% block content %} {% load static %} {% load filter_tags %}
-<div class="container-fluid">
-  <div class="row">
-    <div class="col-10">
-      {% if main %} {% for m in main %}
-      <div class="card matrix-card main">
-        <div class="card-body">
-          <h5 class="card-title">{{m.name}}</h5>
-          <div class="row align-items-center">
-            <div class="col-6">
-              <div class="row">
-                {% for i in 1|range_tag:5 %}
-                <div class="col-3">
-                  <div class="control">
-                    <img src="{% static 'img/imac.svg' %}" />
-                    <p>{{connect_list|list_index:i}}</p>
-                  </div>
-                  <div class="form-group">
-                    <select class="form-control form-control-sm" name="input_select" id="input_select-0{{i}}-{{m.id}}">
-                      {% for j in 1|range_tag:7 %}
-                      <option {% if m|option_selected:i == j %}selected{% endif %} value="0{{j}}">
-                        {{connect_list|list_index:j}}
-                      </option>
-                      {% endfor %}
-                    </select>
-                  </div>
-                </div>
-                {% endfor %}
-              </div>
-            </div>
-            <div class="col-6">
-              <div class="row">
-                {% for i in 5|range_tag:9 %}
-                <div class="col-3">
-                  <div class="control">
-                    <img src="{% static 'img/imac.svg' %}" />
-                    <p>{{connect_list|list_index:i}}</p>
-                  </div>
-                  <div class="form-group">
-                    <select class="form-control form-control-sm" name="input_select" id="input_select-0{{i}}-{{m.id}}" {% if i > 6 %}disabled{% endif %}>
-                      {% for j in 1|range_tag:7 %}
-                      <option {% if m|option_selected:i == j %}selected{% endif %} value="0{{j}}">
-                        {{connect_list|list_index:j}}
-                      </option>
-                      {% endfor %}
-                    </select>
-                  </div>
-                </div>  
-                {% endfor %}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="card matrix-card main">
-        <div class="card-body">
-          <h5 class="card-title">터치 PC</h5>
-          {% for i in 1|range_tag:22 %}
-            {% if i|remainder:6 == 1 %}
-              <div class="row align-items-center">
-            {% endif %}
-            <div class="col-2"><button class="btn btn-outline-primary kvm" name="kvm_button" value="{{m.id}}-{{i}}">{{connect_list|kvm_index:i}}</button></div>
-            {% if i|remainder:6 == 0 or i == 21 %}
-              </div>
-            {% endif %}
-          {% endfor %}
-        </div>
-      </div>
-      {% endfor %} {% endif %} {% if matrix %} {% for mat in matrix %}{% if mat.count|divisibleby:"2" is False %}
-      <div class="row align-items-center">
-        {% endif %}
-        <div class="col-6">
-          <div class="card matrix-card">
-            <div class="card-body">
-              <h5 class="card-title">{{mat.name}}</h5>
-              <div class="row">
-                {% for i in 1|range_tag:5 %}
-                <div class="col-3">
-                  <div class="control">
-                    <img src="{% static 'img/imac.svg' %}" />
-                    {% comment %} <p>{{mat.main_connect|group_index:i}}</p> {% endcomment %}
-                  </div>
-                  <button class="btn btn-outline-primary kvm" name="kvm_button" value="{{mat.id}}-{{i}}">{{mat.main_connect|group_index:i}}</button>
-                  <div class="form-group">
-                    <select class="form-control form-control-sm" name="input_select" id="input_select-0{{i}}-{{mat.id}}">
-                      {% for j in 1|range_tag:8 %}
-                      <option {% if mat|option_selected:i == j %}selected{% endif %} value="0{{j}}">
-                        {{mat.main_connect|group_index:j}}
-                      </option>
-                      {% endfor %}
-                    </select>
-                  </div>
-                </div>
-                {% endfor %}
-              </div>
-              <div class="row">
-                {% for i in 5|range_tag:9 %}
-                <div class="col-3">
-                  <div class="control">
-                    <img src="{% static 'img/imac.svg' %}" />
-                    {% comment %} <p>{{mat.main_connect|group_index:i}}</p> {% endcomment %}
-                  </div>
-                  <button class="btn btn-outline-primary kvm" name="kvm_button" value="{{mat.id}}-{{i}}" {% if i == 8 %}disabled{% endif %}>{{mat.main_connect|group_index:i}}</button>
-                  <div class="form-group">
-                    <select class="form-control form-control-sm" name="input_select" id="input_select-0{{i}}-{{mat.id}}" {% if i == 8 %}disabled{% endif %}>
-                      {% for j in 1|range_tag:8 %}
-                      <option {% if mat|option_selected:i == j %}selected{% endif %} value="0{{j}}">
-                        {{mat.main_connect|group_index:j}}
-                      </option>
-                      {% endfor %}
-                    </select>
-                  </div>
-                </div>
-                {% endfor %}
-              </div>
-            </div>
-          </div>
-        </div>
-        {% if mat.count|divisibleby:"2" is True or matrix|length_is:mat.count %}
-      </div>
-      {% endif %}{% endfor %}{% endif %}
+{% extends 'base.html' %}
+{% load static %} {% load filter_tags %}
+{% block content %}
+
+
+<button class="btn btn-primary layout-toggle-btn" id="layoutToggleBtn" title="레이아웃 편집">
+    <i class="fas fa-grip-horizontal"></i>
+</button>
+
+<div class="layout-controls hidden" id="layoutControls">
+    <div class="layout-controls-title">
+        <h6><i class="fas fa-pen"></i> 레이아웃 편집</h6>
+        <p class="layout-controls-subtitle">- 모니터 배치를 자유롭게 조정하세요.</p>
+        <p class="layout-controls-subtitle">- 이름을 자유롭게 수정하세요.</p>
     </div>
-    <div class="col-2" style="padding-left:0">
-      <div class="card profile-card">
-        {% if profile %}
-        <div class="card-body" style="overflow: scroll; max-height:100vh;">
-          <h5 class="card-title" style="text-align:center;">프로파일</h5>
-          {% for pro in profile %}
-          <div class="row">
-            <button class="btn btn-outline-primary control" name="profile_button" value="{{pro.id}}">{{pro.name}}</button>
-          </div>
-          {% endfor %}
-          <div class="row align-items-center h-50"></div>
-        </div>
-        {% endif %}
-      </div>
+    <div class="text-center">
+        <button class="btn btn-save btn-sm" id="saveLayoutBtn">
+            <i class="fas fa-save"></i> 저장
+        </button>
+        <button class="btn btn-reset btn-sm" id="resetLayoutBtn">
+            <i class="fas fa-undo"></i> 초기화
+        </button>
+        <button class="btn btn-close btn-sm" id="closeLayoutBtn">
+            <i class="fas fa-times"></i> 닫기
+        </button>
     </div>
-  </div>
+    <hr style="margin: 15px 0;">
+    <h6><i class="fas fa-eye-slash"></i> 숨겨진 모니터</h6>
+    <div id="hiddenMonitors" style="max-height: 150px; overflow-y: auto;">
+        <small class="text-muted">숨겨진 모니터가 없습니다.</small>
+    </div>
 </div>
 
-<!-- Error Modal -->
-<div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="errorModalLabel">ERROR</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-      <span></span>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-      </div>
+<div class="container-fluid matrix-list" style="overflow-y:auto; max-height:calc(100vh - 80px);">
+    <div class="row">
+        <div class="col-10">
+
+            <!-- 메인 매트릭스 (16포트) -->
+            {% if main %}
+                {% for m in main %}
+                    <div class="card matrix-card main" data-matrix-id="{{ m.id }}">
+                        <div class="card-body">
+                            <h5 class="card-title text-center">{{ m.name }}</h5>
+
+                            <!-- 첫 번째 행 (1-8) -->
+                            <div class="sortable-row" data-row="1" style="position: relative;">
+                                {% for i in 1|range_tag:9 %}
+                                    <div class="monitor-item"
+                                         data-position="{{ i }}"
+                                         data-matrix="{{ m.id }}"
+                                         data-row="1"
+                                         data-col="{{ i }}"
+                                         draggable="false">
+
+
+                                        <div class="monitor-controls">
+                                            <button class="btn btn-outline-secondary btn-toggle-visibility"
+                                                    title="숨기기/보이기"
+                                                    data-position="{{ i }}"
+                                                    data-matrix="{{ m.id }}">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-outline-secondary btn-edit-names"
+                                                    title="이름 수정"
+                                                    data-position="{{ i }}"
+                                                    data-matrix="{{ m.id }}"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#updateNamesModal"
+                                                    style="display: none;">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                        </div>
+
+                                        <div class="control">
+                                            <img src="{% static 'img/icon1.png' %}" />
+                                            <p class="monitor-label">{{ m|monitor_name:i }}</p>
+                                        </div>
+                                        <div class="form-group">
+                                            <select class="form-control form-control-sm monitor-select"
+                                                    name="input_select"
+                                                    id="input_select-{{ i|stringformat:"02d" }}-{{ m.id }}">
+                                                {% for j in 1|range_tag:17 %}
+                                                    <option value="{{ j|stringformat:"02d" }}"
+                                                            {% if m|option_selected:i == j %}selected{% endif %}>
+                                                        {{ m|device_name:j }}
+                                                    </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- 두 번째 행 (9-16) -->
+                            <div class="sortable-row" data-row="2" style="position: relative;">
+                                {% for i in 9|range_tag:17 %}
+                                    <div class="monitor-item"
+                                         data-position="{{ i }}"
+                                         data-matrix="{{ m.id }}"
+                                         data-row="2"
+                                         data-col="{{ i|add:'-8' }}"
+                                         draggable="false">
+
+                                        <div class="monitor-controls">
+                                            <button class="btn btn-outline-secondary btn-toggle-visibility"
+                                                    title="숨기기/보이기"
+                                                    data-position="{{ i }}"
+                                                    data-matrix="{{ m.id }}">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-outline-secondary btn-edit-names"
+                                                    title="이름 수정"
+                                                    data-position="{{ i }}"
+                                                    data-matrix="{{ m.id }}"
+                                                    data-toggle="modal"
+                                                    data-target="#updateNamesModal"
+                                                    style="display: none;">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                        </div>
+
+                                        <div class="control">
+                                            <img src="{% static 'img/icon1.png' %}" />
+                                            <p class="monitor-label">{{ m|monitor_name:i }}</p>
+                                        </div>
+                                        <div class="form-group">
+                                            <select class="form-control form-control-sm monitor-select"
+                                                    name="input_select"
+                                                    id="input_select-{{ i|stringformat:"02d" }}-{{ m.id }}">
+                                                {% for j in 1|range_tag:17 %}
+                                                    <option value="{{ j|stringformat:"02d" }}"
+                                                            {% if m|option_selected:i == j %}selected{% endif %}>
+                                                        {{ m|device_name:j }}
+                                                    </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 터치 PC (KVM) 카드 -->
+                    <div class="card matrix-card main">
+                        <div class="card-body">
+                            <h5 class="card-title">터치 PC</h5>
+                            {% for i in 1|range_tag:33 %}
+                                {% if i|remainder:8 == 1 %}
+                                    <div class="row align-items-center">
+                                {% endif %}
+                            <div class="col-1_5 mb-2">
+                                <button class="btn btn-outline-primary w-100 kvm"
+                                        name="kvm_button"
+                                        value="{{ m.id }}-{{ i }}">
+                                    {{ connect_list|kvm_index:i }}
+                                </button>
+                            </div>
+                            {% if i|remainder:8 == 0 or i == 32 %}
+                                </div>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- 서브 매트릭스들 (16포트) -->
+            {% if matrix %}
+                {% for mat in matrix %}
+                    <div class="card matrix-card" data-matrix-id="{{ mat.id }}">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ mat.name }}</h5>
+
+                            <!-- 첫 번째 행 (1-8) -->
+                            <div class="sortable-row" data-row="1">
+                                {% for i in 1|range_tag:9 %}
+                                    <div class="monitor-item"
+                                         data-position="{{ i }}"
+                                         data-matrix="{{ mat.id }}"
+                                         data-row="1"
+                                         data-col="{{ i }}"
+                                         draggable="false">
+
+                                        <div class="monitor-controls">
+                                            <button class="btn btn-outline-secondary btn-toggle-visibility"
+                                                    title="숨기기/보이기"
+                                                    data-position="{{ i }}"
+                                                    data-matrix="{{ mat.id }}">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-outline-secondary btn-edit-names"
+                                                    title="이름 수정"
+                                                    data-position="{{ i }}"
+                                                    data-matrix="{{ mat.id }}"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#updateNamesModal"
+                                                    style="display: none;">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                        </div>
+
+                                        <div class="control">
+                                            <img src="{% static 'img/icon1.png' %}" />
+                                        </div>
+                                        <button class="btn btn-outline-gradient kvm"
+                                                name="kvm_button"
+                                                value="{{ mat.id }}-{{ i }}">
+                                            {{ mat|profile_monitor_name:i }}
+                                        </button>
+                                        <div class="form-group">
+                                            <select class="form-control form-control-sm monitor-select"
+                                                    name="input_select"
+                                                    id="input_select-{{ i|stringformat:"02d" }}-{{ mat.id }}">
+                                                {% for j in 1|range_tag:17 %}
+                                                    <option value="{{ j|stringformat:"02d" }}"
+                                                            {% if mat|option_selected:i == j %}selected{% endif %}>
+                                                        {{ mat|device_name:j }}
+                                                    </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- 두 번째 행 (9-16) -->
+                            <div class="sortable-row" data-row="2">
+                                {% for i in 9|range_tag:17 %}
+                                    <div class="monitor-item"
+                                         data-position="{{ i }}"
+                                         data-matrix="{{ mat.id }}"
+                                         data-row="2"
+                                         data-col="{{ i|add:'-8' }}"
+                                         draggable="false">
+
+                                        <div class="monitor-controls">
+                                            <button class="btn btn-outline-secondary btn-toggle-visibility"
+                                                    title="숨기기/보이기"
+                                                    data-position="{{ i }}"
+                                                    data-matrix="{{ mat.id }}">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-outline-secondary btn-edit-names"
+                                                    title="이름 수정"
+                                                    data-position="{{ i }}"
+                                                    data-matrix="{{ mat.id }}"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#updateNamesModal"
+                                                    style="display: none;">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                        </div>
+
+                                        <div class="control">
+                                            <img src="{% static 'img/icon1.png' %}" />
+                                        </div>
+                                        <button class="btn btn-outline-gradient kvm"
+                                                name="kvm_button"
+                                                value="{{ mat.id }}-{{ i }}">
+                                            {{ mat|profile_monitor_name:i }}
+                                        </button>
+                                        <div class="form-group">
+                                            <select class="form-control form-control-sm monitor-select"
+                                                    name="input_select"
+                                                    id="input_select-{{ i|stringformat:"02d" }}-{{ mat.id }}">
+                                                {% for j in 1|range_tag:17 %}
+                                                    <option value="{{ j|stringformat:"02d" }}"
+                                                            {% if mat|option_selected:i == j %}selected{% endif %}>
+                                                        {{ mat|device_name:j }}
+                                                    </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <div id="toggleSection" class="mt-3" style="display: none;">
+                <div class="alert alert-info w-100">
+                    <h5>그룹 설정</h5>
+                    <div class="row">
+                        {% for i in 1|range_tag:17 %}
+                        <div class="col-1-5 mb-3">
+                            <div class="card text-center channel-box" data-chan="{{ i }}">
+                                <div class="card-header">CH{{ i }}</div>
+                                <div class="card-body p-3">
+                                    <h5>In {{ i }}</h5>
+                                    <button class="btn btn-sm btn-danger unselect-btn">❌</button>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="mt-3 text-center">
+                        <button id="groupBtn" class="btn btn-warning">🔗 Group</button>
+                        <button id="ungroupBtn" class="btn btn-warning">❌ Un group</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-2 profile-column">
+            <div class="card profile-card">
+                {% if profile %}
+                    <div class="card-header">
+                        <h5 class="card-title">즐겨찾기</h5>
+                    </div>
+                    <div>
+                        <div data-simplebar class="card-body">
+                            <ul id="favoritesList" class="fav fav--glass">
+                                {% for pro in profile %}
+                                    <li class="list-group-item">
+                                        <button class="fav-btn" name="profile_button" value="{{ pro.id }}">
+                                            {{ pro.name }}
+                                        </button>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
     </div>
-  </div>
 </div>
+
+
+<div class="modal fade" id="profile-update" tabindex="-1" role="dialog" aria-labelledby="profile-update-modal-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-md" role="document">
+        <div class="modal-content shadow-lg border-0 rounded-3">
+
+            <div class="modal-header bg-primary text-white rounded-top">
+                <h5 class="modal-title font-weight-bold" id="profile-update-modal-title">즐겨찾기 수정</h5>
+                <button type="button" class="close text-white" onclick="forceCloseModal()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <form method="post" action="{% url 'profile_detail' %}" id="profile-update-form">
+                {% csrf_token %}
+                <input type="hidden" name="_method" value="put" />
+                <input type="hidden" id="update-id" name="id" />
+                <input type="hidden" id="update-mat-id-list" name="mat_id_list" />
+                <input type="hidden" id="update-input-1" name="input_a" />
+                <input type="hidden" id="update-input-2" name="input_b" />
+                <input type="hidden" id="update-input-3" name="input_c" />
+                <input type="hidden" id="update-input-4" name="input_d" />
+                <input type="hidden" id="update-input-5" name="input_e" />
+                <input type="hidden" id="update-input-6" name="input_f" />
+                <input type="hidden" id="update-input-7" name="input_g" />
+                <input type="hidden" id="update-input-8" name="input_h" />
+
+                <input type="hidden" id="update-input-9" name="input_i" />
+                <input type="hidden" id="update-input-10" name="input_j" />
+                <input type="hidden" id="update-input-11" name="input_k" />
+                <input type="hidden" id="update-input-12" name="input_l" />
+                <input type="hidden" id="update-input-13" name="input_m" />
+                <input type="hidden" id="update-input-14" name="input_n" />
+                <input type="hidden" id="update-input-15" name="input_o" />
+                <input type="hidden" id="update-input-16" name="input_p" />
+                <input type="hidden" id="update-input-kvm" name="input_kvm" />
+
+                <div class="modal-body px-4 py-3">
+                    <div class="form-group mb-4">
+                        <label for="input-name-update" class="font-weight-bold">즐겨찾기명</label>
+                        <input hidden="hidden" />
+                        <input
+                                type="text"
+                                class="form-control form-control-lg"
+                                id="input-name-update"
+                                name="name"
+                                placeholder="예: 빵방구"
+                                required
+                        />
+                        <div id="update-name-feedback" class="invalid-feedback">이름을 입력해주세요.</div>
+                    </div>
+
+                    {% if main_mat %}
+                    {% for mat in main_mat %}
+                    <h5 class="mt-4 font-weight-bold">{{mat.name}}</h5>
+                    <input type="hidden" class="update-system-id" value="{{mat.id}}" />
+
+                    <!-- 첫 번째 행 (1-8) -->
+                    <div class="form-row">
+                        {% for i in 1|range_tag:9 %}
+                        <div class="form-group col-md-3 mb-3">
+                            <label for="update-input-select-{{mat.id}}-{{i}}">{{ mat|monitor_name:i }}</label>
+                            <select id="update-input-select-{{mat.id}}-{{i}}" class="form-control form-control-sm update-select-{{i}}">
+                                {% for j in 0|range_tag:17 %}
+                                <option {% if j == 0 %}selected{% endif %} value="{{ j|stringformat:"02d" }}">
+                                    {% if j == 0 %}-{% else %}{{ mat|device_name:j }}{% endif %}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- 두 번째 행 (9-16) -->
+                    <div class="form-row">
+                        {% for i in 9|range_tag:17 %}
+                        <div class="form-group col-md-3 mb-3">
+                            <label for="update-input-select-{{mat.id}}-{{i}}">{{ mat|monitor_name:i }}</label>
+                            <select id="update-input-select-{{mat.id}}-{{i}}" class="form-control form-control-sm update-select-{{i}}">
+                                {% for j in 0|range_tag:17 %}
+                                <option {% if j == 0 %}selected{% endif %} value="{{ j|stringformat:"02d" }}">
+                                    {% if j == 0 %}-{% else %}{{ mat|device_name:j }}{% endif %}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- KVM 설정 -->
+                    <div class="form-row">
+                        <div class="form-group col-md-3 mb-3">
+                            <label for="update-main-input-kvm">USB</label>
+                            <select id="update-main-input-kvm" class="form-control form-control-sm update-input-kvm">
+                                {% for j in 0|range_tag:33 %}
+                                <option {% if j == 0 %}selected{% endif %} value="{{ j|stringformat:"02d" }}">{{ connect_list|kvm_index:j }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+
+                    <!-- 서브 매트릭스 설정 -->
+                    {% if sub_mat %}
+                    {% for mat in sub_mat %}
+                    <h5 class="mt-4 font-weight-bold">{{ mat.name }}</h5>
+                    <input type="hidden" class="update-system-id" value="{{ mat.id }}" />
+
+                    <!-- 첫 번째 행 (1-8) -->
+                    <div class="form-row">
+                        {% for i in 1|range_tag:9 %}
+                            <div class="form-group col-md-3 mb-3">
+                                <label for="update-input-select-{{ mat.id }}-{{ i }}">{{ mat|profile_monitor_name:i }}</label>
+                                <select id="update-input-select-{{ mat.id }}-{{ i }}" class="form-control form-control-sm update-select-{{ i }}">
+                                    {% for j in 0|range_tag:17 %}
+                                        <option {% if j == 0 %}selected{% endif %} value="{{ j|stringformat:"02d" }}">
+                                            {% if j == 0 %}-{% else %}{{ mat|device_name:j }}{% endif %}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- 두 번째 행 (9-16) -->
+                    <div class="form-row">
+                        {% for i in 9|range_tag:17 %}
+                            <div class="form-group col-md-3 mb-3">
+                                <label for="update-input-select-{{ mat.id }}-{{ i }}">{{ mat|profile_monitor_name:i }}</label>
+                                <select id="update-input-select-{{ mat.id }}-{{ i }}" class="form-control form-control-sm update-select-{{ i }}">
+                                    {% for j in 0|range_tag:17 %}
+                                        <option {% if j == 0 %}selected{% endif %} value="{{ j|stringformat:"02d" }}">
+                                            {% if j == 0 %}-{% else %}{{ mat|device_name:j }}{% endif %}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- KVM 설정 -->
+                    <div class="form-row">
+                        <div class="form-group col-md-3 mb-3">
+                            <label for="update-sub-input-kvm-{{ mat.main_connect }}">USB</label>
+                            <select id="update-sub-input-kvm-{{ mat.main_connect }}" class="form-control form-control-sm update-input-kvm">
+                                {% for j in 0|range_tag:17 %}
+                                    <option {% if j == 0 %}selected{% endif %} value="{{ j|stringformat:"02d" }}">{{ mat|device_name:j }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                </div>
+
+                <div class="modal-footer bg-light border-top-0 rounded-bottom px-4 py-3">
+                    <button type="button" class="btn btn-modal-secondary" onclick="forceCloseModal()">취소</button>
+                    <button type="button" class="btn btn-modal-primary" onClick="profileUpdate()">수정</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+
+<!-- <script src="{% static 'js/hardware_polling.js' %}"></script> -->
+
+
+<div class="modal fade" id="updateNamesModal" tabindex="-1">
+    <div class="modal-dialog">
+        <form id="updateNamesForm" method="post">
+            {% csrf_token %}
+            <input type="hidden" id="modal-position" name="position" value="">
+            <input type="hidden" id="modal-matrix-id" name="matrix_id" value="">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">모니터·디바이스 이름 수정</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">모니터 이름</label>
+                        <input type="text" class="form-control" id="modal-monitor-name"
+                               name="monitor_name" value="">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">디바이스 이름</label>
+                        <input type="text" class="form-control" id="modal-device-name"
+                               name="device_name" value="">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-modal-secondary" data-bs-dismiss="modal">취소</button>
+                    <button type="submit" class="btn btn-modal-primary">저장</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% include 'modal/error_modal.html' %}
 
 <!-- Loading Modal -->
 <div class="modal fade" id="loadingModal" tabindex="-1" data-backdrop="static" data-keyboard="false" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content" style="background-color:rgba( 255, 255, 255, 0 ); border:none">
-      <div class="modal-body">
-        <div class="text-center">
-          <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"  role="status"></div>
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content" style="background-color: rgba(255, 255, 255, 0); border: none">
+            <div class="modal-body">
+                <div class="text-center">
+                    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem" role="status"></div>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
 </div>
-{% endblock content %} 
+
+<style>
+    /* 16포트용 스타일 */
+    .kvm, .monitor-label, .monitor-select {
+        display: block;
+        width: 100%;
+        margin-top: .25rem;
+        padding: .375rem .75rem;
+        border: 1px solid #d1d5db;
+        border-radius: .375rem;
+        background-color: #fff;
+        color: #000000;
+        font-weight: 500;
+        text-align: center;
+        line-height: 1.5;
+        box-shadow: none;
+    }
+
+    .monitor-select {
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 8px center;
+        background-size: 16px;
+        padding-right: 32px;
+        outline: 0;
+    }
+    .monitor-select:focus,
+    .monitor-select:hover {
+        border-color: #cfd4da;
+        box-shadow: none;
+    }
+    .monitor-select:disabled {
+        background-color: #f8f9fa;
+        color: #9ca3af;
+        border-style: dashed;
+        cursor: not-allowed;
+    }
+    .kvm-active-border {
+        border: 3px solid #343a40;
+        border-radius: 12px;
+        padding: 4px;
+    }
+
+    /* 16포트용 그리드 조정 */
+    .sortable-row {
+        display: grid;
+        grid-template-columns: repeat(8, 1fr);
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+
+
+    .fav { --gap:10px; --radius:12px; --padY:10px; --padX:14px; --h:42px; }
+    .fav { margin:0; padding:8px; list-style:none; }
+
+    .fav .list-group-item{
+        display:flex; align-items:center; gap:12px;
+        padding:6px 4px; border:0; background:transparent;
+    }
+    .fav .list-group-item + .list-group-item{ margin-top: var(--gap); }
+
+    .fav .fav-btn{
+        flex:1 1 auto; width:100%; height:var(--h);
+        padding: var(--padY) var(--padX);
+        border-radius: var(--radius);
+        border:1px solid transparent;
+        font-weight:600; letter-spacing:.2px; text-align:center;
+        transition: .15s ease;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        line-height: 1 !important;
+    }
+
+    .fav .list-group-item.dragging{ opacity:.75; }
+    .fav .list-group-item.drop-target{ outline:2px dashed #cbd5e1; outline-offset:4px; border-radius:12px; }
+
+    .fav.fav--glass .fav-btn{
+        background: rgba(255,255,255,.65);
+        border: 1px solid rgba(0,0,0,.15) !important;
+        box-shadow: 0 8px 24px rgba(15,23,42,.08), inset 0 1px 0 rgba(255,255,255,.6);
+        backdrop-filter: blur(8px);
+        color:#0f172a;
+    }
+    .fav.fav--glass .fav-btn:hover{
+        transform: translateY(-1px);
+        box-shadow: 0 12px 28px rgba(15,23,42,.12);
+        border-color: rgba(55, 60, 62, 0.6) !important;
+    }
+    .fav.fav--glass .fav-btn:focus{ outline:none; box-shadow: 0 0 0 .2rem rgba(59,130,246,.18); }
+
+    /* 레이아웃 편집 모드 스타일 */
+    .layout-controls {
+        position: fixed;
+        bottom: 80px;
+        right: 20px;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        width: 300px;
+        transition: all 0.3s ease;
+        opacity: 0;
+        transform: translateX(100%);
+    }
+
+    .layout-controls.show {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    .layout-controls.hidden {
+        display: none;
+    }
+
+    .layout-toggle-btn {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 1001;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .layout-toggle-btn.editing {
+        background-color: #dc3545;
+        border-color: #dc3545;
+    }
+
+    .matrix-card.editing-mode {
+        border: 2px dashed #007bff;
+    }
+
+    .monitor-controls {
+        position: absolute;
+        top: -10px;
+        right: -10px;
+        z-index: 100;
+        display: none;
+        gap: 5px;
+    }
+
+    .matrix-card.editing-mode .monitor-controls {
+        display: flex;
+    }
+
+    .monitor-item {
+        position: relative;
+        padding: 10px;
+        border: 1px solid transparent;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .monitor-item.hidden {
+        opacity: 0.3;
+        transform: scale(0.9);
+    }
+
+    .btn-toggle-visibility, .btn-edit-names {
+        width: 30px;
+        height: 30px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+    }
+
+    /* 16포트용 col-1_5 스타일 */
+    .col-1_5 {
+        flex: 0 0 12.5%;
+        max-width: 12.5%;
+        padding-right: 7.5px;
+        padding-left: 7.5px;
+    }
+
+    /* 프로필 모달 스타일 */
+    .btn-modal-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+        color: white;
+    }
+
+    .btn-modal-primary:hover {
+        background-color: #0056b3;
+        border-color: #0056b3;
+    }
+
+    .btn-modal-secondary {
+        background-color: #6c757d;
+        border-color: #6c757d;
+        color: white;
+    }
+
+    .btn-modal-secondary:hover {
+        background-color: #545b62;
+        border-color: #545b62;
+    }
+
+    .form-row {
+        display: flex;
+        flex-wrap: wrap;
+        margin-right: -5px;
+        margin-left: -5px;
+    }
+
+    .form-row .form-group {
+        padding-right: 5px;
+        padding-left: 5px;
+    }
+
+    /* 8포트에서 가져온 애니메이션 CSS */
+    @keyframes slideInRight {
+        from {
+            opacity: 0;
+            transform: translateX(100px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateX(-50%) translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+    }
+
+    /* 드래그 상태 스타일 */
+    .monitor-item.dragging {
+        opacity: 0.5;
+        transform: rotate(5deg);
+    }
+
+    .sortable-row.drag-over {
+        background-color: rgba(0, 123, 255, 0.1);
+        border: 2px dashed #007bff;
+        border-radius: 8px;
+    }
+
+    .monitor-item.drag-over-element {
+        border: 2px solid #007bff;
+        background-color: rgba(0, 123, 255, 0.1);
+    }
+
+    /* 보라색 그라디언트 버튼 스타일 */
+    .btn-gradient {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        border: none;
+        color: white;
+        transition: all 0.3s ease;
+    }
+
+    .btn-gradient:hover {
+        background: linear-gradient(45deg, #764ba2, #667eea);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-gradient:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 4px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-outline-gradient {
+        background: transparent;
+        border: 2px solid transparent;
+        background-image: linear-gradient(white, white),
+        linear-gradient(45deg, #667eea, #764ba2);
+        background-origin: border-box;
+        background-clip: padding-box, border-box;
+        color: #000000;
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-gradient:hover {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
+    }
+
+    .kvm-active-border-gradient {
+        position: relative;
+        border: 3px solid transparent;
+        background-image: linear-gradient(white, white),
+        linear-gradient(45deg, #667eea, #764ba2);
+        background-origin: border-box;
+        background-clip: padding-box, border-box;
+        animation: borderPulse 2s ease-in-out infinite;
+        border-radius: 10px;
+    }
+
+    @keyframes borderPulse {
+        0%, 100% {
+            opacity: 1;
+        }
+        50% {
+            opacity: 0.8;
+        }
+    }
+
+    .btn-gradient:focus,
+    .btn-outline-gradient:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+    }
+</style>
+
+{% endblock content %}
 
 {% block javascript %}
+<!-- jQuery 라이브러리 로드 -->
 <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
 <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'js/home.js' %}"></script>
+
 <script>
-  $('select[name=input_select]').on('change', function () {
-    var id = $(this).attr('id').split('-');
-    var target = id[1];
-    var mat_id = id[2];
-    var input = $(this).val();
-    $.ajax({
-      type: 'GET',
-      url: `{% url 'control' %}?id=${mat_id}&input=${input}&target=${target}`,
-      success: function (res) {
-      },
-      error: function (res) {
-        $('#errorModal').modal('show')
-        $('#errorModal .modal-body span').text(JSON.stringify(res.responseText))
-      },
-    });
-  });
+    // 8포트에서 가져온 레이아웃 편집 기능 변수들
+    let isLayoutMode = false;
+    let draggedElement = null;
 
-  $('button[name=kvm_button]').on('click', function () {
-    var val = $(this).val().split('-');
-    var mat_id = val[0];
-    var input = val[1];
-    
-    $.ajax({
-      type: 'GET',
-      url: `{% url 'kvm' %}?id=${mat_id}&input=${input}`,
-      success: function (res) {
-      },
-      error: function (res) {
-        $('#errorModal').modal('show')
-        $('#errorModal .modal-body span').text(JSON.stringify(res.responseText))
-      },
+    // 레이아웃 모드 토글
+    $(document).on('click', '#layoutToggleBtn', function() {
+        console.log('Layout toggle clicked, current mode:', isLayoutMode);
+        isLayoutMode = !isLayoutMode;
+        if (isLayoutMode) {
+            enterLayoutMode();
+        } else {
+            exitLayoutMode();
+        }
     });
-  });
 
-  $('button[name=profile_button]').on('click', function () {
-    var id = $(this).val()
-    $.ajax({
-      type: 'GET',
-      url: `{% url 'profile_control' %}?id=${id}`,
-      success: function (res) {
-        location.reload()
-      },
-      error: function (res) {
-        $('#errorModal').modal('show')
-        $('#errorModal .modal-body span').text(JSON.stringify(res.responseText))
-      },
-      beforeSend: function() { 
-        $('#loadingModal').modal('show')
-      },
-      complete: function() { 
-        $('#loadingModal').modal('hide')
-      },
+    // 레이아웃 모드 진입
+    function enterLayoutMode() {
+        console.log('Entering layout mode');
+        const $btn = $('#layoutToggleBtn');
+        const $controls = $('#layoutControls');
+
+        // 버튼 스타일 변경
+        $btn.addClass('editing');
+        $btn.html('<i class="fas fa-stop"></i>');
+        $btn.attr('title', '편집 중지');
+
+        // 제어 패널 표시
+        $controls.removeClass('hidden');
+        setTimeout(() => $controls.addClass('show'), 50);
+
+        // 편집 모드 활성화
+        $('.matrix-card').addClass('editing-mode');
+
+        // 이름 수정 버튼 표시
+        $('.btn-edit-names').show();
+
+        // 드래그 이벤트 활성화
+        enableDragAndDrop();
+
+        // 기존 제어 비활성화
+        $('select[name=input_select]').prop('disabled', true);
+        $('button[name=kvm_button]').prop('disabled', true);
+
+        updateHiddenMonitorsList();
+        showEditingToast();
+    }
+
+    // 레이아웃 모드 종료
+    function exitLayoutMode() {
+        console.log('Exiting layout mode');
+        const $btn = $('#layoutToggleBtn');
+        const $controls = $('#layoutControls');
+
+        // 버튼 스타일 복구
+        $btn.removeClass('editing');
+        $btn.html('<i class="fas fa-grip-horizontal"></i>');
+        $btn.attr('title', '레이아웃 편집');
+
+        // 제어 패널 숨김
+        $controls.removeClass('show');
+        setTimeout(() => $controls.addClass('hidden'), 300);
+
+        // 편집 모드 비활성화
+        $('.matrix-card').removeClass('editing-mode');
+
+        // 이름 수정 버튼 숨김
+        $('.btn-edit-names').hide();
+
+        // 드래그 이벤트 비활성화
+        disableDragAndDrop();
+
+        // 기존 제어 활성화
+        $('select[name=input_select]').prop('disabled', false);
+        $('button[name=kvm_button]').prop('disabled', false);
+    }
+
+    // 드래그앤드롭 활성화
+    function enableDragAndDrop() {
+        console.log('Enabling drag and drop');
+        $('.monitor-item').attr('draggable', true);
+
+        $('.monitor-item').off('dragstart dragend dragover');
+        $('.sortable-row').off('dragover dragleave drop');
+
+        $('.monitor-item').on('dragstart', function(e) {
+            draggedElement = this;
+            $(this).addClass('dragging');
+            e.originalEvent.dataTransfer.effectAllowed = 'move';
+            e.originalEvent.dataTransfer.setData('text/html', this.innerHTML);
+            console.log('Drag started:', $(this).data('position'));
+        });
+
+        $('.monitor-item').on('dragend', function(e) {
+            $(this).removeClass('dragging');
+            $('.drag-over').removeClass('drag-over');
+            $('.drag-over-element').removeClass('drag-over-element');
+            draggedElement = null;
+            console.log('Drag ended');
+        });
+
+        $('.monitor-item').on('dragover', function(e) {
+            if (this === draggedElement) return;
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            const draggingItem = $(draggedElement);
+            const targetItem = $(this);
+            const targetRow = targetItem.closest('.sortable-row');
+
+            // 마우스 위치에 따라 앞/뒤 결정
+            const rect = this.getBoundingClientRect();
+            const midpoint = rect.left + rect.width / 2;
+
+            if (e.originalEvent.clientX < midpoint) {
+                // 왼쪽에 드롭 - 타겟 앞에 삽입
+                targetItem.before(draggingItem);
+            } else {
+                // 오른쪽에 드롭 - 타겟 뒤에 삽입
+                targetItem.after(draggingItem);
+            }
+
+            // row 속성 업데이트
+            const newRow = targetRow.data('row');
+            draggingItem.attr('data-row', newRow);
+
+            // 시각적 피드백
+            $(this).addClass('drag-over-element');
+        });
+
+        $('.monitor-item').on('dragleave', function(e) {
+            $(this).removeClass('drag-over-element');
+        });
+
+        $('.sortable-row').on('dragover', function(e) {
+            e.preventDefault();
+            $(this).addClass('drag-over');
+
+            // 빈 row에 드롭할 때
+            if ($(this).find('.monitor-item').length === 0) {
+                if (draggedElement) {
+                    $(this).append(draggedElement);
+                    const dropRow = $(this).data('row');
+                    $(draggedElement).attr('data-row', dropRow);
+                }
+            }
+        });
+
+        $('.sortable-row').on('dragleave', function(e) {
+            if (!$(e.relatedTarget).closest('.sortable-row').is(this)) {
+                $(this).removeClass('drag-over');
+            }
+        });
+
+        $('.sortable-row').on('drop', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $(this).removeClass('drag-over');
+
+            console.log('Item dropped in row:', $(this).data('row'));
+        });
+    }
+
+    // 드래그앤드롭 비활성화
+    function disableDragAndDrop() {
+        console.log('Disabling drag and drop');
+        $('.monitor-item').attr('draggable', false);
+        $('.monitor-item').off('dragstart dragend');
+        $('.sortable-row').off('dragover dragleave drop');
+    }
+
+    // 숨기기/보이기 버튼 클릭
+    $(document).on('click', '.btn-toggle-visibility', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (!isLayoutMode) {
+            showErrorToast('편집 모드에서만 숨기기/보이기가 가능합니다.');
+            return;
+        }
+
+        const $monitor = $(this).closest('.monitor-item');
+        const $button = $(this);
+
+        if ($monitor.hasClass('hidden')) {
+            $monitor.removeClass('hidden');
+            $button.find('i').removeClass('fa-eye-slash').addClass('fa-eye');
+            $button.attr('title', '숨기기');
+            showSuccessToast('모니터가 표시됩니다.');
+        } else {
+            $monitor.addClass('hidden');
+            $button.find('i').removeClass('fa-eye').addClass('fa-eye-slash');
+            $button.attr('title', '보이기');
+            showSuccessToast('모니터가 숨겨집니다.');
+        }
+
+        updateHiddenMonitorsList();
     });
-  });
+
+    // 레이아웃 저장
+    $(document).on('click', '#saveLayoutBtn', function() {
+    console.log('Save layout clicked');
+    if (!isLayoutMode) {
+        showErrorToast('편집 모드에서만 저장할 수 있습니다.');
+        return;
+    }
+
+    // 로딩 상태 표시
+    const $btn = $(this);
+    const originalHtml = $btn.html();
+    $btn.html('<i class="fas fa-spinner fa-spin"></i> 저장 중...');
+    $btn.prop('disabled', true);
+
+    // 현재 레이아웃 데이터 수집
+    const layoutData = collectLayoutData();
+
+    // 서버에 저장 요청
+    saveLayoutToServer(layoutData)
+        .then(response => {
+            if (response.success) {
+                showSuccessToast('레이아웃이 성공적으로 저장되었습니다.');
+            } else {
+                showErrorToast('저장 실패: ' + response.message);
+            }
+        })
+        .catch(error => {
+            console.error('Save error:', error);
+            showErrorToast('저장 중 오류가 발생했습니다.');
+        })
+        .finally(() => {
+            // 버튼 상태 복구
+            $btn.html(originalHtml);
+            $btn.prop('disabled', false);
+        });
+});
+
+    function collectLayoutData() {
+    const layoutData = [];
+
+    $('.matrix-card').each(function() {
+        const matrixId = $(this).data('matrix-id');
+        const monitors = [];
+
+        $(this).find('.monitor-item').each(function(index) {
+            const $monitor = $(this);
+            const position = parseInt($monitor.data('position'));
+            const row = parseInt($monitor.data('row'));
+            const col = parseInt($monitor.data('col'));
+            const isVisible = !$monitor.hasClass('hidden');
+
+            monitors.push({
+                position: position,
+                row: row,
+                col: col,
+                display_order: index,
+                is_visible: isVisible
+            });
+        });
+
+        layoutData.push({
+            matrix_id: matrixId,
+            monitors: monitors
+        });
+    });
+
+    console.log('Collected layout data:', layoutData);
+    return layoutData;
+}
+
+function saveLayoutToServer(layoutData) {
+    return fetch('/api/save-layout/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')  // CSRF 토큰 필요
+        },
+        body: JSON.stringify({
+            layout_data: layoutData
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    });
+}
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    function loadSavedLayout() {
+    $('.matrix-card').each(function() {
+        const matrixId = $(this).data('matrix-id');
+        const $matrixCard = $(this);
+
+        fetch(`/api/get-layout/${matrixId}/`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.layout_data && data.layout_data.length > 0) {
+                    // 저장된 레이아웃이 있으면 적용
+                    applyLayoutData(matrixId, data.layout_data);
+                } else {
+                    // 저장된 레이아웃이 없으면 기본 레이아웃 적용
+                    console.log('No saved layout found for matrix:', matrixId, 'applying default layout');
+                    resetToDefaultLayout($matrixCard);
+                }
+            })
+            .catch(error => {
+                console.log('Layout load error for matrix:', matrixId, error);
+                // 오류 발생시에도 기본 레이아웃 적용
+                resetToDefaultLayout($matrixCard);
+            });
+    });
+}
+
+function applyLayoutData(matrixId, layoutData) {
+    const $matrixCard = $(`.matrix-card[data-matrix-id="${matrixId}"]`);
+
+    layoutData.forEach(monitorData => {
+        const $monitor = $matrixCard.find(`.monitor-item[data-position="${monitorData.position}"]`);
+
+        if ($monitor.length > 0) {
+            // 위치 업데이트
+            $monitor.attr('data-row', monitorData.row);
+            $monitor.attr('data-col', monitorData.col);
+
+            // 가시성 업데이트
+            if (monitorData.is_visible) {
+                $monitor.removeClass('hidden');
+                $monitor.find('.btn-toggle-visibility i').removeClass('fa-eye-slash').addClass('fa-eye');
+                $monitor.find('.btn-toggle-visibility').attr('title', '숨기기');
+            } else {
+                $monitor.addClass('hidden');
+                $monitor.find('.btn-toggle-visibility i').removeClass('fa-eye').addClass('fa-eye-slash');
+                $monitor.find('.btn-toggle-visibility').attr('title', '보이기');
+            }
+        }
+    });
+
+    // 순서에 따라 다시 정렬
+    reorganizeMonitors($matrixCard, layoutData);
+}
+
+function reorganizeMonitors($matrixCard, layoutData) {
+    // 행별로 그룹화
+    const row1Monitors = [];
+    const row2Monitors = [];
+
+    layoutData.forEach(monitorData => {
+        const $monitor = $matrixCard.find(`.monitor-item[data-position="${monitorData.position}"]`);
+        if ($monitor.length > 0) {
+            if (monitorData.row === 1) {
+                row1Monitors.push({ element: $monitor[0], order: monitorData.display_order });
+            } else if (monitorData.row === 2) {
+                row2Monitors.push({ element: $monitor[0], order: monitorData.display_order });
+            }
+        }
+    });
+
+    // 순서대로 정렬
+    row1Monitors.sort((a, b) => a.order - b.order);
+    row2Monitors.sort((a, b) => a.order - b.order);
+
+    // DOM에 순서대로 재배치
+    const $row1 = $matrixCard.find('.sortable-row[data-row="1"]');
+    const $row2 = $matrixCard.find('.sortable-row[data-row="2"]');
+
+    $row1.empty();
+    $row2.empty();
+
+    row1Monitors.forEach(item => $row1.append(item.element));
+    row2Monitors.forEach(item => $row2.append(item.element));
+}
+
+
+
+// 9. 기존 토스트 메시지 함수들이 없다면 추가
+function showSuccessToast(message) {
+    // Bootstrap toast나 다른 알림 라이브러리 사용
+    // 임시로 alert 사용 (실제로는 더 나은 UI 구현 권장)
+    alert('성공: ' + message);
+}
+
+function showErrorToast(message) {
+    // Bootstrap toast나 다른 알림 라이브러리 사용
+    // 임시로 alert 사용 (실제로는 더 나은 UI 구현 권장)
+    alert('오류: ' + message);
+}
+
+function showEditingToast() {
+    showSuccessToast('편집 모드가 활성화되었습니다. 모니터를 드래그하여 위치를 변경하세요.');
+}
+
+
+
+    // 레이아웃 리셋
+   $(document).on('click', '#resetLayoutBtn', function() {
+    console.log('Reset layout clicked');
+
+    if (!confirm('모든 레이아웃을 초기화하시겠습니까?\n이 작업은 되돌릴 수 없습니다.')) {
+        return;
+    }
+
+    // 로딩 상태 표시
+    const $btn = $(this);
+    const originalHtml = $btn.html();
+    $btn.html('<i class="fas fa-spinner fa-spin"></i> 초기화 중...');
+    $btn.prop('disabled', true);
+
+    // 모든 매트릭스의 레이아웃 초기화
+    const matrixIds = [];
+    $('.matrix-card').each(function() {
+        const matrixId = $(this).data('matrix-id');
+        if (matrixId) {
+            matrixIds.push(matrixId);
+        }
+    });
+
+    if (matrixIds.length === 0) {
+        showErrorToast('초기화할 매트릭스가 없습니다.');
+        $btn.html(originalHtml);
+        $btn.prop('disabled', false);
+        return;
+    }
+
+    // 서버에 초기화 요청
+    resetLayoutOnServer(matrixIds)
+        .then(response => {
+            if (response.success) {
+                // UI를 기본 상태로 복원
+                resetLayoutUI();
+                showSuccessToast('레이아웃이 초기화되었습니다.');
+            } else {
+                showErrorToast('초기화 실패: ' + response.message);
+            }
+        })
+        .catch(error => {
+            console.error('Reset error:', error);
+            showErrorToast('초기화 중 오류가 발생했습니다.');
+        })
+        .finally(() => {
+            // 버튼 상태 복구
+            $btn.html(originalHtml);
+            $btn.prop('disabled', false);
+        });
+});
+
+function resetLayoutOnServer(matrixIds) {
+    return fetch('/api/reset-layout/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            matrix_ids: matrixIds
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    });
+}
+
+function resetLayoutUI() {
+    console.log('Resetting layout UI to default state');
+
+    $('.matrix-card').each(function() {
+        const $matrixCard = $(this);
+        const matrixId = $matrixCard.data('matrix-id');
+
+        // 모든 모니터를 표시 상태로 변경
+        $matrixCard.find('.monitor-item').removeClass('hidden');
+        $matrixCard.find('.btn-toggle-visibility i').removeClass('fa-eye-slash').addClass('fa-eye');
+        $matrixCard.find('.btn-toggle-visibility').attr('title', '숨기기');
+
+        // 16포트 기본 레이아웃으로 재정렬
+        resetToDefaultLayout($matrixCard);
+    });
+
+    // 숨겨진 모니터 목록 업데이트
+    updateHiddenMonitorsList();
+
+    console.log('Layout UI reset completed');
+}
+
+function resetToDefaultLayout($matrixCard) {
+    const $row1 = $matrixCard.find('.sortable-row[data-row="1"]');
+    const $row2 = $matrixCard.find('.sortable-row[data-row="2"]');
+
+    // 기존 모니터 요소들을 수집
+    const allMonitors = $matrixCard.find('.monitor-item').detach();
+
+    // 포지션 순서대로 정렬
+    const sortedMonitors = allMonitors.toArray().sort((a, b) => {
+        return parseInt($(a).data('position')) - parseInt($(b).data('position'));
+    });
+
+    // 행 비우기
+    $row1.empty();
+    $row2.empty();
+
+    // 기본 레이아웃으로 재배치 (1-8: 첫 번째 행, 9-16: 두 번째 행)
+    sortedMonitors.forEach((monitor, index) => {
+        const $monitor = $(monitor);
+        const position = parseInt($monitor.data('position'));
+
+        if (position <= 8) {
+            // 첫 번째 행 (1-8)
+            $monitor.attr('data-row', 1);
+            $monitor.attr('data-col', position);
+            $row1.append($monitor);
+        } else {
+            // 두 번째 행 (9-16)
+            $monitor.attr('data-row', 2);
+            $monitor.attr('data-col', position - 8);
+            $row2.append($monitor);
+        }
+
+        // 모니터를 표시 상태로 설정
+        $monitor.removeClass('hidden');
+        $monitor.find('.btn-toggle-visibility i').removeClass('fa-eye-slash').addClass('fa-eye');
+        $monitor.find('.btn-toggle-visibility').attr('title', '숨기기');
+    });
+
+    console.log('Default layout applied for matrix:', $matrixCard.data('matrix-id'));
+}
+
+    // 레이아웃 편집 닫기
+    $(document).on('click', '#closeLayoutBtn', function() {
+        console.log('Close layout clicked');
+        exitLayoutMode();
+        isLayoutMode = false;
+    });
+
+    // 숨겨진 모니터 목록 업데이트
+    function updateHiddenMonitorsList() {
+        const hiddenMonitors = [];
+
+        $('.monitor-item.hidden').each(function() {
+            const position = $(this).data('position');
+            const matrixId = $(this).data('matrix');
+            const name = $(this).find('.monitor-label').text() || `모니터 ${position}`;
+
+            hiddenMonitors.push({
+                position: position,
+                matrix_id: matrixId,
+                name: name
+            });
+        });
+
+        const $hiddenContainer = $('#hiddenMonitors');
+
+        if (hiddenMonitors.length === 0) {
+            $hiddenContainer.html('<small class="text-muted">숨겨진 모니터가 없습니다.</small>');
+        } else {
+            let html = '';
+            hiddenMonitors.forEach(monitor => {
+                html += `
+                <div class="hidden-monitor-item mb-2 p-2 border rounded">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">${monitor.name}</small>
+                        <button class="btn btn-sm btn-outline-primary restore-monitor"
+                                data-position="${monitor.position}"
+                                data-matrix-id="${monitor.matrix_id}"
+                                title="다시 보이기">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                `;
+            });
+            $hiddenContainer.html(html);
+        }
+    }
+
+    // 숨겨진 모니터 복원
+    $(document).on('click', '.restore-monitor', function(e) {
+        e.preventDefault();
+        const position = $(this).data('position');
+        const matrixId = $(this).data('matrix-id');
+
+        const $monitor = $(`.monitor-item[data-position="${position}"][data-matrix="${matrixId}"]`);
+        $monitor.removeClass('hidden');
+        $monitor.find('.btn-toggle-visibility i').removeClass('fa-eye-slash').addClass('fa-eye');
+        $monitor.find('.btn-toggle-visibility').attr('title', '숨기기');
+
+        updateHiddenMonitorsList();
+        showSuccessToast('모니터가 복원되었습니다.');
+    });
+
+    // 토스트 알림 함수들
+    function showSuccessToast(message) {
+        showToast(message, 'success');
+    }
+
+    function showErrorToast(message) {
+        showToast(message, 'error');
+    }
+
+    function showToast(message, type) {
+        const bgColor = type === 'success' ? '#28a745' : '#dc3545';
+
+        $('.toast-notification').remove();
+
+        const toast = $(`
+        <div class="toast-notification" style="
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            background: ${bgColor};
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            z-index: 9999;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            animation: slideInRight 0.3s ease;
+        ">
+            <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+            ${message}
+        </div>
+        `);
+
+        $('body').append(toast);
+
+        setTimeout(() => {
+            toast.fadeOut(300, () => toast.remove());
+        }, 3000);
+    }
+
+    function showEditingToast() {
+        $('.editing-toast').remove();
+
+        const toast = $(`
+        <div class="editing-toast" style="
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 25px;
+            font-weight: 500;
+            z-index: 9999;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            animation: slideDown 0.5s ease;
+        ">
+            <i class="fas fa-info-circle"></i>
+            편집 모드입니다. 모니터를 드래그하거나 눈 버튼으로 숨길 수 있습니다
+        </div>
+        `);
+
+        $('body').append(toast);
+
+        setTimeout(() => {
+            toast.fadeOut(500, () => toast.remove());
+        }, 3000);
+    }
+
+    $(document).on('click', '.btn-edit-names', function() {
+    const position = $(this).data('position');
+    const matrixId = $(this).data('matrix');
+
+    // 현재 이름들 가져오기
+    const $monitorItem = $(`.monitor-item[data-position="${position}"][data-matrix="${matrixId}"]`);
+
+    // 모니터 이름 - .monitor-label에서 가져오기 (메인 매트릭스용)
+    let currentMonitorName = $monitorItem.find('.monitor-label').text().trim();
+
+    // 서브 매트릭스의 경우 KVM 버튼에서 모니터 이름 가져오기
+    if (!currentMonitorName) {
+        currentMonitorName = $monitorItem.find('button[name="kvm_button"]').text().trim();
+    }
+
+    // select 옵션에서 현재 선택된 디바이스 이름 가져오기
+    const $select = $monitorItem.find('select[name="input_select"]');
+    let currentDeviceName = $select.find('option:selected').text().trim();
+
+    // 모달 폼 설정 - 기존 이름들을 입력창에 미리 채워넣기
+    $('#modal-position').val(position);
+    $('#modal-matrix-id').val(matrixId);
+
+    // value 속성 대신 val() 메서드 사용하여 입력창에 기존 값 설정
+    $('#modal-monitor-name').val(currentMonitorName);
+    $('#modal-device-name').val(currentDeviceName);
+
+    // 폼 action URL 설정
+    const actionUrl = `/api/matrix/${matrixId}/update-names/`;
+    $('#updateNamesForm').attr('action', actionUrl);
+});
+
+// 폼 제출 후 이름 업데이트
+$('#updateNamesForm').on('submit', function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+    const actionUrl = $(this).attr('action');
+
+    $.ajax({
+        url: actionUrl,
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function(response) {
+            if (response.success) {
+                // 성공 시 화면 업데이트
+                const position = $('#modal-position').val();
+                const matrixId = $('#modal-matrix-id').val();
+                const monitorName = $('#modal-monitor-name').val();
+                const deviceName = $('#modal-device-name').val();
+
+                // 모니터 라벨 업데이트
+                const $monitorItem = $(`.monitor-item[data-position="${position}"][data-matrix="${matrixId}"]`);
+                $monitorItem.find('.monitor-label').text(monitorName);
+
+                // KVM 버튼 텍스트도 업데이트 (서브 매트릭스용)
+                $monitorItem.find('button[name="kvm_button"]').text(monitorName);
+
+                // 모달 닫기
+                $('#updateNamesModal').modal('hide');
+
+                // 성공 메시지 표시
+                showSuccessToast('이름이 성공적으로 업데이트되었습니다.');
+
+                // 페이지 새로고침으로 변경사항 반영
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            } else {
+                alert('오류: ' + response.message);
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Error:', error);
+            alert('이름 업데이트 중 오류가 발생했습니다.');
+        }
+    });
+});
+
+// 성공 토스트 메시지 함수 (기존에 있다면 사용, 없다면 추가)
+function showSuccessToast(message) {
+    // 간단한 알림 (토스트가 구현되어 있지 않은 경우)
+    const toast = $(`
+        <div class="toast-container position-fixed top-0 end-0 p-3">
+            <div class="toast show" role="alert">
+                <div class="toast-header">
+                    <strong class="me-auto">알림</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+                </div>
+                <div class="toast-body">
+                    ${message}
+                </div>
+            </div>
+        </div>
+    `);
+
+    $('body').append(toast);
+
+    setTimeout(() => {
+        toast.remove();
+    }, 3000);
+}
+
+// 비디오월/그룹러닝 토글 기능 (헤더 버튼용)
+document.addEventListener("DOMContentLoaded", () => {
+    loadSavedLayout();
+    const toggleBtn = document.getElementById('toggleBtn');
+    const toggleSection = document.getElementById('toggleSection');
+
+    // pcSection으로 사용할 요소들 (매트릭스 카드들)
+    const pcSections = document.querySelectorAll('.matrix-card');
+
+    if (!toggleBtn || !toggleSection) {
+        console.warn("토글 요소를 찾을 수 없습니다.");
+        return;
+    }
+
+    // 토글 버튼 클릭 이벤트
+    toggleBtn.addEventListener('click', () => {
+        const isVideoWallMode = toggleBtn.textContent.trim() === '비디오월';
+
+        if (isVideoWallMode) {
+            // 비디오월 -> 그룹러닝 모드로 전환
+            pcSections.forEach(el => {
+                el.style.display = 'none';
+            });
+            toggleSection.style.display = 'block';
+            toggleBtn.textContent = '그룹러닝';
+
+            // 즐겨찾기 창은 그대로 유지 (숨기지 않음)
+
+            // 레이아웃 편집 버튼도 숨기기
+            const layoutToggleBtn = document.getElementById('layoutToggleBtn');
+            if (layoutToggleBtn) {
+                layoutToggleBtn.style.display = 'none';
+            }
+
+            // 편집 모드가 활성화되어 있으면 비활성화
+            if (window.isLayoutMode) {
+                exitLayoutMode();
+                window.isLayoutMode = false;
+            }
+
+        } else {
+            // 그룹러닝 -> 비디오월 모드로 전환
+            pcSections.forEach(el => {
+                el.style.display = 'block';
+            });
+            toggleSection.style.display = 'none';
+            toggleBtn.textContent = '비디오월';
+
+            // 레이아웃 편집 버튼도 다시 보이기
+            const layoutToggleBtn = document.getElementById('layoutToggleBtn');
+            if (layoutToggleBtn) {
+                layoutToggleBtn.style.display = 'block';
+            }
+        }
+    });
+
+    // 채널 박스 클릭 이벤트
+    document.addEventListener('click', (e) => {
+        if (e.target.closest('.channel-box')) {
+            const channelBox = e.target.closest('.channel-box');
+
+            // 선택 해제 버튼 클릭시에는 토글하지 않음
+            if (e.target.classList.contains('unselect-btn')) {
+                e.preventDefault();
+                channelBox.classList.remove('selected');
+                return;
+            }
+
+            channelBox.classList.toggle('selected');
+        }
+    });
+
+    // 그룹 버튼 기능
+    document.getElementById('groupBtn')?.addEventListener('click', () => {
+        const selectedChannels = document.querySelectorAll('.channel-box.selected');
+        if (selectedChannels.length > 1) {
+            // 실제 그룹 설정 로직 여기에 추가 필요
+            alert(`${selectedChannels.length}개 채널이 그룹으로 설정되었습니다.`);
+
+            // 선택된 채널들을 시각적으로 연결 표시
+            selectedChannels.forEach(channel => {
+                channel.style.borderColor = '#28a745';
+                channel.style.backgroundColor = '#d4edda';
+            });
+
+        } else {
+            alert('2개 이상의 채널을 선택해주세요.');
+        }
+    });
+
+    // 언그룹 버튼 기능
+    document.getElementById('ungroupBtn')?.addEventListener('click', () => {
+        const selectedChannels = document.querySelectorAll('.channel-box.selected');
+        if (selectedChannels.length > 0) {
+            // 실제 언그룹 로직 여기에 추가 필요
+            selectedChannels.forEach(channel => {
+                channel.classList.remove('selected');
+                channel.style.borderColor = '';
+                channel.style.backgroundColor = '';
+            });
+
+            alert('선택된 채널들의 그룹이 해제되었습니다.');
+        } else {
+            alert('해제할 채널을 선택해주세요.');
+        }
+    });
+
+    // 전체 선택 해제 (ESC 키)
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.channel-box.selected').forEach(channel => {
+                channel.classList.remove('selected');
+            });
+        }
+    });
+});
+
 </script>
 {% endblock javascript %}

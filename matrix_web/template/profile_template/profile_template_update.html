@@ -1,66 +1,246 @@
-<div
-  class="modal fade"
-  id="profileUpdate"
-  tabindex="-1"
-  role="dialog"
-  aria-labelledby="exampleModalCenterTitle"
-  aria-hidden="true"
->
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalCenterTitle">프로파일 수정</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <form id="profileUpdateForm" method="post" action="{% url 'profile_detail' %}">
-        {% csrf_token %}
-        <input type="hidden" name="_method" value="put" />
-        <input type="hidden" id="updateId" name="id" />
-        <div class="modal-body">
-          <div class="form-group">
-            <label for="inputName">프로파일명</label>
-            <input
-              type="text"
-              class="form-control"
-              id="inputName"
-              name="name"
-              placeholder="Enter name"
-              value="{{ form.name.value|default_if_none:'' }}"
-              required
-            />
-          </div>
-          <div class="form-group">
-            <label for="inputIp">IP 주소</label>
-            <input
-              type="text"
-              class="form-control"
-              id="inputIp"
-              name="ip_address"
-              placeholder="Enter Ip"
-              value="{{ form.ip_address.value|default_if_none:'' }}"
-              required
-            />
-          </div>
-          <div class="form-group">
-            <label for="inputPort">PORT 번호</label>
-            <input
-              type="number"
-              class="form-control"
-              id="inputPort"
-              name="port"
-              placeholder="Enter port"
-              value="{{ form.port.value|default_if_none:0 }}"
-              required
-            />
-          </div>
+{% load static %}
+<div class="modal fade" id="profile-update" tabindex="-1" role="dialog" aria-labelledby="profile-update-modal-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-md" role="document">
+        <div class="modal-content shadow-lg border-0 rounded-3">
+
+            <div class="modal-header bg-primary text-white rounded-top">
+                <h5 class="modal-title font-weight-bold" id="profile-update-modal-title">즐겨찾기 수정</h5>
+                <button type="button" class="close text-white" onclick="forceCloseModal()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <form method="post" action="{% url 'profile_detail' %}" id="profile-update-form">
+                {% csrf_token %}
+                {% load filter_tags %}
+                <input type="hidden" name="_method" value="put" />
+                <input type="hidden" id="update-id" name="id" />
+                <input type="hidden" id="update-mat-id-list" name="mat_id_list" />
+                <input type="hidden" id="update-input-1" name="input_a" />
+                <input type="hidden" id="update-input-2" name="input_b" />
+                <input type="hidden" id="update-input-3" name="input_c" />
+                <input type="hidden" id="update-input-4" name="input_d" />
+                <input type="hidden" id="update-input-5" name="input_e" />
+                <input type="hidden" id="update-input-6" name="input_f" />
+                <input type="hidden" id="update-input-7" name="input_g" />
+                <input type="hidden" id="update-input-8" name="input_h" />
+                <input type="hidden" id="update-input-9" name="input_i" />
+                <input type="hidden" id="update-input-10" name="input_j" />
+                <input type="hidden" id="update-input-11" name="input_k" />
+                <input type="hidden" id="update-input-12" name="input_l" />
+                <input type="hidden" id="update-input-13" name="input_m" />
+                <input type="hidden" id="update-input-14" name="input_n" />
+                <input type="hidden" id="update-input-15" name="input_o" />
+                <input type="hidden" id="update-input-16" name="input_p" />
+                <input type="hidden" id="update-input-kvm" name="input_kvm" />
+
+                <div class="modal-body px-4 py-3">
+                    <div class="form-group mb-4">
+                        <label for="input-name-update" class="font-weight-bold">즐겨찾기명</label>
+                        <input hidden="hidden" />
+                        <input
+                                type="text"
+                                class="form-control form-control-lg"
+                                id="input-name-update"
+                                name="name"
+                                placeholder="예: 빵방구"
+                                required
+                        />
+                        <div id="update-name-feedback" class="invalid-feedback">이름을 입력해주세요.</div>
+                    </div>
+
+                    {% if main_mat %}
+                        {% for mat in main_mat %}
+                            <h5 class="mt-4 font-weight-bold">{{mat.name}}</h5>
+                            <input type="hidden" class="update-system-id" value="{{mat.id}}" />
+
+                            <div class="form-row">
+                                {% for i in 1|range_tag:5 %}
+                                    <div class="form-group col-md-3 mb-3">
+                                        <label for="update-input-select-{{mat.id}}-{{i}}">{{ mat|monitor_name:i }}</label>
+                                        <select id="update-input-select-{{mat.id}}-{{i}}" class="form-control form-control-sm update-select-{{i}}">
+                                            {% for j in 0|range_tag:17 %}
+                                                <option {% if j == 0 %}selected{% endif %} value="{% if j < 10 %}0{{j}}{% else %}{{j}}{% endif %}">
+                                                    {% if j == 0 %}-{% else %}{{ mat|device_name:j }}{% endif %}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="form-row">
+                                {% for i in 5|range_tag:9 %}
+                                    <div class="form-group col-md-3 mb-3">
+                                        <label for="update-input-select-{{mat.id}}-{{i}}">{{ mat|monitor_name:i }}</label>
+                                        <select id="update-input-select-{{mat.id}}-{{i}}" class="form-control form-control-sm update-select-{{i}}">
+                                            {% for j in 0|range_tag:17 %}
+                                                <option {% if j == 0 %}selected{% endif %} value="{% if j < 10 %}0{{j}}{% else %}{{j}}{% endif %}">
+                                                    {% if j == 0 %}-{% else %}{{ mat|device_name:j }}{% endif %}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="form-row">
+                                {% for i in 9|range_tag:13 %}
+                                    <div class="form-group col-md-3 mb-3">
+                                        <label for="update-input-select-{{mat.id}}-{{i}}">{{ mat|monitor_name:i }}</label>
+                                        <select id="update-input-select-{{mat.id}}-{{i}}" class="form-control form-control-sm update-select-{{i}}">
+                                            {% for j in 0|range_tag:17 %}
+                                                <option {% if j == 0 %}selected{% endif %} value="{% if j < 10 %}0{{j}}{% else %}{{j}}{% endif %}">
+                                                    {% if j == 0 %}-{% else %}{{ mat|device_name:j }}{% endif %}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="form-row">
+                                {% for i in 13|range_tag:17 %}
+                                    <div class="form-group col-md-3 mb-3">
+                                        <label for="update-input-select-{{mat.id}}-{{i}}">{{ mat|monitor_name:i }}</label>
+                                        <select id="update-input-select-{{mat.id}}-{{i}}" class="form-control form-control-sm update-select-{{i}}">
+                                            {% for j in 0|range_tag:17 %}
+                                                <option {% if j == 0 %}selected{% endif %} value="{% if j < 10 %}0{{j}}{% else %}{{j}}{% endif %}">
+                                                    {% if j == 0 %}-{% else %}{{ mat|device_name:j }}{% endif %}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group col-md-3 mb-3">
+                                    <label for="update-main-input-kvm">USB</label>
+                                    <select id="update-main-input-kvm" class="form-control form-control-sm update-input-kvm">
+                                        {% for j in 0|range_tag:22 %}
+                                            <option {% if j == 0 %}selected{% endif %} value="{% if j < 10 %}0{{j}}{% else %}{{j}}{% endif %}">{{connect_list|kvm_index:j}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    {% if sub_mat %}
+                        {% for mat in sub_mat %}
+                            <h5 class="mt-4 font-weight-bold">{{mat.name}}</h5>
+                            <input type="hidden" class="update-system-id" value="{{mat.id}}" />
+
+                            <div class="form-row">
+                                {% for i in 1|range_tag:5 %}
+                                    <div class="form-group col-md-3 mb-3">
+                                        <label for="update-input-select-{{mat.id}}-{{i}}">{{ mat|profile_monitor_name:i }}</label>
+                                        <select id="update-input-select-{{mat.id}}-{{i}}" class="form-control form-control-sm update-select-{{i}}">
+                                            {% for j in 0|range_tag:17 %}
+                                                <option {% if j == 0 %}selected{% endif %} value="{% if j < 10 %}0{{j}}{% else %}{{j}}{% endif %}">
+                                                    {% if j == 0 %}-{% else %}{{ mat|device_name:j }}{% endif %}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="form-row">
+                                {% for i in 5|range_tag:9 %}
+                                    <div class="form-group col-md-3 mb-3">
+                                        <label for="update-input-select-{{mat.id}}-{{i}}">{{ mat|profile_monitor_name:i }}</label>
+                                        <select id="update-input-select-{{mat.id}}-{{i}}" class="form-control form-control-sm update-select-{{i}}">
+                                            {% for j in 0|range_tag:17 %}
+                                                <option {% if j == 0 %}selected{% endif %} value="{% if j < 10 %}0{{j}}{% else %}{{j}}{% endif %}">
+                                                    {% if j == 0 %}-{% else %}{{ mat|device_name:j }}{% endif %}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="form-row">
+                                {% for i in 9|range_tag:13 %}
+                                    <div class="form-group col-md-3 mb-3">
+                                        <label for="update-input-select-{{mat.id}}-{{i}}">{{ mat|profile_monitor_name:i }}</label>
+                                        <select id="update-input-select-{{mat.id}}-{{i}}" class="form-control form-control-sm update-select-{{i}}">
+                                            {% for j in 0|range_tag:17 %}
+                                                <option {% if j == 0 %}selected{% endif %} value="{% if j < 10 %}0{{j}}{% else %}{{j}}{% endif %}">
+                                                    {% if j == 0 %}-{% else %}{{ mat|device_name:j }}{% endif %}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="form-row">
+                                {% for i in 13|range_tag:17 %}
+                                    <div class="form-group col-md-3 mb-3">
+                                        <label for="update-input-select-{{mat.id}}-{{i}}">{{ mat|profile_monitor_name:i }}</label>
+                                        <select id="update-input-select-{{mat.id}}-{{i}}" class="form-control form-control-sm update-select-{{i}}">
+                                            {% for j in 0|range_tag:17 %}
+                                                <option {% if j == 0 %}selected{% endif %} value="{% if j < 10 %}0{{j}}{% else %}{{j}}{% endif %}">
+                                                    {% if j == 0 %}-{% else %}{{ mat|device_name:j }}{% endif %}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group col-md-3 mb-3">
+                                    <label for="update-sub-input-kvm-{{mat.main_connect}}">USB</label>
+                                    <select id="update-sub-input-kvm-{{mat.main_connect}}" class="form-control form-control-sm update-input-kvm">
+                                        {% for j in 0|range_tag:17 %}
+                                            <option {% if j == 0 %}selected{% endif %} value="{% if j < 10 %}0{{j}}{% else %}{{j}}{% endif %}">
+                                                {% if j == 0 %}-{% else %}{{ mat|device_name:j }}{% endif %}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <div class="modal-footer bg-light border-top-0 rounded-bottom px-4 py-3">
+                    <button type="button" class="btn btn-modal-secondary" onclick="forceCloseModal()">취소</button>
+                    <button type="button" class="btn btn-modal-primary" onClick="profileUpdate()">수정</button>
+                </div>
+            </form>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
-          <button type="submit" class="btn btn-primary">수정</button>
-        </div>
-      </form>
     </div>
-  </div>
 </div>
+<link rel="stylesheet" href="{% static 'css/profile_modal.css' %}">
+<style>
+    select.form-control {
+        padding-right: 2rem !important;
+        background-position: right 0.75rem center !important;
+    }
+
+    select.form-control-sm {
+        padding-right: 1.75rem !important;
+        background-position: right 0.5rem center !important;
+    }
+
+    .form-group.col-md-3 {
+        flex: 0 0 25%;
+        max-width: 25%;
+    }
+
+    .form-control {
+        width: 100% !important;
+        min-width: 120px !important;
+        font-size: 14px !important;
+        padding: 0.5rem 0.75rem !important;
+    }
+
+    select.form-control option {
+        padding: 5px;
+    }
+</style>

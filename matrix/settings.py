@@ -38,13 +38,19 @@ def get_secret(setting, secrets=secrets):
 SECRET_KEY = get_secret("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = [
-    "192.168.50.230",
+    '*',
+    "192.168.0.38",
+    "192.168.1.39"
+    "10.85.40.248",
     "localhost",
+    "0.0.0.0",
     "http://localhost:3000",
 ]
+
+
 
 
 # Application definition
@@ -61,6 +67,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'utils',
     'django_feather',
+    'django_user_agents',
+    'django_bootstrap_icons',
 ]
 
 MIDDLEWARE = [
@@ -72,6 +80,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+    'django_user_agents.middleware.UserAgentMiddleware',
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
@@ -127,7 +136,7 @@ REST_FRAMEWORK = {
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'matrix',
         'USER' : 'aisol',
         'PASSWORD' : 'qwe123!@#',
@@ -182,6 +191,9 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'node_modules'),
+)
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
@@ -191,3 +203,23 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = '/'
 
 
+# django-user-agents Settings
+# https://pypi.org/project/django-user-agents/
+
+# 캐시 백엔드
+# CACHES = {
+#     'default': {
+#         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+#         'LOCATION': '127.0.0.1:11211',
+#     }
+# }
+
+# 가영수정
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+    }
+}
+
+USER_AGENTS_CACHE  =  'default'

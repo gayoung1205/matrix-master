@@ -1,0 +1,42 @@
+# Python
+*.pyc
+*.pyo
+__pycache__/
+*.so
+*.egg
+*.egg-info
+dist/
+build/
+
+# Django
+*.log
+db.sqlite3
+db.sqlite3.backup
+*.sql
+media/
+staticfiles/
+
+# Virtual Environment
+venv/
+env/
+
+# IDE
+.idea/
+*.swp
+*.swo
+
+# Node
+node_modules/
+package-lock.json
+
+# Backup files
+*.backup
+backup.json
+
+# Config
+conf.ini
+secret.json
+
+# Test files
+test_*.py
+.test_*.py.swp

@@ -1,0 +1,1069 @@
+{% extends 'base.html' %}
+{% load static %} {% load user_agents %}
+{% block content %}
+    {% if request|is_mobile or request|is_tablet %}
+        {% include 'home/home_mobile.html' %}
+    {% endif %}
+    {% if request|is_pc %}
+        {% include 'home/home_pc.html' %}
+    {% endif %}
+
+    {% include 'modal/error_modal.html' %}
+
+    <!-- Loading Modal -->
+    <div class="modal fade" id="loadingModal" tabindex="-1" data-backdrop="static" data-keyboard="false" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content" style="background-color: rgba(255, 255, 255, 0); border: none">
+                <div class="modal-body">
+                    <div class="text-center">
+                        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem" role="status"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        #errorModal .modal-content {
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(255,255,255,0.15);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+            overflow: hidden;
+        }
+
+        #errorModal .modal-header,
+        #errorModal .modal-footer {
+            background: transparent !important;
+            border: 0 !important;
+        }
+
+        #errorModal .modal-body { background: transparent !important; }
+
+        #errorModal .btn-close { filter: invert(1) opacity(0.85); }
+
+        .btn-gradient {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            color: white !important;
+            transition: all 0.3s ease;
+        }
+
+        .btn-gradient:hover {
+            background: linear-gradient(45deg, #764ba2, #667eea);
+            color: white !important; /* hover 시에도 흰색 유지 */
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-gradient:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(102, 126, 234, 0.4);
+            color: white !important; /* active 시에도 흰색 유지 */
+        }
+
+        .btn-outline-gradient {
+            background: transparent;
+            border: 2px solid transparent;
+            background-image: linear-gradient(white, white),
+            linear-gradient(45deg, #667eea, #764ba2);
+            background-origin: border-box;
+            background-clip: padding-box, border-box;
+            color: #000000 !important;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-gradient:hover {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white !important; /* hover 시 흰색으로 */
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-outline-gradient:not(:hover) {
+            color: #000000 !important;
+        }
+
+        .kvm-active-border-gradient {
+            position: relative;
+            border: 3px solid transparent;
+            background-image: linear-gradient(white, white),
+            linear-gradient(45deg, #667eea, #764ba2);
+            background-origin: border-box;
+            background-clip: padding-box, border-box;
+            animation: borderPulse 2s ease-in-out infinite;
+            border-radius: 10px;
+        }
+
+        .btn.active-kvm,
+        .btn-gradient.active-kvm {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+            color: white !important;
+            border-color: #667eea !important;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4) !important;
+        }
+
+        .btn.active-kvm:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5) !important;
+            color: white !important; /* hover 시에도 흰색 유지 */
+        }
+
+        /* KVM 버튼 내부 요소들도 색상 강제 적용 */
+        .btn-gradient span,
+        .btn-gradient div,
+        .btn-gradient.active-kvm span,
+        .btn-gradient.active-kvm div {
+            color: white !important;
+        }
+
+        .btn-outline-gradient span,
+        .btn-outline-gradient div {
+            color: #667eea !important;
+        }
+
+        .btn-outline-gradient:hover span,
+        .btn-outline-gradient:hover div {
+            color: white !important;
+        }
+
+        @keyframes borderPulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.8;
+            }
+        }
+
+        .btn-gradient:focus,
+        .btn-outline-gradient:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+    </style>
+{% endblock content %}
+{% block javascript %}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'js/home.js' %}"></script>
+    <script>
+        // ===== 8포트에서 가져온 기본 기능들 =====
+
+        // input_select 처리 (8포트 + 16포트 고급 기능 통합)
+        $('select[name=input_select]').on('change', function () {
+            const $monitorItem = $(this).closest('.monitor-item');
+            if ($monitorItem.hasClass('hidden')) {
+                showErrorToast('숨겨진 모니터는 입력을 변경할 수 없습니다.');
+                const previousValue = $(this).data('previous-value');
+                if (previousValue) {
+                    $(this).val(previousValue);
+                }
+                return;
+            }
+
+            $(this).data('previous-value', $(this).val());
+
+            var id = $(this).attr('id').split('-');
+            var target = id[1];
+            var mat_id = id[2];
+            var input = $(this).val();
+
+            // 8포트 스타일의 로깅
+            console.log("target:"+target);
+            console.log("mat_id:"+mat_id);
+            console.log("input:"+input);
+
+            $.ajax({
+                type: 'GET',
+                url: `{% url 'control' %}?id=${mat_id}&input=${input}&target=${target}`,
+                success: function (res) {
+                    // 8포트에서는 빈 success 함수였으므로 유지
+                },
+                error: function (res) {
+                    $('#errorModal').modal('show');
+                    $('#errorModal .modal-body span').text(JSON.stringify(res.responseText));
+                },
+            });
+        });
+
+        // 8포트에서 누락된 slicer 기능 추가
+        $('select[name=slice_button]').on('change', function () {
+            var id = $(this).attr('id').split('-');
+            var target = id[1];
+            var mat_id = id[2];
+            var input = $(this).val();
+
+            console.log("target:"+target);
+            console.log("mat_id:"+mat_id);
+            console.log("input:"+input);
+
+            $.ajax({
+                type: 'GET',
+                url: `{% url 'slicer' %}?id=${mat_id}&input=${input}&target=${target}`,
+                success: function (res) {
+                    // 8포트 스타일 유지
+                },
+                error: function (res) {
+                    $('#errorModal').modal('show');
+                    $('#errorModal .modal-body span').text(JSON.stringify(res.responseText));
+                },
+            });
+        });
+
+        // KVM 버튼 처리 (8포트 스타일 + 16포트 상태관리)
+        $('button[name=kvm_button]').on('click', function () {
+            var val = $(this).val().split('-');
+            var mat_id = val[0];
+            var input = val[1];
+            const buttonVal = $(this).val();
+
+            $.ajax({
+                type: 'GET',
+                url: `{% url 'kvm' %}?id=${mat_id}&input=${input}`,
+                success: function (res) {
+                    // 16포트 고급 기능: localStorage 상태 관리
+                    localStorage.setItem("currentControl", buttonVal);
+                    applyControlState();
+                },
+                error: function (res) {
+                    $('#errorModal').modal('show');
+                    $('#errorModal .modal-body span').text(JSON.stringify(res.responseText));
+                },
+            });
+        });
+
+        // Profile 버튼 처리 (8포트 스타일 유지)
+        $('button[name=profile_button]').on('click', function () {
+            var id = $(this).val();
+            $.ajax({
+                type: 'GET',
+                url: `{% url 'profile_control' %}?id=${id}`,
+                success: function (res) {
+                    location.reload(); // 8포트와 동일하게 새로고침
+                },
+                error: function (res) {
+                    $('#errorModal').modal('show');
+                    $('#errorModal .modal-body span').text(JSON.stringify(res.responseText));
+                },
+                beforeSend: function () {
+                    $('#loadingModal').modal('show');
+                },
+                complete: function () {
+                    $('#loadingModal').modal('hide');
+                },
+            });
+        });
+
+        // ===== 16포트 고급 기능들 =====
+
+        function updateMonitorSelectState($monitor, isHidden) {
+            const $select = $monitor.find('select[name=input_select]');
+
+            if (isHidden) {
+                if (!$select.attr('data-original-disabled')) {
+                    $select.attr('data-original-disabled', $select.prop('disabled'));
+                }
+                $select.prop('disabled', true);
+                $select.addClass('disabled-select');
+            } else {
+                const originalDisabled = $select.attr('data-original-disabled');
+                if (originalDisabled !== 'true') {
+                    $select.prop('disabled', false);
+                }
+                $select.removeClass('disabled-select');
+            }
+        }
+
+        function applyControlState() {
+            const controlState = localStorage.getItem("currentControl");
+
+            $('button[name=kvm_button]').each(function () {
+                const val = $(this).val();
+                const isActive = (val === controlState);
+                const $monitorItem = $(this).closest('.monitor-item');
+                const isHidden = $monitorItem.hasClass('hidden');
+
+                if (isHidden) {
+                    $(this).removeClass('btn-gradient').addClass('btn-outline-gradient');
+                    $(this).css('opacity', '0.5');
+                    $(this).css('cursor', 'not-allowed');
+                } else {
+                    $(this).css('opacity', '1');
+                    $(this).css('cursor', 'pointer');
+
+                    if (isActive) {
+                        $(this).removeClass('btn-outline-gradient').addClass('btn-gradient');
+                    } else {
+                        $(this).removeClass('btn-gradient').addClass('btn-outline-gradient');
+                    }
+                }
+
+                const [matrixId, position] = val.split('-');
+                const $control = $(`.monitor-item[data-matrix="${matrixId}"][data-position="${position}"] .control`);
+
+                if (isActive && !isHidden) {
+                    $control.addClass('kvm-active-border-gradient');
+                } else {
+                    $control.removeClass('kvm-active-border-gradient');
+                }
+            });
+        }
+
+        function updateUIFromHardwareState(hardwareData) {
+            Object.keys(hardwareData).forEach(matrixId => {
+                const matrixData = hardwareData[matrixId];
+
+                if (matrixData.kvm_input) {
+                    const kvmInput = parseInt(matrixData.kvm_input);
+                    const kvmButtonValue = `${matrixId}-${kvmInput}`;
+
+                    localStorage.setItem("currentControl", kvmButtonValue);
+                    applyControlState();
+
+                    console.log(`Matrix ${matrixId} KVM updated to input ${kvmInput}`);
+                }
+
+                // 16포트 확장된 입력 처리
+                const inputs = ['input_a', 'input_b', 'input_c', 'input_d',
+                    'input_e', 'input_f', 'input_g', 'input_h',
+                    'input_i', 'input_j', 'input_k', 'input_l',
+                    'input_m', 'input_n', 'input_o', 'input_p'];
+
+                inputs.forEach((inputName, index) => {
+                    if (matrixData[inputName]) {
+                        const outputIndex = index + 1;
+                        const selectElement = $(`#input_select-${outputIndex.toString().padStart(2, '0')}-${matrixId}`);
+                        if (selectElement.length) {
+                            selectElement.val(`${matrixData[inputName].toString().padStart(2, '0')}`);
+                        }
+                    }
+                });
+            });
+        }
+
+        function updateHardwareStatusAndUI() {
+            $.ajax({
+                type: 'GET',
+                url: '{% url "get_hardware_status" %}',
+                success: function(response) {
+                    if (response.status === 'success') {
+                        updateUIFromHardwareState(response.data);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('하드웨어 상태 업데이트 실패:', error);
+                }
+            });
+        }
+
+        // 레이아웃 편집 모드 관련 변수
+        let isLayoutMode = false;
+        let draggedElement = null;
+
+        // 레이아웃 모드 토글
+        $(document).on('click', '#layoutToggleBtn', function() {
+            console.log('Layout toggle clicked, current mode:', isLayoutMode);
+            isLayoutMode = !isLayoutMode;
+            if (isLayoutMode) {
+                enterLayoutMode();
+            } else {
+                exitLayoutMode();
+            }
+        });
+
+        function enterLayoutMode() {
+            console.log('Entering layout mode');
+            const $btn = $('#layoutToggleBtn');
+            const $controls = $('#layoutControls');
+
+            $btn.addClass('editing');
+            $btn.html('<i class="fas fa-stop"></i>');
+            $btn.attr('title', '편집 중지');
+
+            $controls.removeClass('hidden');
+            setTimeout(() => $controls.addClass('show'), 50);
+
+            $('.matrix-card').addClass('editing-mode');
+            $('.btn-edit-names').show();
+
+            enableDragAndDrop();
+
+            $('select[name=input_select]').prop('disabled', true);
+            $('button[name=kvm_button]').prop('disabled', true);
+
+            updateHiddenMonitorsList();
+            showEditingToast();
+        }
+
+        function exitLayoutMode() {
+            console.log('Exiting layout mode');
+            const $btn = $('#layoutToggleBtn');
+            const $controls = $('#layoutControls');
+
+            $btn.removeClass('editing');
+            $btn.html('<i class="fas fa-grip-horizontal"></i>');
+            $btn.attr('title', '레이아웃 편집');
+
+            $controls.removeClass('show');
+            setTimeout(() => $controls.addClass('hidden'), 300);
+
+            $('.matrix-card').removeClass('editing-mode');
+            $('.btn-edit-names').hide();
+
+            disableDragAndDrop();
+
+            $('select[name=input_select]').prop('disabled', false);
+            $('button[name=kvm_button]').prop('disabled', false);
+        }
+
+        function enableDragAndDrop() {
+            console.log('Enabling drag and drop');
+            $('.monitor-item').attr('draggable', true);
+
+            $('.monitor-item').off('dragstart dragend dragover');
+            $('.sortable-row').off('dragover dragleave drop');
+
+            $('.monitor-item').on('dragstart', function(e) {
+                draggedElement = this;
+                $(this).addClass('dragging');
+                e.originalEvent.dataTransfer.effectAllowed = 'move';
+                e.originalEvent.dataTransfer.setData('text/html', this.innerHTML);
+                console.log('Drag started:', $(this).data('position'));
+            });
+
+            $('.monitor-item').on('dragend', function(e) {
+                $(this).removeClass('dragging');
+                $('.drag-over').removeClass('drag-over');
+                $('.drag-over-element').removeClass('drag-over-element');
+                draggedElement = null;
+                console.log('Drag ended');
+            });
+
+            $('.monitor-item').on('dragover', function(e) {
+                if (this === draggedElement) return;
+
+                e.preventDefault();
+                e.stopPropagation();
+
+                const draggingItem = $(draggedElement);
+                const targetItem = $(this);
+                const targetRow = targetItem.closest('.sortable-row');
+
+                const rect = this.getBoundingClientRect();
+                const midpoint = rect.left + rect.width / 2;
+
+                if (e.originalEvent.clientX < midpoint) {
+                    targetItem.before(draggingItem);
+                } else {
+                    targetItem.after(draggingItem);
+                }
+
+                const newRow = targetRow.data('row');
+                draggingItem.attr('data-row', newRow);
+
+                $(this).addClass('drag-over-element');
+            });
+
+            $('.monitor-item').on('dragleave', function(e) {
+                $(this).removeClass('drag-over-element');
+            });
+
+            $('.sortable-row').on('dragover', function(e) {
+                e.preventDefault();
+                $(this).addClass('drag-over');
+
+                if ($(this).find('.monitor-item').length === 0) {
+                    if (draggedElement) {
+                        $(this).append(draggedElement);
+                        const dropRow = $(this).data('row');
+                        $(draggedElement).attr('data-row', dropRow);
+                    }
+                }
+            });
+
+            $('.sortable-row').on('dragleave', function(e) {
+                if (!$(e.relatedTarget).closest('.sortable-row').is(this)) {
+                    $(this).removeClass('drag-over');
+                }
+            });
+
+            $('.sortable-row').on('drop', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                $(this).removeClass('drag-over');
+
+                console.log('Item dropped in row:', $(this).data('row'));
+            });
+        }
+
+        function disableDragAndDrop() {
+            console.log('Disabling drag and drop');
+            $('.monitor-item').attr('draggable', false);
+            $('.monitor-item').off('dragstart dragend');
+            $('.sortable-row').off('dragover dragleave drop');
+        }
+
+        // 모니터 숨기기/보이기
+        $(document).on('click', '.btn-toggle-visibility', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            if (!isLayoutMode) {
+                showErrorToast('편집 모드에서만 숨기기/보이기가 가능합니다.');
+                return;
+            }
+
+            const $monitor = $(this).closest('.monitor-item');
+            const position = $(this).data('position');
+            const matrixId = $(this).data('matrix');
+            const $button = $(this);
+            const currentControl = localStorage.getItem("currentControl");
+            const thisMonitorControl = `${matrixId}-${position}`;
+
+            console.log('Toggle visibility clicked:', position, matrixId);
+
+            $.ajax({
+                type: 'POST',
+                url: '{% url "toggle_monitor" %}',
+                data: JSON.stringify({
+                    matrix_id: matrixId,
+                    position: position
+                }),
+                contentType: 'application/json',
+                headers: {
+                    'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
+                },
+                success: function(response) {
+                    console.log('Toggle response:', response);
+                    if (response.success) {
+                        if (response.visible) {
+                            $monitor.removeClass('hidden');
+                            $button.find('i').removeClass('fa-eye-slash').addClass('fa-eye');
+                            $button.attr('title', '숨기기');
+                        } else {
+                            $monitor.addClass('hidden');
+                            $button.find('i').removeClass('fa-eye').addClass('fa-eye-slash');
+                            $button.attr('title', '보이기');
+
+                            if (currentControl === thisMonitorControl) {
+                                localStorage.removeItem("currentControl");
+                                applyControlState();
+                                showErrorToast('숨겨진 모니터의 제어가 해제되었습니다.');
+                            }
+                        }
+                        updateHiddenMonitorsList();
+                        showSuccessToast(`${response.monitor_name} ${response.visible ? '표시됨' : '숨김'}`);
+                    } else {
+                        showErrorToast(response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Toggle error:', xhr.responseText);
+                    showErrorToast('모니터 상태 변경 중 오류가 발생했습니다.');
+                }
+            });
+        });
+
+        // 숨겨진 모니터 복원
+        $(document).on('click', '.restore-monitor', function(e) {
+            e.preventDefault();
+            const position = $(this).data('position');
+            const matrixId = $(this).data('matrix-id');
+
+            console.log('Restore monitor clicked:', position, matrixId);
+
+            $.ajax({
+                type: 'POST',
+                url: '{% url "restore_monitor" %}',
+                data: JSON.stringify({
+                    matrix_id: matrixId,
+                    position: position
+                }),
+                contentType: 'application/json',
+                headers: {
+                    'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
+                },
+                success: function(response) {
+                    console.log('Restore response:', response);
+                    if (response.success) {
+                        showSuccessToast(response.message);
+                        updateHiddenMonitorsList();
+                        const $monitor = $(`.monitor-item[data-position="${position}"][data-matrix="${matrixId}"]`);
+                        $monitor.removeClass('hidden');
+                        $monitor.find('.btn-toggle-visibility i').removeClass('fa-eye-slash').addClass('fa-eye');
+                        updateMonitorSelectState($monitor, false);
+                    } else {
+                        showErrorToast(response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Restore error:', xhr.responseText);
+                    showErrorToast('모니터 복원 중 오류가 발생했습니다.');
+                }
+            });
+        });
+
+        // 레이아웃 제어 버튼들
+        $(document).on('click', '#saveLayoutBtn', function() {
+            console.log('Save layout clicked');
+            if (!isLayoutMode) {
+                showErrorToast('편집 모드에서만 저장할 수 있습니다.');
+                return;
+            }
+            saveAllLayouts();
+        });
+
+        $(document).on('click', '#resetLayoutBtn', function() {
+            console.log('Reset layout clicked');
+            if (confirm('모든 레이아웃을 초기화하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
+                resetAllLayouts();
+            }
+        });
+
+        $(document).on('click', '#closeLayoutBtn', function() {
+            console.log('Close layout clicked');
+            exitLayoutMode();
+        });
+
+        function saveAllLayouts() {
+            console.log('Saving all layouts...');
+            let savedCount = 0;
+            let totalCount = 0;
+
+            $('.matrix-card[data-matrix-id]').each(function() {
+                totalCount++;
+                const matrixId = $(this).data('matrix-id');
+                const layouts = [];
+
+                $(this).find('.monitor-item').each(function(index) {
+                    layouts.push({
+                        position: parseInt($(this).data('position')),
+                        order: index,
+                        visible: !$(this).hasClass('hidden'),
+                        row: parseInt($(this).data('row')),
+                        col: parseInt($(this).data('col'))
+                    });
+                });
+
+                console.log(`Saving layout for matrix ${matrixId}:`, layouts);
+
+                $.ajax({
+                    type: 'POST',
+                    url: '{% url "save_layout" %}',
+                    data: JSON.stringify({
+                        matrix_id: matrixId,
+                        layouts: layouts
+                    }),
+                    contentType: 'application/json',
+                    headers: {
+                        'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
+                    },
+                    success: function(response) {
+                        savedCount++;
+                        console.log(`Save response for matrix ${matrixId}:`, response);
+                        if (response.success) {
+                            if (savedCount === totalCount) {
+                                showSuccessToast('모든 레이아웃이 저장되었습니다.');
+                            }
+                        } else {
+                            showErrorToast(response.message);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error(`Save error for matrix ${matrixId}:`, xhr.responseText);
+                        showErrorToast('레이아웃 저장 중 오류가 발생했습니다.');
+                    }
+                });
+            });
+        }
+
+        function resetAllLayouts() {
+            console.log('Resetting all layouts...');
+            $.ajax({
+                type: 'POST',
+                url: '{% url "reset_layout" %}',
+                data: JSON.stringify({}),
+                contentType: 'application/json',
+                headers: {
+                    'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
+                },
+                success: function(response) {
+                    console.log('Reset response:', response);
+                    if (response.success) {
+                        showSuccessToast(response.message);
+                        localStorage.removeItem("currentControl");
+                        applyControlState();
+
+                        $('.matrix-card[data-matrix-id]').each(function() {
+                            const $card = $(this);
+                            const $row1 = $card.find('[data-row="1"]');
+                            const $row2 = $card.find('[data-row="2"]');
+                            const monitors = [];
+                            $card.find('.monitor-item').each(function() {
+                                monitors.push({
+                                    element: $(this).clone(true),
+                                    position: $(this).data('position')
+                                });
+                            });
+
+                            $card.find('.monitor-item').remove();
+                            monitors.sort((a, b) => a.position - b.position);
+
+                            monitors.forEach(monitor => {
+                                const pos = monitor.position;
+                                const $element = monitor.element;
+
+                                $element.removeClass('hidden');
+                                $element.find('.btn-toggle-visibility i')
+                                    .removeClass('fa-eye-slash').addClass('fa-eye');
+
+                                if (pos <= 8) {
+                                    $element.attr('data-row', 1);
+                                    $element.attr('data-col', pos);
+                                    $row1.append($element);
+                                } else {
+                                    $element.attr('data-row', 2);
+                                    $element.attr('data-col', pos - 8);
+                                    $row2.append($element);
+                                }
+                            });
+                        });
+
+                        updateHiddenMonitorsList();
+                    } else {
+                        showErrorToast(response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Reset error:', xhr.responseText);
+                    showErrorToast('레이아웃 초기화 중 오류가 발생했습니다.');
+                }
+            });
+        }
+
+        function applyLayout($card, layouts) {
+            layouts.sort((a, b) => a.order - b.order);
+
+            layouts.forEach(layout => {
+                const selector = `.monitor-item[data-position="${layout.position}"][data-matrix="${layout.matrix}"]`;
+                const $monitor = $card.find(selector);
+                const $targetRow = $card.find(`.sortable-row[data-row="${layout.row}"]`);
+
+                if ($monitor.length && $targetRow.length) {
+                    $monitor.detach();
+                    $targetRow.append($monitor);
+
+                    $monitor.attr('data-row', layout.row);
+                    $monitor.attr('data-col', layout.col);
+
+                    if (!layout.visible) {
+                        $monitor.addClass('hidden');
+                        $monitor.find('.btn-toggle-visibility i')
+                            .removeClass('fa-eye').addClass('fa-eye-slash');
+                        $monitor.find('.btn-toggle-visibility')
+                            .attr('title', '보이기');
+                    } else {
+                        $monitor.removeClass('hidden');
+                        $monitor.find('.btn-toggle-visibility i')
+                            .removeClass('fa-eye-slash').addClass('fa-eye');
+                        $monitor.find('.btn-toggle-visibility')
+                            .attr('title', '숨기기');
+                    }
+                }
+            });
+        }
+
+        function loadAllLayouts() {
+            console.log('Loading all layouts...');
+            let loadedCount = 0;
+            const totalCount = $('.matrix-card[data-matrix-id]').length;
+
+            $('.matrix-card[data-matrix-id]').each(function () {
+                const matrixId = $(this).data('matrix-id');
+                const $card = $(this);
+                $.ajax({
+                    type: 'GET',
+                    url: '/api/load_layout/',
+                    data: { matrix_id: matrixId },
+                    success: function (response) {
+                        if (response.success && response.layouts) {
+                            applyLayout($card, response.layouts);
+                        }
+                        loadedCount++;
+
+                        if (loadedCount === totalCount) {
+                            updateHiddenMonitorsList();
+                        }
+                    },
+                    error: function () {
+                        console.log('Failed to load layout for matrix:', matrixId);
+                        loadedCount++;
+
+                        if (loadedCount === totalCount) {
+                            updateHiddenMonitorsList();
+                        }
+                    }
+                });
+            });
+        }
+
+        function updateHiddenMonitorsList() {
+            console.log('Updating hidden monitors list...');
+            let allHiddenMonitors = [];
+            let processedCount = 0;
+            const totalMatrices = $('.matrix-card[data-matrix-id]').length;
+
+            if (totalMatrices === 0) {
+                updateHiddenMonitorsDisplay([]);
+                return;
+            }
+
+            $('.matrix-card[data-matrix-id]').each(function() {
+                const matrixId = $(this).data('matrix-id');
+
+                $.ajax({
+                    type: 'GET',
+                    url: '{% url "hidden_monitors" %}',
+                    data: { matrix_id: matrixId },
+                    success: function(response) {
+                        console.log(`Hidden monitors for matrix ${matrixId}:`, response);
+                        if (response.success) {
+                            response.hidden_monitors.forEach(monitor => {
+                                monitor.matrix_id = matrixId;
+                            });
+                            allHiddenMonitors = allHiddenMonitors.concat(response.hidden_monitors);
+                        }
+                        processedCount++;
+
+                        if (processedCount === totalMatrices) {
+                            updateHiddenMonitorsDisplay(allHiddenMonitors);
+                        }
+                    },
+                    error: function() {
+                        processedCount++;
+                        if (processedCount === totalMatrices) {
+                            updateHiddenMonitorsDisplay(allHiddenMonitors);
+                        }
+                    }
+                });
+            });
+        }
+
+        function updateHiddenMonitorsDisplay(hiddenMonitors) {
+            console.log('Displaying hidden monitors:', hiddenMonitors);
+            const $hiddenContainer = $('#hiddenMonitors');
+
+            if (hiddenMonitors.length === 0) {
+                $hiddenContainer.html('<small class="text-muted">숨겨진 모니터가 없습니다.</small>');
+            } else {
+                let html = '';
+                hiddenMonitors.forEach(monitor => {
+                    html += `
+                <div class="hidden-monitor-item mb-2 p-2 border rounded">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">${monitor.name}</small>
+                        <button class="btn btn-sm btn-outline-primary restore-monitor"
+                                data-position="${monitor.position}"
+                                data-matrix-id="${monitor.matrix_id}"
+                                title="다시 보이기">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+                });
+                $hiddenContainer.html(html);
+            }
+        }
+
+        // 토스트 알림 함수들
+        function showSuccessToast(message) {
+            showToast(message, 'success');
+        }
+
+        function showErrorToast(message) {
+            showToast(message, 'error');
+        }
+
+        function showToast(message, type) {
+            const bgColor = type === 'success' ? '#28a745' : '#dc3545';
+
+            $('.toast-notification').remove();
+
+            const toast = $(`
+        <div class="toast-notification" style="
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: ${bgColor};
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            z-index: 9999;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            animation: slideInRight 0.3s ease;
+        ">
+            <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+            ${message}
+        </div>
+    `);
+
+            $('body').append(toast);
+
+            setTimeout(() => {
+                toast.fadeOut(300, () => toast.remove());
+            }, 3000);
+        }
+
+        function showEditingToast() {
+            $('.editing-toast').remove();
+
+            const toast = $(`
+        <div class="editing-toast" style="
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 25px;
+            font-weight: 500;
+            z-index: 9999;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            animation: slideDown 0.5s ease;
+        ">
+            <i class="fas fa-info-circle"></i>
+            편집 모드입니다. 모니터를 드래그하거나 👁️ 버튼으로 숨길 수 있습니다
+        </div>
+    `);
+
+            $('body').append(toast);
+
+            setTimeout(() => {
+                toast.fadeOut(500, () => toast.remove());
+            }, 3000);
+        }
+
+        function cleanupMonitorControls() {
+            $('.monitor-item').each(function() {
+                const $ctrls = $(this).find('.monitor-controls');
+                if ($ctrls.length > 1) {
+                    $ctrls.slice(1).remove();
+                }
+            });
+        }
+
+        // 모달 이벤트 핸들러
+        $(document).ready(function() {
+            // Profile 버튼 텍스트 초기화
+            $('button[name=profile_button]').each(function() {
+                $(this).data('original-text', $(this).text());
+            });
+
+            // 이름 수정 모달 이벤트
+            $('#updateNamesModal').on('show.bs.modal', function(e) {
+                const btn = $(e.relatedTarget);
+                const matrixId = btn.data('matrix');
+                const position = btn.data('position');
+
+                console.log('Matrix ID:', matrixId, 'Position:', position);
+
+                const url = `/api/matrix/${matrixId}/update-names/`;
+
+                $.ajax({
+                    url: url,
+                    method: 'GET',
+                    success: function(resp) {
+                        console.log('GET Response:', resp);
+
+                        if (resp.success) {
+                            const monitorName = resp.monitor_names[position-1] || '';
+                            const deviceName = resp.device_names[position-1] || '';
+
+                            $('#modal-monitor-name').val(monitorName);
+                            $('#modal-device-name').val(deviceName);
+                            $('#modal-position').val(position);
+                            $('#updateNamesForm').data('matrix-id', matrixId);
+                        }
+                    },
+                    error: function(xhr) {
+                        console.error('GET Error:', xhr);
+                        alert('데이터를 불러올 수 없습니다.');
+                    }
+                });
+            });
+
+            // 폼 제출 이벤트
+            $('#updateNamesForm').on('submit', function(e) {
+                e.preventDefault();
+
+                const matrixId = $(this).data('matrix-id');
+                const position = $('#modal-position').val();
+                const url = `/api/matrix/${matrixId}/update-names/`;
+
+                const formData = {
+                    position: position,
+                    monitor_name: $('#modal-monitor-name').val(),
+                    device_name: $('#modal-device-name').val(),
+                    csrfmiddlewaretoken: $('[name=csrfmiddlewaretoken]').val()
+                };
+
+                console.log('POST Data:', formData);
+
+                $.ajax({
+                    url: url,
+                    method: 'POST',
+                    data: formData,
+                    success: function(resp) {
+                        console.log('POST Response:', resp);
+
+                        if (resp.success) {
+                            $('#updateNamesModal').modal('hide');
+                            alert('저장되었습니다!');
+
+                            setTimeout(function() {
+                                location.reload();
+                            }, 1000);
+                        } else {
+                            alert('저장 실패: ' + resp.message);
+                        }
+                    },
+                    error: function(xhr) {
+                        console.error('POST Error:', xhr);
+                        alert('서버 오류가 발생했습니다.');
+                    }
+                });
+            });
+
+            // 페이지 로드 시 초기화
+            applyControlState();
+            loadAllLayouts();
+        });
+    </script>
+{% endblock javascript %}

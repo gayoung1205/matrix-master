@@ -1,0 +1,853 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+    <div id="session-timer" class="position-fixed bottom-0 end-0 m-4 px-4 py-3 glass-timer rounded-3 shadow-lg" style="display: none; z-index: 1050;">
+        <div class="d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-clock text-white" style="margin-right: 15px;"></i>
+                <span class="text-white fw-bold" style="margin-right: 20px;">남은 시간:</span>
+                <strong id="remaining-time" class="text-warning fs-5">10:00</strong>
+            </div>
+            <a href="/" class="btn btn-sm btn-danger ms-4"
+               onclick="return confirm('메인페이지로 이동하시겠습니까?')">
+                <i class="fas fa-sign-out-alt"></i> 종료
+            </a>
+        </div>
+    </div>
+
+    <section id="ip-manager" class="container pt-5 pb-4">
+        <div class="frame mx-auto">
+            <div class="card border-0 rounded-4 glass-panel soft-shadow">
+                <div class="card-header rounded-top-4 py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title fw-bold" style="display: inline-block; color: #212529;">
+                            <i class="fas fa-network-wired me-2"></i> 온디바이스 IP 관리
+                        </h5>
+                    </div>
+
+                    <!-- 탭 -->
+                    <ul class="nav nav-pills modern" id="ipTabs">
+                        <li class="nav-item">
+                            <button class="nav-link active" id="hw-tab" data-bs-toggle="tab" data-bs-target="#hwPane">
+                                하드웨어 IP
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link" id="rpi-tab" data-bs-toggle="tab" data-bs-target="#rpiPane">
+                                서버 IP
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="card-body">
+                    <div class="tab-content" id="ipTabsContent">
+                        <div class="tab-pane fade show active" id="hwPane" role="tabpanel" aria-labelledby="hw-tab">
+
+                            <div class="notice notice-warn mb-3">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <div>
+                                    '검색 중...'에서 실제 IP로 표시되기 전까지는 <strong>변경을 시도하지 마세요.</strong>
+                                </div>
+                            </div>
+                            <div class="notice notice-info mb-4">
+                                <i class="fas fa-info-circle"></i>
+                                <div>
+                                    장비 IP 변경 성공 후에는 <strong>시스템 관리 페이지</strong>의 해당 시스템 IP도 함께 수정하세요.
+                                </div>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle">
+                                    <thead class="table-light">
+                                    <tr>
+                                        <th scope="col">장비 이름</th>
+                                        <th scope="col">현재 IP</th>
+                                        <th scope="col">변경할 IP</th>
+                                        <th scope="col" class="text-end">변경</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center justify-content-center">
+                                                <span id="hw-device-name" class="device-name-text">{{ device_names.hardware|default:"Matrix" }}</span>
+                                                <button class="btn btn-sm btn-link p-0 ms-2 edit-name-btn" data-device-type="hardware" title="이름 수정">
+                                                    <i class="fas fa-edit text-muted"></i>
+                                                </button>
+                                            </div>
+                                            <input type="text" class="form-control form-control-sm device-name-input d-none text-start"
+                                                   maxlength="200" value="{{ device_names.hardware|default:"Matrix" }}"
+                                                   placeholder="장비 이름을 입력하세요">
+                                        </td>
+                                        <td class="current-ip">검색 중...</td>
+                                        <td>
+                                            <input type="text" class="form-control form-control-sm new-ip-input text-start" placeholder="예: 192.168.0.157">
+                                        </td>
+                                        <td class="text-end">
+                                            <button type="button" class="btn btn-pastel-peach btn-sm btn-change-hw-ip">IP 변경</button>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="rpiPane" role="tabpanel" aria-labelledby="rpi-tab">
+
+                            <div class="mb-3">
+                                {% if ip_change_configured %}
+                                    <div class="notice notice-success mb-4 justify-content-between">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <i class="fas fa-check-circle"></i>
+                                            <div><strong>권한 설정 완료.</strong> IP 변경 기능을 사용할 수 있습니다.</div>
+                                        </div>
+                                        <form method="post" action="{% url 'remove_ip_permission' %}" class="m-0">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm btn-outline-danger rounded-3">
+                                                <i class="fas fa-trash"></i> 권한 제거
+                                            </button>
+                                        </form>
+                                    </div>
+                                {% else %}
+                                    <div class="notice notice-warn mb-4">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                        <div>
+                                            <strong>초기 설정이 필요합니다.</strong>
+                                            <div class="text-muted mt-1">IP 변경 기능을 사용하려면 먼저 설정을 완료하세요.</div>
+                                            <a href="{% url 'setup_ip_permission' %}" class="btn glass-btn btn-sm mt-2">
+                                                <i class="fas fa-cog me-1"></i> 설정하기
+                                            </a>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle">
+                                    <thead class="table-light">
+                                    <tr>
+                                        <th scope="col">장비 이름</th>
+                                        <th scope="col">현재 IP</th>
+                                        <th scope="col">변경할 IP</th>
+                                        <th scope="col" class="text-end">변경</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center justify-content-center">
+                                                <span id="server-device-name" class="device-name-text">{{ device_names.server|default:"Server" }}</span>
+                                                <button class="btn btn-sm btn-link p-0 ms-2 edit-name-btn" data-device-type="server" title="이름 수정">
+                                                    <i class="fas fa-edit text-muted"></i>
+                                                </button>
+                                            </div>
+                                            <input type="text" class="form-control form-control-sm device-name-input d-none text-start"
+                                                   maxlength="200" value="{{ device_names.server|default:"Server" }}"
+                                                   placeholder="장비 이름을 입력하세요">
+                                        </td>
+                                        <td class="current-ip">검색 중...</td>
+                                        <td>
+                                            <input type="text" class="form-control form-control-sm new-ip-input text-start" placeholder="예: 192.168.0.158">
+                                        </td>
+                                        <td class="text-end">
+                                            <button type="button" class="btn btn-pastel-peach btn-sm btn-change-rpi-ip">IP 변경</button>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <style>
+        .btn-pastel-peach { background-color: #ffd8c2; color: #8b4a2a; border: none; }
+        .btn-pastel-peach:hover { background-color: #ffc9ae; }
+        .btn-pastel-green { background-color: #c6f6d5; color: #22543d; border: none; }
+        .btn-pastel-green:hover { background-color: #9ae6b4; }
+
+        #session-timer {
+            min-width: 280px;
+            position: fixed !important;
+            bottom: 20px !important;
+            right: 20px !important;
+            top: auto !important;
+            left: auto !important;
+            z-index: 1050 !important;
+        }
+
+        .glass-timer {
+            background: rgba(255,255,255,0.1) !important;
+            backdrop-filter: blur(10px) !important;
+            -webkit-backdrop-filter: blur(10px) !important;
+            border: 1px solid rgba(255,255,255,0.2) !important;
+            box-shadow: 0 8px 32px rgba(31,38,135,.37) !important;
+        }
+
+        #ip-manager .frame{ max-width: clamp(960px, 80vw, 1200px); }
+        #ip-manager .glass-panel{
+            background: rgba(255,255,255,.72);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,.35);
+        }
+        #ip-manager .card-header{ background:#f8fafc !important; border-bottom:1px solid #e5e7eb !important; }
+        #ip-manager .card-body{ padding: 1.75rem; }
+        #ip-manager table.table td{ vertical-align: middle; }
+        #ip-manager .new-ip-input{ min-width: 220px; text-align: left !important; padding-left: 8px !important;}
+
+        /* 장비 이름 편집 스타일 */
+        .device-name-text {
+            font-weight: 500;
+            color: #374151;
+            text-align: center;
+        }
+
+        .edit-name-btn {
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .device-name-text:hover + .edit-name-btn,
+        .edit-name-btn:hover,
+        .edit-name-btn:focus {
+            opacity: 1;
+        }
+
+        tr:hover .edit-name-btn {
+            opacity: 0.7;
+        }
+
+        .device-name-input {
+            min-width: 120px;
+            max-width: 200px;
+            text-align: left !important;
+            padding-left: 8px !important;
+        }
+
+        #ipTabs.modern{
+            position: relative;
+            display: flex;
+            gap: 1rem;
+            padding: .25rem 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        #ipTabs.modern .nav-link{
+            background: transparent !important;
+            border: none !important;
+            border-radius: 0 !important;
+            color: #6b7280;
+            padding: .6rem .25rem;
+            margin: 0 1rem;
+            font-weight: 600;
+            letter-spacing: .01em;
+            transition: color .2s ease;
+            outline: none !important;
+            box-shadow: none !important;
+        }
+        #ipTabs.modern .nav-link:hover  { color: #0f172a; }
+        #ipTabs.modern .nav-link.active { color: #0f172a !important; border-bottom: 2px solid #6366f1; }
+
+        #ip-manager .notice{
+            display:flex; align-items:center; gap:.75rem;
+            padding:.95rem 1.15rem; border-radius:12px;
+            border:1px solid rgba(0,0,0,.06); background:rgba(0,0,0,.03);
+            font-size:.95rem;
+        }
+        #ip-manager .notice i{
+            display:inline-flex; align-items:center; justify-content:center;
+            width:20px; height:20px; line-height:1; opacity:.9;
+        }
+        #ip-manager .notice-info{ background: rgba(59,130,246,.06); border-color: rgba(59,130,246,.18); }
+        #ip-manager .notice-success{ background: rgba(16,185,129,.10); border-color: rgba(16,185,129,.28); }
+        #ip-manager .notice-warn{ background: rgba(245,158,11,.10); border-color: rgba(245,158,11,.28); }
+
+        #ip-manager .glass-btn{
+            border-radius: 12px; border: 1px solid transparent;
+            background-image: linear-gradient(45deg, #667eea, #764ba2);
+            box-shadow: 0 8px 22px rgba(118,75,162,.18);
+            transition: transform .08s, box-shadow .2s, filter .2s;
+        }
+        #ip-manager .glass-btn:hover{ filter:brightness(1.02); box-shadow:0 10px 28px rgba(118,75,162,.22); }
+
+        /* 모바일에서 좌우 여백 확보 */
+        @media (max-width: 420px){
+            #ip-manager .card-body{ padding: 1.25rem; }
+        }
+
+        :root{
+            --accent-start: #6366f1;
+            --accent-end:   #22d3ee;
+            --ink:   #0f172a;
+            --muted: #6b7280;
+        }
+
+        #ipTabs.modern {
+            --accent-start: #6366f1;
+            --accent-end:   #22d3ee;
+            --ink: #0f172a;
+            --muted: #6b7280;
+            position: relative;
+            display: flex;
+            gap: 1rem;
+            padding: .25rem 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        #ipTabs.modern .nav-link {
+            background: transparent !important;
+            border: none !important;
+            border-radius: 0 !important;
+            color: var(--muted);
+            padding: .6rem .25rem;
+            margin: 0 1rem;
+            font-weight: 600;
+            letter-spacing: .01em;
+            transition: color .2s ease, transform .2s ease;
+        }
+
+        #ipTabs.modern .nav-link:hover  { color: var(--ink, #0f172a); }
+        #ipTabs.modern .nav-link.active { color: var(--ink, #0f172a) !important; }
+        #ipTabs.modern .tab-indicator {
+            position: absolute;
+            left: 0;
+            bottom: -1px;
+            height: 3px;
+            width: 0;
+            border-radius: 3px;
+            background: linear-gradient(90deg, var(--accent-start), var(--accent-end));
+            box-shadow: 0 6px 14px rgba(99,102,241,.25);
+            transition: left .25s ease, width .25s ease;
+        }
+
+        .card-header {
+            background: #f8fafc !important; /* slate-50 */
+            border-bottom: 1px solid #e5e7eb !important;
+        }
+
+        #ipTabs .nav-link,
+        #ipTabs .nav-link:focus,
+        #ipTabs .nav-link:focus-visible,
+        #ipTabs .nav-link:active {
+            outline: none !important;
+            box-shadow: none !important;
+        }
+
+        #ipTabs .nav-link {
+            border: 0 !important;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+    </style>
+
+{% endblock %}
+
+
+{% block javascript %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        let sessionCheckInterval;
+        let countdownInterval;
+        let warningShown = false;
+        let lastRemainingTime = 600;
+
+        function updateCountdown() {
+            if (lastRemainingTime > 0) {
+                lastRemainingTime--;
+                const minutes = Math.floor(lastRemainingTime / 60);
+                const seconds = lastRemainingTime % 60;
+                const formatted = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                document.getElementById('remaining-time').textContent = formatted;
+
+                if (lastRemainingTime < 60) {
+                    document.getElementById('remaining-time').classList.remove('text-warning');
+                    document.getElementById('remaining-time').classList.add('text-danger', 'fw-bold');
+
+                    if (lastRemainingTime < 30 && !warningShown) {
+                        warningShown = true;
+                        showSessionWarning();
+                    }
+                }
+
+                if (lastRemainingTime <= 0) {
+                    clearInterval(countdownInterval);
+                    clearInterval(sessionCheckInterval);
+                    showSessionExpired();
+                }
+            }
+        }
+
+        function checkSessionTime() {
+            fetch('/api/check_session_time/')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.valid) {
+                        document.getElementById('session-timer').style.display = 'block';
+                        lastRemainingTime = data.remaining;
+
+                        if (data.remaining >= 60) {
+                            document.getElementById('remaining-time').classList.remove('text-danger');
+                            document.getElementById('remaining-time').classList.add('text-warning');
+                            warningShown = false;
+                        }
+                    } else {
+                        clearInterval(sessionCheckInterval);
+                        clearInterval(countdownInterval);
+                        showSessionExpired();
+                    }
+                })
+                .catch(error => {
+                    console.error('세션 체크 오류:', error);
+                });
+        }
+
+        function showSessionWarning() {
+            const toast = `
+      <div class="toast position-fixed bottom-0 end-0 m-3" role="alert" aria-live="assertive" aria-atomic="true" id="warningToast">
+        <div class="toast-header bg-warning text-dark">
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          <strong class="me-auto">세션 만료 경고</strong>
+          <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+          세션이 곧 만료됩니다. 계속 사용하시려면 페이지를 새로고침하세요.
+        </div>
+      </div>
+    `;
+            document.body.insertAdjacentHTML('beforeend', toast);
+            const toastEl = new bootstrap.Toast(document.getElementById('warningToast'));
+            toastEl.show();
+        }
+
+        function showSessionExpired() {
+            const modal = `
+      <div class="modal fade" id="sessionExpiredModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+              <h5 class="modal-title">
+                <i class="fas fa-clock me-2"></i>세션 만료
+              </h5>
+            </div>
+            <div class="modal-body">
+              <p>시스템 관리 세션이 만료되었습니다.</p>
+              <p>계속하시려면 다시 인증해주세요.</p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary" onclick="redirectToPassword()">
+                다시 인증하기
+              </button>
+              <a href="/" class="btn btn-secondary">
+                홈으로 가기
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+            document.body.insertAdjacentHTML('beforeend', modal);
+            const modalEl = new bootstrap.Modal(document.getElementById('sessionExpiredModal'));
+            modalEl.show();
+        }
+
+        function redirectToPassword() {
+            window.location.href = '/system_password/?next=' + encodeURIComponent('{% url "on_device" %}');
+        }
+
+        function logoutSystem() {
+            if (confirm('시스템 관리를 종료하시겠습니까?')) {
+                fetch('/api/system_logout/', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'Content-Type': 'application/json'
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        alert(data.message);
+                        window.location.href = '/';
+                    })
+                    .catch(error => {
+                        console.error('로그아웃 오류:', error);
+                        window.location.href = '/';
+                    });
+            }
+        }
+
+        // CSRF 토큰
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function isSystemManagementPage() {
+            const systemPages = ['/system_template/', '/hardware_ip_manager/', '/rpi_ip_manager/', '/on_device/'];
+            return systemPages.some(page => window.location.pathname.includes(page));
+        }
+
+        function bindNameEditEvents() {
+            document.querySelectorAll('.edit-name-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const row = this.closest('tr');
+                    const nameText = row.querySelector('.device-name-text');
+                    const nameInput = row.querySelector('.device-name-input');
+                    const deviceType = this.getAttribute('data-device-type');
+
+                    // 편집 모드 활성화
+                    nameText.classList.add('d-none');
+                    nameInput.classList.remove('d-none');
+                    nameInput.focus();
+                    nameInput.select();
+
+                    this.style.display = 'none';
+                });
+            });
+
+            document.querySelectorAll('.device-name-input').forEach(input => {
+
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        saveDeviceName(this);
+                    } else if (e.key === 'Escape') {
+                        cancelEdit(this);
+                    }
+                });
+
+                input.addEventListener('blur', function() {
+                    saveDeviceName(this);
+                });
+            });
+        }
+
+        function saveDeviceName(input) {
+            const row = input.closest('tr');
+            const nameText = row.querySelector('.device-name-text');
+            const editBtn = row.querySelector('.edit-name-btn');
+            const deviceType = editBtn.getAttribute('data-device-type');
+            const newName = input.value.trim();
+
+            if (!newName) {
+
+                const defaultName = deviceType === 'hardware' ? 'Matrix' : 'Server';
+                input.value = defaultName;
+                updateDeviceNameAPI(deviceType, defaultName, nameText, input, editBtn);
+            } else {
+                updateDeviceNameAPI(deviceType, newName, nameText, input, editBtn);
+            }
+        }
+
+        function cancelEdit(input) {
+            const row = input.closest('tr');
+            const nameText = row.querySelector('.device-name-text');
+            const editBtn = row.querySelector('.edit-name-btn');
+
+            input.value = nameText.textContent;
+            input.classList.add('d-none');
+            nameText.classList.remove('d-none');
+            editBtn.style.display = '';
+        }
+
+        function updateDeviceNameAPI(deviceType, deviceName, nameText, input, editBtn) {
+            fetch('/api/update_device_name/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    device_type: deviceType,
+                    device_name: deviceName
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        nameText.textContent = data.device_name;
+                        input.value = data.device_name;
+                        input.classList.add('d-none');
+                        nameText.classList.remove('d-none');
+                        editBtn.style.display = '';
+                    } else {
+                        alert('이름 변경 실패: ' + (data.error || '알 수 없는 오류'));
+                        cancelEdit(input);
+                    }
+                })
+                .catch(error => {
+                    console.error('이름 변경 오류:', error);
+                    alert('이름 변경 중 오류가 발생했습니다.');
+                    cancelEdit(input);
+                });
+        }
+
+        function scanDevices() {
+            const ipCell = document.querySelector('#hwPane .current-ip');
+            if (!ipCell) return;
+            ipCell.textContent = '검색 중...';
+
+            fetch('/api/scan_kvm_devices/')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success && data.devices && data.devices.length > 0) {
+                        const firstDevice = typeof data.devices[0] === 'string'
+                            ? data.devices[0]
+                            : data.devices[0].ip;
+                        ipCell.textContent = firstDevice;
+                    } else {
+                        ipCell.textContent = '장비 없음';
+                    }
+                })
+                .catch(err => {
+                    console.error("장비 스캔 오류:", err);
+                    ipCell.textContent = '오류';
+                });
+        }
+
+        // ========== 라즈베리파이 IP 조회 함수 추가 ==========
+        function scanRpiIp() {
+            const ipCell = document.querySelector('#rpiPane .current-ip');
+            if (!ipCell) return;
+            ipCell.textContent = '검색 중...';
+
+            fetch('/api/get_rpi_ip/')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success && data.ip) {
+                        ipCell.textContent = data.ip;
+                    } else {
+                        ipCell.textContent = '장비 없음';
+                    }
+                })
+                .catch(err => {
+                    console.error("라즈베리파이 IP 조회 오류:", err);
+                    ipCell.textContent = '오류';
+                });
+        }
+
+        function isValidIp(ip) {
+            const regex = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+            return regex.test(ip);
+        }
+
+        function bindHwEvents() {
+            document.querySelectorAll('#hwPane .btn-change-hw-ip').forEach(button => {
+                button.addEventListener('click', () => {
+                    const row = button.closest('tr');
+                    const currentIp = row.querySelector('.current-ip').textContent.trim();
+                    const newIpInput = row.querySelector('.new-ip-input');
+                    const newIp = newIpInput.value.trim();
+
+                    if (!newIp) { alert("⚠️ 변경할 IP를 입력하세요."); return; }
+                    if (!isValidIp(newIp)) { alert("⚠️ 올바른 IP 형식이 아닙니다. (예: 192.168.1.100)"); return; }
+                    if (['검색 중...', '장비 없음', '오류'].includes(currentIp)) {
+                        alert("⚠️ 현재 IP를 확인할 수 없습니다. 잠시 후 다시 시도해주세요."); return;
+                    }
+                    if (!confirm(`정말로 ${currentIp}을(를) ${newIp}로 변경하시겠습니까?`)) return;
+
+                    button.disabled = true; button.textContent = '변경 중...';
+
+                    fetch('/api/change_hardware_ip/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCookie('csrftoken')
+                        },
+                        body: JSON.stringify({ current_ip: currentIp, new_ip: newIp })
+                    })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert("✅ IP 변경 성공!");
+                                row.querySelector('.current-ip').textContent = newIp;
+                                newIpInput.value = '';
+                                setTimeout(() => scanDevices(), 3000);
+                            } else {
+                                alert("❌ IP 변경 실패: " + (data.error || '알 수 없는 오류'));
+                            }
+                        })
+                        .catch(err => {
+                            console.error('IP 변경 오류:', err);
+                            alert("❌ 요청 중 오류 발생: " + err.message);
+                        })
+                        .finally(() => {
+                            button.disabled = false; button.textContent = 'IP 변경';
+                        });
+                });
+            });
+        }
+
+        function validateIP(ip) {
+            const regex = /^(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)){3}$/;
+            return regex.test(ip);
+        }
+
+        function bindRpiEvents() {
+            document.querySelectorAll('#rpiPane .btn-change-rpi-ip').forEach(button => {
+                button.addEventListener('click', () => {
+                    const row = button.closest('tr');
+                    const currentIp = row.querySelector('.current-ip').textContent.trim();
+                    const newIpInput = row.querySelector('.new-ip-input');
+                    const newIp = newIpInput.value.trim();
+
+                    if (!newIp) { alert("⚠️ 변경할 IP를 입력하세요."); return; }
+                    if (!validateIP(newIp)) { alert("⚠️ 올바른 IP 형식이 아닙니다. (예: 192.168.1.100)"); return; }
+                    if (['검색 중...', '장비 없음', '오류'].includes(currentIp)) {
+                        alert("⚠️ 현재 IP를 확인할 수 없습니다. 잠시 후 다시 시도해주세요."); return;
+                    }
+                    if (!confirm(`정말로 ${currentIp}을(를) ${newIp}로 변경하시겠습니까?`)) return;
+
+                    button.disabled = true; button.textContent = '변경 중...';
+
+                    const previousIp = currentIp;
+                    row.querySelector('.current-ip').textContent = newIp;
+                    newIpInput.value = '';
+
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 2000);
+
+                    fetch('/api/change_rpi_ip/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCookie('csrftoken')
+                        },
+                        body: JSON.stringify({ current_ip: currentIp, new_ip: newIp }),
+                        signal: controller.signal
+                    })
+                        .then(res => {
+                            clearTimeout(timeoutId);
+                            if (!res.ok) throw new Error('IP 변경 실패');
+                        })
+                        .catch(err => {
+                            clearTimeout(timeoutId);
+                            if (err.name === 'AbortError' || (err.name === 'TypeError' && err.message.includes('Failed to fetch'))) {
+                                alert(`✅ IP 변경 명령을 전송했습니다!\n\n라즈베리파이 ip가 변경중입니다.\n약 5초 후 새 IP(${newIp})로 접속해주세요.`);
+                            } else {
+                                console.error('IP 변경 오류:', err);
+                                alert("❌ IP 변경 실패: " + err.message);
+                                row.querySelector('.current-ip').textContent = previousIp;
+                            }
+                        })
+                        .finally(() => {
+                            button.disabled = false; button.textContent = 'IP 변경';
+                        });
+                });
+            });
+        }
+
+        function initializeTabs() {
+            const tabs = document.getElementById('ipTabs');
+            if (!tabs) return;
+            tabs.classList.add('modern');
+
+            let ind = document.createElement('span');
+            ind.className = 'tab-indicator';
+            tabs.appendChild(ind);
+
+            const links = tabs.querySelectorAll('.nav-link');
+
+            function moveIndicator(el){
+                ind.style.left  = el.offsetLeft + 'px';
+                ind.style.width = el.offsetWidth + 'px';
+            }
+
+            moveIndicator(tabs.querySelector('.nav-link.active') || links[0]);
+
+            links.forEach(link => {
+                link.addEventListener('shown.bs.tab', (e) => moveIndicator(e.target));
+            });
+
+            window.addEventListener('resize', () => {
+                moveIndicator(tabs.querySelector('.nav-link.active') || links[0]);
+            });
+        }
+
+        function initializeTabMemory() {
+            const TAB_KEY = 'ipTabs.active';
+
+            function activateTabByTarget(targetSel){
+                const triggerBtn = document.querySelector(`#ipTabs .nav-link[data-bs-target="${targetSel}"]`);
+                if (triggerBtn) {
+                    bootstrap.Tab.getOrCreateInstance(triggerBtn).show();
+                }
+            }
+
+            const hash = window.location.hash;
+            const saved = localStorage.getItem(TAB_KEY);
+            const preferred = (hash === '#rpiPane' || hash === '#hwPane') ? hash : saved;
+            if (preferred) activateTabByTarget(preferred);
+
+            const tabs = document.getElementById('ipTabs');
+            if (tabs) {
+                tabs.addEventListener('shown.bs.tab', (e) => {
+                    const target = e.target.getAttribute('data-bs-target');
+                    if (!target) return;
+
+                    if (history.replaceState) history.replaceState(null, '', target);
+                    else location.hash = target;
+
+                    localStorage.setItem(TAB_KEY, target);
+
+                    // HW 탭이면 재스캔
+                    if (target === '#hwPane') {
+                        scanDevices();
+                    }
+                    // RPI 탭이면 라즈베리파이 IP 스캔 추가
+                    else if (target === '#rpiPane') {
+                        scanRpiIp();
+                    }
+                });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+
+            if (isSystemManagementPage()) {
+                checkSessionTime();
+                countdownInterval = setInterval(updateCountdown, 1000);
+                sessionCheckInterval = setInterval(checkSessionTime, 30000);
+            }
+
+            bindNameEditEvents();
+            bindHwEvents();
+            bindRpiEvents();
+
+            initializeTabs();
+            initializeTabMemory();
+
+            // 현재 활성화된 탭에 따라 IP 스캔
+            const activeTab = document.querySelector('#ipTabs .nav-link.active');
+            const activeTarget = activeTab ? activeTab.getAttribute('data-bs-target') : '#hwPane';
+
+            if (activeTarget === '#hwPane') {
+                scanDevices();
+            } else if (activeTarget === '#rpiPane') {
+                scanRpiIp();
+            }
+        });
+
+        window.addEventListener('beforeunload', function() {
+            if (sessionCheckInterval) clearInterval(sessionCheckInterval);
+            if (countdownInterval) clearInterval(countdownInterval);
+        });
+
+    </script>
+{% endblock %}

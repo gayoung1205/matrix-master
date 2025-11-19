@@ -1,80 +1,89 @@
-{% extends 'base.html' %} {% block content %}
-<div class="container">
-  <div class="card" style="width: 100%; margin-top: 20px">
-    <div class="card-body">
-      <h5 class="card-title" style="display: inline-block">프로파일 관리</h5>
-      <button
-        type="button"
-        class="btn btn-primary btn-sm"
-        data-toggle="modal"
-        data-target="#profileCreate"
-        style="display: inline-block; float: right; margin-bottom: 0.2rem; margin-left: 0.3rem"
-      >
-        추가
-      </button>
-      <button
-        type="button"
-        class="btn btn-primary btn-sm"
-        data-toggle="modal"
-        data-target="#profileImport"
-        style="display: inline-block; float: right; margin-bottom: 0.2rem; margin-left: 0.3rem"
-      >
-        불러오기
-      </button>
-      <button
-        type="button"
-        class="btn btn-primary btn-sm"
-        data-toggle="modal"
-        data-target="#profileExport"
-        style="display: inline-block; float: right; margin-bottom: 0.2rem; margin-left: 0.3rem"
-      >
-        내보내기
-      </button>
-
-      <table class="table">
-        <thead class="thead-light">
-          <tr>
-            <th scope="col">이름</th>
-            <th scope="col">Action</th>
-          </tr>
-        </thead>
-        {% if profile %}
-        <tbody>
-          {% for pro in profile %}
-          <tr>
-            <th scope="row">{{pro.name}}</th>
-            <td>
-              {% comment %}
-              <button
-                type="button"
-                class="btn btn-primary btn-sm"
-                data-toggle="modal"
-                data-target="#profileUpdate"
-                data-whatever="{{mat.id}},{{mat.name}},{{mat.ip_address}},{{mat.port}}"
-              >
-                수정
-              </button>
-              {% endcomment %}
-              <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#profileDelete" data-whatever="{{pro.id}}">
-                삭제
-              </button>
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-        {% endif %}
-      </table>
-    </div>
-  </div>
-</div>
-
-{% include 'profile_template/profile_template_create.html' %}
-{% include 'profile_template/profile_template_update.html' %}
-{% include 'profile_template/profile_template_delete.html' %}
-{% include 'profile_template/profile_template_import.html' %}
-{% include 'profile_template/profile_template_export.html' %}
+{% extends 'base.html' %}
 {% load static %}
-<script src="{% static 'vendor/jquery/jquery.slim.min.js' %}"></script>
-<script src="{% static 'js/profile_template.js' %}"></script>
-<script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+
+{% block content %}
+    <div class="container py-4">
+        <div class="card border-0 shadow-lg rounded-4 bg-white">
+            <div class="card-header bg-white text-dark rounded-top-4 py-3 d-flex justify-content-between align-items-center">
+                <h5 class="card-title fw-bold" style="display: inline-block;">
+                    <i class="fas fa-star me-2"></i> 즐겨찾기 관리
+                </h5>
+                <div class="btn-group float-end" role="group">
+                    <button type="button" class="btn btn-outline-dark btn-sm" data-toggle="modal" data-target="#profileExport">
+                        <i class="fas fa-download me-1"></i> 내보내기
+                    </button>
+                    <button type="button" class="btn btn-outline-dark btn-sm" data-toggle="modal" data-target="#profileImport">
+                        <i class="fas fa-upload me-1"></i> 불러오기
+                    </button>
+                    <button type="button" class="btn btn-dark btn-sm" data-toggle="modal" data-target="#profile-create">
+                        <i class="fas fa-plus me-1"></i> 추가
+                    </button>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0" id="profile-table">
+                        <thead class="table-light">
+                        <tr>
+                            <th style="width: 56px;">순서</th>
+                            <th>이름</th>
+                            <th class="text-end">Action</th>
+                        </tr>
+                        </thead>
+
+                        {% if profile %}
+                            <tbody id="profile-tbody">
+                            {% for pro in profile %}
+                                <tr data-id="{{ pro.id }}" draggable="true">
+                                    <td class="align-middle">
+              <span class="drag-handle" title="드래그하여 순서 변경" style="cursor:grab;display:inline-flex;align-items:center;">
+                <i class="fas fa-grip-vertical"></i>
+              </span>
+                                    </td>
+                                    <td class="align-middle">{{ pro.name }}</td>
+                                    <td class="align-middle">
+                                        <div class="d-flex justify-content-end">
+                                            <div class="d-flex" style="gap: 0.5rem; width: 140px;">
+                                                <button class="btn btn-sm btn-outline-primary" style="width: 50%;"
+                                                        onClick="getProfileRequest('{{pro.id}}', '{{pro.name}}')">
+                                                    수정
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-danger" style="width: 50%;"
+                                                        data-toggle="modal"
+                                                        data-target="#profile-delete"
+                                                        data-whatever="{{ pro.id }}">
+                                                    삭제
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        {% endif %}
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 모달 포함 -->
+    {% include 'profile_template/profile_template_create.html' %}
+    {% include 'profile_template/profile_template_update.html' %}
+    {% include 'profile_template/profile_template_delete.html' %}
+    {% include 'profile_template/profile_template_import.html' %}
+    {% include 'profile_template/profile_template_export.html' %}
+    {% include 'modal/error_modal.html' %}
 {% endblock content %}
+
+{% block javascript %}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'js/profile_template.js' %}?v=3"></script>
+    <link rel="stylesheet" href="{% static 'css/system_template.css' %}">
+    <link rel="stylesheet" href="{% static 'css/profile_modal.css' %}">
+    <style>
+        #profile-tbody tr.dragging { opacity: .6; }
+        #profile-tbody tr.drop-target { outline: 2px dashed #6c757d; }
+    </style>
+{% endblock javascript %}

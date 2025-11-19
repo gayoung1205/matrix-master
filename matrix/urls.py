@@ -17,6 +17,9 @@ from django.contrib import admin
 from django.urls import include, path
 from matrix_web import views
 from django.contrib.auth import views as auth_views
+from django.views.static import serve
+from django.urls import re_path
+from django.conf import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -25,9 +28,11 @@ urlpatterns = [
     path('login/auth/', auth_views.LoginView.as_view(template_name='login/login.html'), name='login_auth'),
     path('logout/auth/', auth_views.LogoutView.as_view(template_name='login/login.html'), name='logout_auth'),
     path('control/', views.control, name='control'),
+    path('slicer/', views.slicer, name='slicer'),
     path('kvm/', views.kvm, name='kvm'),
     path('profile_control/', views.profile_control, name='profile_control'),
     path('system_template/', views.system_template, name='system_template'),
     path('profile_template/', views.profile_template, name='profile_template'),
     path('test/', views.test, name='test'),
+    re_path(r'^media/(?P<path>.*)$', serve, {'document_root':settings.MEDIA_ROOT}),
 ]

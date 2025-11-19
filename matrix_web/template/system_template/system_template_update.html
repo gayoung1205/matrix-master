@@ -1,124 +1,259 @@
 <div
-  class="modal fade"
-  id="matrixUpdate"
-  tabindex="-1"
-  role="dialog"
-  aria-labelledby="exampleModalCenterTitle"
-  aria-hidden="true"
+        class="modal fade"
+        id="matrixUpdate"
+        tabindex="-1"
+        role="dialog"
+        aria-labelledby="exampleModalCenterTitle"
+        aria-hidden="true"
 >
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalCenterTitle">시스템수정</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <form id="matrixUpdateForm" method="post" action="{% url 'matrix_detail' %}">
-        {% csrf_token %}
-        <input type="hidden" name="_method" value="put" />
-        <input type="hidden" id="updateId" name="id" />
-        <div class="modal-body">
-          <div class="form-group">
-            <label for="update-input-name">시스템명</label>
-            <input
-              type="text"
-              class="form-control"
-              id="update-input-name"
-              name="name"
-              placeholder="Enter name"
-              value="{{ form.name.value|default_if_none:'' }}"
-            />
-            <div id="update-name-feedback" class="invalid-feedback"></div>
-          </div>
-          <div class="form-group">
-            <label for="update-input-matrix-ip">시스템IP1</label>
-            <input
-              type="text"
-              class="form-control"
-              id="update-input-matrix-ip"
-              name="matrix_ip_address"
-              placeholder="Enter Ip"
-              value="{{ form.matrix_ip_address.value|default_if_none:'' }}"
-            />
-            <div id="update-matrix-ip-feedback" class="invalid-feedback"></div>
-          </div>
-          <div class="form-group">
-            <label for="update-input-kvm-ip">시스템IP2</label>
-            <input
-              type="text"
-              class="form-control"
-              id="update-input-kvm-ip"
-              name="kvm_ip_address"
-              placeholder="Enter Ip"
-              value="{{ form.kvm_ip_address.value|default_if_none:'' }}"
-            />
-            <div id="update-kvm-ip-feedback" class="invalid-feedback"></div>
-          </div>
-          <div class="form-group">
-            <label for="update-input-kvm-ip2">시스템IP3</label>
-            <input
-              type="text"
-              class="form-control"
-              id="update-input-kvm-ip2"
-              name="kvm_ip_address2"
-              placeholder="Enter Ip"
-              value="{{ form.kvm_ip_address2.value|default_if_none:'' }}"
-            />
-            <div id="update-kvm-ip-feedback2" class="invalid-feedback"></div>
-          </div>
-          <div class="form-group">
-            <label for="update-input-port">포트번호</label>
-            <input
-              type="number"
-              class="form-control"
-              id="update-input-port"
-              name="port"
-              placeholder="Enter port"
-              value="{{ form.port.value|default_if_none:0 }}"
-            />
-            <div id="update-port-feedback" class="invalid-feedback"></div>
-          </div>
-          <div class="form-group">
-            <label for="update-input-main-connect">메인 연결 번호</label>
-            <select id="update-input-main-connect" class="form-control" name="main_connect">
-              <option id="update-option" selected>번호 선택</option>
-              {% for main_connect in main_connect_list %}
-              <option value="{{main_connect}}">{{main_connect}}</option>
-              {% endfor %}
-            </select>
-            <div id="update-input-main-connect-feedback" class="invalid-feedback">
-              연결 번호를 선택해주세요. 선택 가능한 번호가 없다면 연결 초과입니다.
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-semibold" id="exampleModalCenterTitle">시스템 수정</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
-          </div>
-          <div class="form-check form-check-inline">
-            <input
-              class="form-check-input"
-              type="radio"
-              name="is_main"
-              id="is-main-update-true"
-              value="True"
-              disabled
-            />
-            <label class="form-check-label" for="is-main-update-true">main</label>
-          </div>
-          <div class="form-check form-check-inline">
-            <input
-              class="form-check-input"
-              type="radio"
-              name="is_main"
-              id="is-main-update-false"
-              value="False"
-              disabled
-            />
-            <label class="form-check-label" for="is-main-update-false">sub</label>
-          </div>
+
+            <form id="matrixUpdateForm" method="post" action="{% url 'matrix_detail' %}">
+                {% csrf_token %}
+                <input type="hidden" name="_method" value="put" />
+                <input type="hidden" id="updateId" name="id" />
+
+                <div class="modal-body pt-3">
+
+                    <div class="text-end mb-3">
+                        <button type="button" id="scan-ip-btn-u" class="btn btn-sm glass-btn" onclick="scanHardwareIPsUpdate()">
+                            <i class="fas fa-search"></i> 하드웨어 IP 검색
+                        </button>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="update-input-name">시스템명</label>
+                        <input
+                                type="text"
+                                class="form-control"
+                                id="update-input-name"
+                                name="name"
+                                placeholder="Enter name"
+                                value="{{ form.name.value|default_if_none:'' }}"
+                        />
+                        <div id="update-name-feedback" class="invalid-feedback"></div>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="update-input-matrix-ip">Matrix IP</label>
+                        <div class="d-flex align-items-stretch ip-input-group">
+                            <select id="matrix-ip-select-u" class="form-select ip-dropdown"
+                                    onchange="onIPSelectChangeU('matrix-ip-select-u','update-input-matrix-ip')">
+                                <option value="">직접 입력</option>
+                            </select>
+                            <input
+                                    type="text"
+                                    class="form-control ip-input"
+                                    id="update-input-matrix-ip"
+                                    name="matrix_ip_address"
+                                    placeholder="192.168.1.100"
+                                    value="{{ form.matrix_ip_address.value|default_if_none:'' }}"
+                            />
+                        </div>
+                        <div id="update-matrix-ip-feedback" class="invalid-feedback"></div>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="update-input-kvm-ip">KVM IP</label>
+                        <div class="d-flex align-items-stretch ip-input-group">
+                            <select id="kvm-ip-select-u" class="form-select ip-dropdown"
+                                    onchange="onIPSelectChangeU('kvm-ip-select-u','update-input-kvm-ip')">
+                                <option value="">직접 입력</option>
+                            </select>
+                            <input
+                                    type="text"
+                                    class="form-control ip-input"
+                                    id="update-input-kvm-ip"
+                                    name="kvm_ip_address"
+                                    placeholder="192.168.1.101"
+                                    value="{{ form.kvm_ip_address.value|default_if_none:'' }}"
+                            />
+                        </div>
+                        <div id="update-kvm-ip-feedback" class="invalid-feedback"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <input
+                                type="hidden"
+                                id="update-input-kvm-ip2"
+                                name="kvm_ip_address2"
+                                value="{{ form.kvm_ip_address2.value|default_if_none:'' }}"
+                        />
+                        <div id="update-kvm-ip-feedback2" class="invalid-feedback"></div>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="update-input-port">포트번호</label>
+                        <input
+                                type="number"
+                                class="form-control"
+                                id="update-input-port"
+                                name="port"
+                                placeholder="10580"
+                                value="{{ form.port.value|default_if_none:10580 }}"
+                                readonly
+                        />
+                        <div id="update-port-feedback" class="invalid-feedback"></div>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="update-input-main-connect">메인 연결 번호</label>
+                        <select id="update-input-main-connect" class="form-control update-select" name="main_connect">
+                            <option id="update-option" selected>번호 선택</option>
+                            {% for main_connect in main_connect_list %}
+                                <option value="{{main_connect}}">{{main_connect}}</option>
+                            {% endfor %}
+                        </select>
+                        <div id="update-input-main-connect-feedback" class="invalid-feedback">
+                            연결 번호를 선택해주세요. 선택 가능한 번호가 없다면 연결 초과입니다.
+                        </div>
+                    </div>
+
+                    <div class="form-check form-check-inline">
+                        <input
+                                class="form-check-input"
+                                type="radio"
+                                name="is_main"
+                                id="is-main-update-true"
+                                value="True"
+                                disabled
+                        />
+                        <label class="form-check-label" for="is-main-update-true">main</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input
+                                class="form-check-input"
+                                type="radio"
+                                name="is_main"
+                                id="is-main-update-false"
+                                value="False"
+                                disabled
+                        />
+                        <label class="form-check-label" for="is-main-update-false">sub</label>
+                    </div>
+                </div>
+
+                <!-- 하단 버튼 -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-modal-secondary" data-dismiss="modal">취소</button>
+                    <button type="button" class="btn btn-modal-primary" onclick="matrixUpdate()">수정</button>
+                </div>
+            </form>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
-          <button type="button" class="btn btn-primary" onClick="matrixUpdate()">수정</button>
-        </div>
-      </form>
     </div>
-  </div>
 </div>
+
+<script>
+    window.scanHardwareIPsUpdate = function () {
+        const matrixSelect = document.getElementById('matrix-ip-select-u');
+        const kvmSelect    = document.getElementById('kvm-ip-select-u');
+        const scanBtn      = document.getElementById('scan-ip-btn-u');
+
+        matrixSelect.innerHTML = '<option value="">스캔 중...</option>';
+        kvmSelect.innerHTML    = '<option value="">스캔 중...</option>';
+        matrixSelect.disabled  = true;
+        kvmSelect.disabled     = true;
+        scanBtn.disabled       = true;
+        scanBtn.innerHTML      = '<i class="fas fa-spinner fa-spin"></i> 검색 중...';
+
+        fetch('/api/scan_kvm_devices/')
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.devices && data.devices.length > 0) {
+                    updateIPDropdownsU(data.devices);
+                    console.log(`${data.devices.length}개의 장비를 찾았습니다.`);
+                } else {
+                    matrixSelect.innerHTML = '<option value="">장비를 찾을 수 없습니다</option>';
+                    kvmSelect.innerHTML    = '<option value="">장비를 찾을 수 없습니다</option>';
+                    console.log('하드웨어 장비를 찾을 수 없습니다.');
+                }
+            })
+            .catch(err => {
+                console.error('IP 스캔 오류(수정 모달):', err);
+                matrixSelect.innerHTML = '<option value="">스캔 실패</option>';
+                kvmSelect.innerHTML    = '<option value="">스캔 실패</option>';
+                alert('IP 스캔 중 오류가 발생했습니다.');
+            })
+            .finally(() => {
+                matrixSelect.disabled = false;
+                kvmSelect.disabled    = false;
+                scanBtn.disabled      = false;
+                scanBtn.innerHTML     = '<i class="fas fa-search"></i> 하드웨어 IP 검색';
+            });
+    };
+
+    function updateIPDropdownsU(devices) {
+        const matrixSelect = document.getElementById('matrix-ip-select-u');
+        const kvmSelect    = document.getElementById('kvm-ip-select-u');
+
+        let options = '<option value="">직접 입력</option>';
+        devices.forEach(ip => { options += `<option value="${ip}">${ip}</option>`; });
+
+        matrixSelect.innerHTML = options;
+        kvmSelect.innerHTML    = options;
+    }
+
+    window.onIPSelectChangeU = function (selectId, inputId) {
+        const select = document.getElementById(selectId);
+        const input  = document.getElementById(inputId);
+
+        if (select.value) {
+            input.value = select.value.trim();
+            input.readOnly = true;
+            input.classList.add('bg-light');
+            input.classList.remove('is-invalid');
+
+            if (inputId === 'update-input-matrix-ip') {
+                const fb = document.getElementById('update-matrix-ip-feedback');
+                if (fb) fb.textContent = '';
+            } else if (inputId === 'update-input-kvm-ip') {
+                const fb = document.getElementById('update-kvm-ip-feedback');
+                if (fb) fb.textContent = '';
+            }
+        } else {
+            input.value = '';
+            input.readOnly = false;
+            input.classList.remove('bg-light');
+            input.focus();
+        }
+    };
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const bindReset = () => {
+            const reset = () => {
+                const ms = document.getElementById('matrix-ip-select-u');
+                const ks = document.getElementById('kvm-ip-select-u');
+                if (ms) ms.innerHTML = '<option value="">직접 입력</option>';
+                if (ks) ks.innerHTML = '<option value="">직접 입력</option>';
+
+                const mi = document.getElementById('update-input-matrix-ip');
+                const ki = document.getElementById('update-input-kvm-ip');
+                if (mi) { mi.readOnly = false; mi.classList.remove('bg-light'); }
+                if (ki) { ki.readOnly = false; ki.classList.remove('bg-light'); }
+            };
+
+            if (typeof jQuery !== 'undefined' && $('#matrixUpdate').length) {
+                $('#matrixUpdate').on('shown.bs.modal', function () {
+
+                });
+                $('#matrixUpdate').on('hidden.bs.modal', reset);
+            } else {
+                const modalEl = document.getElementById('matrixUpdate');
+                if (!modalEl) return;
+                modalEl.addEventListener('shown.bs.modal', () => {
+
+                });
+                modalEl.addEventListener('hidden.bs.modal', reset);
+            }
+        };
+        bindReset();
+    });
+</script>

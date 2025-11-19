@@ -1,0 +1,200 @@
+{% load filter_tags %} {% load static %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-10" data-simplebar style="overflow: auto; max-height:92vh;">
+      <div>
+        {% if main %} {% for m in main %}
+        <div class="card matrix-card main">
+          <div class="card-body">
+            <h5 class="card-title">{{m.name}}</h5>
+            <div class="row align-items-center">
+              <div class="col-6">
+                <div class="row">
+                  {% for i in 1|range_tag:5 %}
+                  <div class="col-3">
+                    <div class="control">
+                      <img src="{% static 'img/icon1.png' %}" />
+                      <p>{{connect_list|list_index:i}}</p>
+                    </div>
+                    <div class="form-group">
+                      <select class="form-control form-control-sm" name="input_select" id="input_select-0{{i}}-{{m.id}}">
+                        {% for j in 1|range_tag:7 %}
+                        <option {% if m|option_selected:i == j %}selected{% endif %} value="0{{j}}">
+                          {{connect_list|list_index:j}}
+                        </option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                  </div>
+                  {% endfor %}
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="row">
+                  {% for i in 5|range_tag:9 %}
+                  <div class="col-3">
+                    <div class="control">
+                      <img src="{% static 'img/icon1.png' %}" />
+                      <p>{{connect_list|list_index:i}}</p>
+                    </div>
+                    <div class="form-group">
+                      <select class="form-control form-control-sm" name="input_select" id="input_select-0{{i}}-{{m.id}}" {% if i > 6 %}disabled{% endif %}>
+                        {% for j in 1|range_tag:7 %}
+                        <option {% if m|option_selected:i == j %}selected{% endif %} value="0{{j}}">
+                          {{connect_list|list_index:j}}
+                        </option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                  </div>  
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card matrix-card main">
+          <div class="card-body">
+            <h5 class="card-title">터치 PC</h5>
+            {% for i in 1|range_tag:22 %}
+              {% if i|remainder:6 == 1 %}
+                <div class="row align-items-center">
+              {% endif %}
+              <div class="col-2"><button class="btn btn-outline-dark kvm" name="kvm_button" value="{{m.id}}-{{i}}">{{connect_list|kvm_index:i}}</button></div>
+              {% if i|remainder:6 == 0 or i == 21 %}
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+        {% endfor %} {% endif %} 
+        {% if matrix %} {% for mat in matrix %}
+        <div class="card matrix-card">
+          <div class="card-body">
+            <h5 class="card-title">{{mat.name}}</h5>
+            <div class="row align-items-center">
+              <div class="col-6">
+                <div class="row">
+                  {% for i in 1|range_tag:5 %}
+                  <div class="col-3">
+                    <div class="control">
+                      <img src="{% static 'img/icon1.png' %}" />
+                      {% comment %} <p>{{mat.main_connect|group_index:i}}</p> {% endcomment %}
+                    </div>
+                    <button class="btn btn-outline-dark kvm" name="kvm_button" value="{{mat.id}}-{{i}}">{{mat.main_connect|group_index:i}}</button>
+                    <div class="form-group">
+                      <select class="form-control form-control-sm" name="input_select" id="input_select-0{{i}}-{{mat.id}}">
+                        {% for j in 1|range_tag:9 %}
+                        <option {% if mat|option_selected:i == j %}selected{% endif %} value="0{{j}}">
+                          {{mat.main_connect|group_index:j}}
+                        </option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                  </div>
+                  {% endfor %}
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="row">
+                  {% for i in 5|range_tag:9 %}
+                  <div class="col-3">
+                    <div class="control">
+                      <img src="{% static 'img/icon1.png' %}" />
+                      {% comment %} <p>{{mat.main_connect|group_index:i}}</p> {% endcomment %}
+                    </div>
+                    <button class="btn btn-outline-dark kvm" name="kvm_button" value="{{mat.id}}-{{i}}">{{mat.main_connect|group_index:i}}</button>
+                    <div class="form-group">
+                      <select class="form-control form-control-sm" name="input_select" id="input_select-0{{i}}-{{mat.id}}">
+                        {% for j in 1|range_tag:9 %}
+                        <option {% if mat|option_selected:i == j %}selected{% endif %} value="0{{j}}">
+                          {{mat.main_connect|group_index:j}}
+                        </option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                  </div>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}{% endif %}
+      </div>
+      <!-- {% comment %} 
+      {% if mat.count|divisibleby:"2" is False %}
+      <div class="row align-items-center">
+      {% endif %}
+        <div class="col-6">
+          <div class="card matrix-card">
+            <div class="card-body">
+              <h5 class="card-title">{{mat.name}}</h5>
+              <div class="row">
+                {% for i in 1|range_tag:5 %}
+                <div class="col-3">
+                  <div class="control">
+                    <img src="{% static 'img/icon1.png' %}" />
+                  </div>
+                  <button class="btn btn-outline-dark kvm" name="kvm_button" value="{{mat.id}}-{{i}}">{{mat.main_connect|group_index:i}}</button>
+                  <div class="form-group">
+                    <select class="form-control form-control-sm" name="input_select" id="input_select-0{{i}}-{{mat.id}}">
+                      {% for j in 1|range_tag:9 %}
+                      <option {% if mat|option_selected:i == j %}selected{% endif %} value="0{{j}}">
+                        {{mat.main_connect|group_index:j}}
+                      </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+              <div class="row">
+                {% for i in 5|range_tag:9 %}
+                <div class="col-3">
+                  <div class="control">
+                    <img src="{% static 'img/icon1.png' %}" />
+                  </div>
+                  <button class="btn btn-outline-dark kvm" name="kvm_button" value="{{mat.id}}-{{i}}">{{mat.main_connect|group_index:i}}</button>
+                  <div class="form-group">
+                    <select class="form-control form-control-sm" name="input_select" id="input_select-0{{i}}-{{mat.id}}">
+                      {% for j in 1|range_tag:9 %}
+                      <option {% if mat|option_selected:i == j %}selected{% endif %} value="0{{j}}">
+                        {{mat.main_connect|group_index:j}}
+                      </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+        {% if mat.count|divisibleby:"2" is True or matrix|length_is:mat.count %}
+      </div>
+      {% endif %}{% endfor %}{% endif %} 
+      {% endcomment %} -->
+    </div>
+    <div class="col-2" style="padding-left:0">
+      <div class="card profile-card">
+        {% if profile %}
+        <div class="card-header">
+          <h5 class="card-title" style="text-align:center;">즐겨찾기</h5>
+        </div>
+          <div>
+            <div data-simplebar class="card-body" style="overflow: auto; max-height:85.3vh;">
+              <ul class="list-group">
+                {% for pro in profile %}
+                  <li class="list-group-item">
+                    <button class="btn btn-outline-dark" name="profile_button" value="{{pro.id}}">{{pro.name}}</button>
+                  </li>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>

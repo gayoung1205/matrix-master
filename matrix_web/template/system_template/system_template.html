@@ -1,99 +1,283 @@
-{% extends 'base.html' %} {% block content %}
-<div class="container">
-  <div class="card" style="width: 100%; margin-top: 20px">
-    <div class="card-body">
-      <h5 class="card-title" style="display: inline-block">시스템관리</h5>
-      <button
-        type="button"
-        class="btn btn-primary btn-sm"
-        data-toggle="modal"
-        data-target="#matrixCreate"
-        style="display: inline-block; float: right; margin-bottom: 0.2rem; margin-left: 0.3rem"
-      >
-        추가
-      </button>
-      <button
-        type="button"
-        class="btn btn-primary btn-sm"
-        data-toggle="modal"
-        data-target="#matrixImport"
-        style="display: inline-block; float: right; margin-bottom: 0.2rem; margin-left: 0.3rem"
-      >
-        불러오기
-      </button>
-      <button
-        type="button"
-        class="btn btn-primary btn-sm"
-        data-toggle="modal"
-        data-target="#matrixExport"
-        style="display: inline-block; float: right; margin-bottom: 0.2rem; margin-left: 0.3rem"
-      >
-        내보내기
-      </button>
-      <div class="table-responsive">
-        <table class="table">
-          <thead class="thead-light">
-            <tr>
-              <th scope="col">이름</th>
-              <th scope="col">시스템ip1</th>
-              <th scope="col">시스템ip2</th>
-              <th scope="col">시스템ip3</th>
-              <th scope="col">port</th>
-              <th scope="col">main/sub</th>
-              <th scope="col">Action</th>
-            </tr>
-          </thead>
-          {% if matrix %}
-          <tbody>
-            {% for mat in matrix %}
-            <tr>
-              <td>{{mat.name}}</th>
-              <td>{{mat.matrix_ip_address}}</td>
-              <td>{{mat.kvm_ip_address}}</td>
-              <td>{% if mat.kvm_ip_address2 is not None %}{{mat.kvm_ip_address2}}{% endif %}</td>
-              <td>{{mat.port}}</td>
-              <td>{% if mat.is_main %}main{% else %}sub{% endif %}</td>
-              <td>
-                <button
-                  type="button"
-                  class="btn btn-primary btn-sm"
-                  data-toggle="modal"
-                  data-target="#matrixUpdate"
-                  data-whatever="{{mat.id}},{{mat.name}},{{mat.matrix_ip_address}},{{mat.kvm_ip_address}},{{mat.kvm_ip_address2}},{{mat.port}},{{mat.is_main}},{{mat.main_connect}}"
-                >
-                  수정</button
-                ><button
-                  type="button"
-                  class="btn btn-danger btn-sm"
-                  data-toggle="modal"
-                  data-target="#matrixDelete"
-                  data-whatever="{{mat.id}}"
-                >
-                  삭제
-                </button>
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-          {% endif %}
-        </table>
-      </div>
-    </div>
-  </div>
-</div>
-
-{% include 'system_template/system_template_create.html' %}
-
-{% include 'system_template/system_template_update.html' %}
-
-{% include 'system_template/system_template_delete.html' %}
-
-{% include 'system_template/system_template_import.html' %}
-
-{% include 'system_template/system_template_export.html' %}
-
+{% extends 'base.html' %}
+{% load filter_tags %}
 {% load static %}
-<script src="{% static 'vendor/jquery/jquery.slim.min.js' %}"></script>
-<script src="{% static 'js/system_template.js' %}"></script>
-<script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
-{% endblock content %}
+{% block content %}
+
+    <!-- 세션 타이머를 페이지 우측 하단에 배치 -->
+    <div id="session-timer" class="position-fixed bottom-0 end-0 m-4 px-4 py-3 glass-timer rounded-3 shadow-lg" style="display: none; z-index: 1050;">
+        <div class="d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-clock text-white" style="margin-right: 15px;"></i>
+                <span class="text-white fw-bold" style="margin-right: 20px;">남은 시간:</span>
+                <strong id="remaining-time" class="text-warning fs-5">10:00</strong>
+            </div>
+            <button class="btn btn-sm btn-danger ms-4" onclick="logoutSystem()">
+                <i class="fas fa-sign-out-alt"></i> 종료
+            </button>
+        </div>
+    </div>
+
+    <div class="container py-4">
+        <div class="card border-0 shadow-lg rounded-4 bg-white">
+            <div class="card-header bg-white text-dark rounded-top-4 py-3 d-flex justify-content-between align-items-center">
+                <h5 class="card-title fw-bold" style="display: inline-block; color: #212529;">
+                    <i class="fas fa-cogs me-2"></i> 시스템관리
+                </h5>
+                <div class="btn-group float-end mb-2" role="group">
+                    <button type="button" class="btn btn-outline-dark btn-sm" data-toggle="modal" data-target="#matrixExport">
+                        <i class="fas fa-download me-1"></i> 내보내기
+                    </button>
+                    <button type="button" class="btn btn-outline-dark btn-sm" data-toggle="modal" data-target="#matrixImport">
+                        <i class="fas fa-upload me-1"></i> 불러오기
+                    </button>
+                    <button type="button" class="btn btn-dark btn-sm" data-toggle="modal" data-target="#matrixCreate">
+                        <i class="fas fa-plus me-1"></i> 추가
+                    </button>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                        <tr>
+                            <th>이름</th>
+                            <th>Matrix ip</th>
+                            <th>KVM ip</th>
+                            <th>Port</th>
+                            <th>Main/Sub</th>
+                            <th class="text-end">Action</th>
+                        </tr>
+                        </thead>
+                        {% if matrix %}
+                            <tbody>
+                            {% for mat in matrix %}
+                                <tr>
+                                    <td>{{ mat.name }}</td>
+                                    <td>{{ mat.matrix_ip_address }}</td>
+                                    <td>{% if mat.kvm_ip_address2 %}{{ mat.kvm_ip_address2 }}{% else %}{{ mat.kvm_ip_address }}{% endif %}</td>
+                                    <td>{{ mat.port }}</td>
+                                    <td>{% if mat.is_main %}main{% else %}sub{% endif %}</td>
+                                    <td class="text-end">
+                                        <div class="btn-group mb-1 d-flex flex-wrap gap-1 justify-content-end">
+                                            <button
+                                                    class="btn btn-sm btn-outline-primary"
+                                                    data-target="#matrixUpdate"
+                                                    data-id="{{ mat.id }}"
+                                                    data-name="{{ mat.name }}"
+                                                    data-matrix-ip="{{ mat.matrix_ip_address }}"
+                                                    data-kvm-ip="{{ mat.kvm_ip_address }}"
+                                                    data-kvm-ip2="{{ mat.kvm_ip_address2|default_if_none:'' }}"
+                                                    data-port="{{ mat.port }}"
+                                                    data-is-main="{{ mat.is_main }}"
+                                                    data-main-connect="{{ mat.main_connect }}"
+                                            >
+                                                수정
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger"
+                                                    data-toggle="modal"
+                                                    data-target="#matrixDelete"
+                                                    data-whatever="{{ mat.id }}">
+                                                삭제
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        {% endif %}
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% include 'system_template/system_template_create.html' %}
+    {% include 'system_template/system_template_update.html' %}
+    {% include 'system_template/system_template_delete.html' %}
+    {% include 'system_template/system_template_import.html' %}
+    {% include 'system_template/system_template_export.html' %}
+{% endblock %}
+
+{% block javascript %}
+    {% load static %}
+    <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'js/system_template.js' %}?v=8"></script>
+    <link rel="stylesheet" href="{% static 'css/system_template.css' %}">
+
+    <script>
+        let sessionCheckInterval;
+        let countdownInterval;
+        let warningShown = false;
+        let lastRemainingTime = 600;
+
+        function updateCountdown() {
+            if (lastRemainingTime > 0) {
+                lastRemainingTime--;
+                const minutes = Math.floor(lastRemainingTime / 60);
+                const seconds = lastRemainingTime % 60;
+                const formatted = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                document.getElementById('remaining-time').textContent = formatted;
+
+                if (lastRemainingTime < 60) {
+                    document.getElementById('remaining-time').classList.remove('text-warning');
+                    document.getElementById('remaining-time').classList.add('text-danger', 'fw-bold');
+
+                    if (lastRemainingTime < 30 && !warningShown) {
+                        warningShown = true;
+                        showSessionWarning();
+                    }
+                }
+
+                if (lastRemainingTime <= 0) {
+                    clearInterval(countdownInterval);
+                    clearInterval(sessionCheckInterval);
+                    showSessionExpired();
+                }
+            }
+        }
+
+        function checkSessionTime() {
+            fetch('/api/check_session_time/')
+                .then(response => {
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.valid) {
+                        document.getElementById('session-timer').style.display = 'block';
+                        lastRemainingTime = data.remaining;
+
+                        if (data.remaining >= 60) {
+                            document.getElementById('remaining-time').classList.remove('text-danger');
+                            document.getElementById('remaining-time').classList.add('text-warning');
+                            warningShown = false;
+                        }
+                    } else {
+                        clearInterval(sessionCheckInterval);
+                        clearInterval(countdownInterval);
+                        showSessionExpired();
+                    }
+                })
+                .catch(error => {
+                    console.error('세션 체크 오류:', error);
+                    document.getElementById('session-timer').style.display = 'block';
+                    document.getElementById('remaining-time').textContent = '확인 중...';
+                });
+        }
+
+        function showSessionWarning() {
+            const toast = `
+        <div class="toast position-fixed bottom-0 end-0 m-3" role="alert" aria-live="assertive" aria-atomic="true" id="warningToast">
+            <div class="toast-header bg-warning text-dark">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <strong class="me-auto">세션 만료 경고</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+                세션이 곧 만료됩니다. 계속 사용하시려면 페이지를 새로고침하세요.
+            </div>
+        </div>
+    `;
+
+            document.body.insertAdjacentHTML('beforeend', toast);
+            const toastEl = new bootstrap.Toast(document.getElementById('warningToast'));
+            toastEl.show();
+        }
+
+        function showSessionExpired() {
+            const modal = `
+        <div class="modal fade" id="sessionExpiredModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title">
+                            <i class="fas fa-clock me-2"></i>세션 만료
+                        </h5>
+                    </div>
+                    <div class="modal-body">
+                        <p>시스템 관리 세션이 만료되었습니다.</p>
+                        <p>계속하시려면 다시 인증해주세요.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" onclick="redirectToPassword()">
+                            다시 인증하기
+                        </button>
+                        <a href="/" class="btn btn-secondary">
+                            홈으로 가기
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+            document.body.insertAdjacentHTML('beforeend', modal);
+            const modalEl = new bootstrap.Modal(document.getElementById('sessionExpiredModal'));
+            modalEl.show();
+        }
+
+        function redirectToPassword() {
+            window.location.href = '/system_password/?next=' + encodeURIComponent(window.location.pathname);
+        }
+
+        function logoutSystem() {
+            if (confirm('시스템 관리를 종료하시겠습니까?')) {
+                fetch('/api/system_logout/', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'Content-Type': 'application/json'
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        alert(data.message);
+                        window.location.href = '/';
+                    })
+                    .catch(error => {
+                        console.error('로그아웃 오류:', error);
+                        window.location.href = '/';
+                    });
+            }
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function isSystemManagementPage() {
+            const systemPages = ['/system_template/', '/hardware_ip_manager/', '/rpi_ip_manager/'];
+            return systemPages.some(page => window.location.pathname.includes(page));
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            if (isSystemManagementPage()) {
+                checkSessionTime();
+
+                countdownInterval = setInterval(updateCountdown, 1000);
+                sessionCheckInterval = setInterval(checkSessionTime, 30000);
+            }
+        });
+
+        window.addEventListener('beforeunload', function() {
+            if (sessionCheckInterval) {
+                clearInterval(sessionCheckInterval);
+            }
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+            }
+        });
+    </script>
+
+{% endblock %}

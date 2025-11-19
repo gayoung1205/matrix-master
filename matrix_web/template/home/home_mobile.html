@@ -1,0 +1,186 @@
+{% load filter_tags %}
+{% load static %}
+{% load bootstrap_icons %}
+{% include 'home/home_mobile_profile_modal.html' %}
+<div class="container-fluid">
+  <div class="row mobile-profile-row">
+    <button
+      type="button"
+      class="btn btn-outline-dark btn-sm"
+      data-toggle="modal"
+      data-target="#homeMobileProfileModal"
+    >
+      <span>{% bs_icon 'bookmarks' color='black' %} 즐겨찾기</span>
+    </button>
+  </div>
+  <div class="row" data-simplebar style="overflow: auto; max-height:88vh;">
+    <div class="col-12">
+      {% if main %} 
+      {% for m in main %}
+      <div class="card matrix-card main">
+        <div class="card-header mobile-card-header">{{m.name}}</div>
+        <div class="card-body" style="padding-top: 0;">
+          <div class="row align-items-center">
+            {% for i in 1|range_tag:5 %}
+            <div class="col-3">
+              <div class="control">
+                <img src="{% static 'img/icon1.png' %}" />
+                <p>{{connect_list|list_index:i}}</p>
+              </div>
+              <div class="form-group">
+                <select class="form-control form-control-sm" name="input_select" id="input_select-0{{i}}-{{m.id}}">
+                  {% for j in 1|range_tag:7 %}
+                  <option {% if m|option_selected:i == j %}selected{% endif %} value="0{{j}}">
+                    {{connect_list|list_index:j}}
+                  </option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          <div class="row align-items-center">
+            {% for i in 5|range_tag:9 %}
+            <div class="col-3">
+              <div class="control">
+                <img src="{% static 'img/icon1.png' %}" />
+                <p>{{connect_list|list_index:i}}</p>
+              </div>
+              <div class="form-group">
+                <select class="form-control form-control-sm" name="input_select" id="input_select-0{{i}}-{{m.id}}" {% if i == 7 or i == 8 %}disabled{% endif %}>
+                  {% for j in 1|range_tag:7 %}
+                  <option {% if m|option_selected:i == j %}selected{% endif %} value="0{{j}}">
+                    {{connect_list|list_index:j}}
+                  </option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          <div class="row align-items-center">
+            {% for i in 9|range_tag:14 %}
+            <div class="col-3">
+              <div class="control">
+                <img src="{% static 'img/icon1.png' %}" />
+                <p>{{connect_list|list_index:i}}</p>
+              </div>
+              <div class="form-group">
+                <select class="form-control form-control-sm" name="input_select" id="input_select-0{{i}}-{{m.id}}">
+                  {% for j in 14|range_tag:19 %}
+                  <option {% if m|option_selected:i == j %}selected{% endif %} value="0{{j}}">
+                    {{connect_list|list_index:j}}
+                  </option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+            
+        </div>
+      </div>
+      <div class="card matrix-card main">
+        <div class="card-header" style="padding: 0.25rem 1rem; background-color: rgba(0, 0, 0, 0); border-bottom: none; font-weight: 500;">터치공유PC</div>
+        <div class="card-body" style="padding-top: 0;">
+          {% for i in 1|range_tag:22 %}
+          {% if i|remainder:6 == 1 %}
+          <div class="row align-items-center">
+          {% endif %}
+            <div class="col-2"><button class="btn btn-outline-dark kvm" name="kvm_button" value="{{m.id}}-{{i}}">{% if i == 21 %}T{% else %}{{i}}{% endif %}</button></div>
+          {% if i|remainder:6 == 0 or i == 21 %}
+          </div>
+          {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+      {% endfor %}
+      {% endif %}
+      {% if matrix %}
+      {% for mat in matrix %}
+      <div class="card matrix-card">
+        <div class="card-header" style="padding: 0.25rem 1rem; background-color: rgba(0, 0, 0, 0); border-bottom: none; font-weight: 500;">{{mat.name}}</div>
+        <div class="card-body" style="padding-top: 0;">
+          <div class="row">
+            {% for i in 1|range_tag:5 %}
+            <div class="col-3">
+              <div class="control">
+                <img src="{% static 'img/icon1.png' %}" />
+              </div>
+              <button class="btn btn-outline-dark kvm" name="kvm_button" value="{{mat.id}}-{{i}}">{{mat.main_connect|group_index:i}}</button>
+              <div class="form-group">
+                <select class="form-control form-control-sm" name="input_select" id="input_select-0{{i}}-{{mat.id}}">
+                  {% for j in 1|range_tag:17 %}
+                  <option {% if mat|option_selected:i == j %}selected{% endif %} value="0{{j}}">
+                    {{mat.main_connect|group_index:j}}
+                  </option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          <div class="row">
+            {% for i in 5|range_tag:9 %}
+            <div class="col-3">
+              <div class="control">
+                <img src="{% static 'img/icon1.png' %}" />
+              </div>
+              <button class="btn btn-outline-dark kvm" name="kvm_button" value="{{mat.id}}-{{i}}" {% if i == 8 %}disabled{% endif %}>{{mat.main_connect|group_index:i}}</button>
+              <div class="form-group">
+                <select class="form-control form-control-sm" name="input_select" id="input_select-0{{i}}-{{mat.id}}" {% if i == 8 %}disabled{% endif %}>
+                  {% for j in 1|range_tag:17 %}
+                  <option {% if mat|option_selected:i == j %}selected{% endif %} value="0{{j}}">
+                    {{mat.main_connect|group_index:j}}
+                  </option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          <div class="row">
+            {% for i in 9|range_tag:13 %}
+            <div class="col-3">
+              <div class="control">
+                <img src="{% static 'img/icon1.png' %}" />
+              </div>
+              <button class="btn btn-outline-dark kvm" name="kvm_button" value="{{mat.id}}-{{i}}" {% if i == 8 %}disabled{% endif %}>{{mat.main_connect|group_index:i}}</button>
+              <div class="form-group">
+                <select class="form-control form-control-sm" name="input_select" id="input_select-0{{i}}-{{mat.id}}" {% if i == 8 %}disabled{% endif %}>
+                  {% for j in 1|range_tag:17 %}
+                  <option {% if mat|option_selected:i == j %}selected{% endif %} value="0{{j}}">
+                    {{mat.main_connect|group_index:j}}
+                  </option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          <div class="row">
+            {% for i in 13|range_tag:17 %}
+            <div class="col-3">
+              <div class="control">
+                <img src="{% static 'img/icon1.png' %}" />
+              </div>
+              <button class="btn btn-outline-dark kvm" name="kvm_button" value="{{mat.id}}-{{i}}" {% if i == 8 %}disabled{% endif %}>{{mat.main_connect|group_index:i}}</button>
+              <div class="form-group">
+                <select class="form-control form-control-sm" name="input_select" id="input_select-0{{i}}-{{mat.id}}" {% if i == 8 %}disabled{% endif %}>
+                  {% for j in 1|range_tag:17 %}
+                  <option {% if mat|option_selected:i == j %}selected{% endif %} value="0{{j}}">
+                    {{mat.main_connect|group_index:j}}
+                  </option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+      {% endif %}
+    </div>
+  </div>
+</div>

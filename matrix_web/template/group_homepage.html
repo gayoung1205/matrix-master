@@ -1,0 +1,115 @@
+{% extends 'base.html' %} {% block content %} {% load static %} {% load filter_tags %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      {% if matrix %} 
+        {% for mat in matrix %}
+          <div class="card matrix-card">
+            <div class="card-body">
+              <h5 class="card-title">{{mat.name}}</h5>
+              <div class="row">
+                {% for i in 1|range_tag:5 %}
+                <div class="col-3">
+                  <div class="control">
+                    <img src="{% static 'img/icon1.png' %}" />
+                  </div>
+                  <button class="btn btn-outline-primary kvm" name="kvm_button" value="{{mat.id}}-{{i}}">{{mat.main_connect|group_index:i}}</button>
+                  <div class="form-group">
+                    <select class="form-control form-control-sm" name="input_select" id="input_select-0{{i}}-{{mat.id}}">
+                      {% for j in 1|range_tag:8 %}
+                      <option {% if mat|option_selected:i == j %}selected{% endif %} value="0{{j}}">
+                        {{mat.main_connect|group_index:j}}
+                      </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+              <div class="row">
+                {% for i in 5|range_tag:9 %}
+                <div class="col-3">
+                  <div class="control">
+                    <img src="{% static 'img/icon1.png' %}" />
+                  </div>
+                  <button class="btn btn-outline-primary kvm" name="kvm_button" value="{{mat.id}}-{{i}}" {% if i == 7 or i == 8 %}disabled{% endif %}>{{mat.main_connect|group_index:i}}</button>
+                  <div class="form-group">
+                    <select class="form-control form-control-sm" name="input_select" id="input_select-0{{i}}-{{mat.id}}" {% if i == 7 or i == 8 %}disabled{% endif %}>
+                      {% for j in 1|range_tag:8 %}
+                      <option {% if mat|option_selected:i == j %}selected{% endif %} value="0{{j}}">
+                        {{mat.main_connect|group_index:j}}
+                      </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- Error Modal -->
+<div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="errorModalLabel">ERROR</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+      <span></span>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %} 
+
+{% block javascript %}
+<script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
+<script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+<script>
+  $('select[name=input_select]').on('change', function () {
+    var id = $(this).attr('id').split('-');
+    var target = id[1];
+    var mat_id = id[2];
+    var input = $(this).val();
+    $.ajax({
+      type: 'GET',
+      url: `{% url 'control' %}?id=${mat_id}&input=${input}&target=${target}`,
+      success: function (res) {
+      },
+      error: function (res) {
+        $('#errorModal').modal('show')
+        $('#errorModal .modal-body span').text(JSON.stringify(res.responseText))
+      },
+    });
+  });
+
+  $('button[name=kvm_button]').on('click', function () {
+    var val = $(this).val().split('-');
+    var mat_id = val[0];
+    var input = val[1];
+    
+    $.ajax({
+      type: 'GET',
+      url: `{% url 'kvm' %}?id=${mat_id}&input=${input}`,
+      success: function (res) {
+      },
+      error: function (res) {
+        $('#errorModal').modal('show')
+        $('#errorModal .modal-body span').text(JSON.stringify(res.responseText))
+      },
+    });
+  });
+</script>
+{% endblock javascript %}
