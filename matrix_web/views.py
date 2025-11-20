@@ -144,7 +144,6 @@ def control(req):
         command = matrix_command_handle(input, target)
 
         client_socket.sendall(command)
-        print("Command sent successfully")
 
         time.sleep(delay_time)
 
@@ -153,11 +152,9 @@ def control(req):
 
         field_index = int(target) - 1
         field_name = list[field_index]
-        print(f"Updating field: {field_name} = {input}")
 
         setattr(mat, field_name, input)
         mat.save()
-        print("Database updated successfully")
 
     except socket.timeout:
         print("ERROR: Socket timeout")
@@ -1284,8 +1281,6 @@ def get_hardware_status(request):
     하드웨어 상태를 조회하여 UI에 반영
     """
     try:
-        # 실제 하드웨어와 통신하는 로직이 필요
-        # 여기서는 임시로 더미 데이터 반환
         hardware_data = {}
 
         matrices = Mat.objects.all()
@@ -1407,7 +1402,6 @@ def get_rpi_ip(request):
             "error": str(e)
         })
 
-# ========== 라즈베리파이 IP 변경 (추가) ==========
 @require_POST
 def change_rpi_ip_view(request):
     """라즈베리파이 IP 변경"""
@@ -1494,7 +1488,7 @@ def _has_system_access(req):
 
     ok = req.session.get('system_access') is True
     ts = req.session.get('system_access_time')
-    return ok and ts and (time.time() - ts) < 600  # 10분
+    return ok and ts and (time.time() - ts) < 600
 
 def check_system_access(req):
 
@@ -1513,7 +1507,6 @@ def check_system_access(req):
 
     return True
 
-# get_current_ip 함수 추가
 def get_current_ip():
     """현재 서버의 IP 주소"""
     try:
@@ -1543,7 +1536,7 @@ def system_password(req):
 @require_POST
 def verify_system_password(req):
     """시스템 비밀번호 검증"""
-    SYSTEM_PASSWORD = "admin123"  # 8포트와 동일한 비밀번호
+    SYSTEM_PASSWORD = "admin123"
 
     data = json.loads(req.body or "{}")
     input_password = data.get('password', '').strip()
@@ -1560,7 +1553,6 @@ def verify_system_password(req):
     except Exception:
         resolved_name = None
 
-    # 허용 안 되면 on_device로 강제
     if resolved_name not in allowed_names:
         next_url = reverse('on_device')
     else:
@@ -1594,9 +1586,8 @@ def system_template(req):
     if req.user.userpermission.permission != 0:
         return redirect('home')
 
-    # 시스템 접근 권한 확인
     if not check_system_access(req):
-        # 비밀번호 입력 페이지로 리다이렉트
+
         return render(req, 'system_template/system_password.html', {
             'user': req.user,
             'current_time': time.strftime('%Y-%m-%d %H:%M:%S')
@@ -1608,14 +1599,13 @@ def system_template(req):
         if i.main_connect in main_connect_list:
             main_connect_list.remove(i.main_connect)
 
-    # 남은 시간 계산
     remaining_time = 600 - (time.time() - req.session.get('system_access_time', time.time()))
 
     return render(req, 'system_template/system_template.html', {
         'matrix': matrix,
         'main_connect_list': main_connect_list,
         'system_access_user': req.session.get('system_access_user'),
-        'access_time_remaining': max(0, int(remaining_time))  # 음수 방지
+        'access_time_remaining': max(0, int(remaining_time))
     })
 
 def _get_current_ip():
@@ -1634,15 +1624,12 @@ def _check_ip_permission():
 @login_required(login_url='login_auth')
 def on_device(req):
     """온디바이스 관리 메인 페이지 - 비밀번호 인증 추가"""
-    # 게이트 통과 확인
     if not _has_system_access(req):
         return redirect(f"/api/system_password/?next=/api/system_template/on_device/")
 
-    # 세션 시간을 리셋(10분 재충전)
     req.session['system_access_time'] = time.time()
     req.session.modified = True
 
-    # 사용자별 장비 이름 가져오기
     device_names = {}
     try:
         from .models import DeviceNameConfig
@@ -1652,7 +1639,6 @@ def on_device(req):
     except:
         pass
 
-    # 기본값 설정
     if 'hardware' not in device_names:
         device_names['hardware'] = 'Matrix'
     if 'server' not in device_names:
@@ -1682,7 +1668,6 @@ def setup_ip_permission(request):
 
         return render(request, 'system_template/setup_permission.html', context)
 
-    # POST 요청 처리 (권한 설정)
     password = request.POST.get('password')
     try:
         current_user = subprocess.run(['whoami'], capture_output=True, text=True).stdout.strip() or os.getenv('USER', 'www-data')
@@ -1712,17 +1697,17 @@ rm -f $TEMP_FILE
             f.write(safe_setup_script)
         os.chmod('/tmp/safe_setup.sh', 0o755)
 
-        subprocess.run(['sudo', '-K'])  # sudo 캐시 초기화
+        subprocess.run(['sudo', '-K'])
         result = subprocess.run(
             f'echo "{password}" | sudo -S bash /tmp/safe_setup.sh',
             shell=True, capture_output=True, text=True
         )
         if "Sorry, try again" in result.stderr or "incorrect password" in result.stderr.lower():
             messages.error(request, '❌ 비밀번호가 틀렸습니다. 다시 확인해주세요.')
-            return redirect('setup_ip_permission')  # 설정 페이지로 다시
+            return redirect('setup_ip_permission')
         elif "SUCCESS" in result.stdout:
             messages.success(request, '✅ 권한 설정 완료!')
-            return redirect('on_device')  # 통합 페이지로
+            return redirect('on_device')
         elif "SYNTAX_ERROR" in result.stdout:
             messages.error(request, '❌ Sudoers 문법 오류 - 설정 실패')
         elif result.returncode != 0:
@@ -1733,7 +1718,7 @@ rm -f $TEMP_FILE
     except Exception as e:
         messages.error(request, f'❌ 오류 발생: {str(e)}')
 
-    return redirect('setup_ip_permission')  # 실패 시 설정 페이지로
+    return redirect('setup_ip_permission')
 
 
 @login_required(login_url='login_auth')
@@ -1747,7 +1732,6 @@ def remove_ip_permission(request):
             text=True
         )
 
-        # 0.5초 대기 후 파일 존재 확인
         time.sleep(0.5)
         check_result = subprocess.run(
             ['sudo', 'test', '-f', '/etc/sudoers.d/matrix_ip_change'],
@@ -1755,7 +1739,6 @@ def remove_ip_permission(request):
         )
 
         if check_result.returncode != 0:
-            # 파일이 존재하지 않으면 삭제 성공
             messages.success(request, '✅ 권한 설정이 제거되었습니다.')
         else:
             messages.error(request, '❌ 권한 제거 실패. SSH에서 확인이 필요합니다.')
@@ -1830,7 +1813,6 @@ def update_device_name(request):
             config.device_name = device_name
             config.save()
 
-        # 세션 시간 연장
         if request.session.get('system_access'):
             request.session['system_access_time'] = time.time()
 
@@ -1898,7 +1880,6 @@ def check_hardware_connection(request):
     try:
         mat = Mat.objects.get(id=matrix_id)
 
-        # Matrix 연결 테스트
         matrix_status = {
             'connected': False,
             'ip': mat.matrix_ip_address,
@@ -1914,7 +1895,6 @@ def check_hardware_connection(request):
         except:
             matrix_status['connected'] = False
 
-        # KVM 연결 테스트
         kvm_status = {
             'connected': False,
             'ip': mat.kvm_ip_address,
