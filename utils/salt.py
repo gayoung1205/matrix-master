@@ -2,5 +2,5 @@
 # salt_key = binascii.hexlify(random_key).decode()
 # salt_key->random_key = binascii.unhexlify(salt_key)
 salt = {
-	"key": "56ab8f2f4b6b8d30c5bb5e22f6228c8f"
+	"key": "ed93e0827d8b3c5cb06585e818412916"
 }

@@ -19,6 +19,14 @@ class MatrixAdmin(admin.ModelAdmin):
         'input_f',
         'input_g',
         'input_h',
+        'input_i',
+        'input_j',
+        'input_k',
+        'input_l',
+        'input_m',
+        'input_n',
+        'input_o',
+        'input_p',
     ]
 
 
@@ -35,6 +43,14 @@ class MatrixSettingAdmin(admin.ModelAdmin):
         'input_f',
         'input_g',
         'input_h',
+        'input_i',
+        'input_j',
+        'input_k',
+        'input_l',
+        'input_m',
+        'input_n',
+        'input_o',
+        'input_p',
         'input_kvm',
     ]
     list_editable=[
@@ -46,6 +62,14 @@ class MatrixSettingAdmin(admin.ModelAdmin):
         'input_f',
         'input_g',
         'input_h',
+        'input_i',
+        'input_j',
+        'input_k',
+        'input_l',
+        'input_m',
+        'input_n',
+        'input_o',
+        'input_p',
         'input_kvm',
     ]
     list_per_page=30
@@ -65,6 +89,7 @@ class ProfileAdmin(admin.ModelAdmin):
     list_display=[
         'id',
         'name',
+        'created_date',
     ]
     list_editable=[
         'name',

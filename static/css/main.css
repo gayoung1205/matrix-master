@@ -1,30 +1,237 @@
-.container-home {
-  width: 90%;
-  margin-left: 5%;
-  margin-right: 5%;
+/*@font-face {*/
+/*  font-family: 'SpoqaHanSansNeo-Medium';*/
+/*  src: url('../fonts/SpoqaHanSansNeo_TTF_original/SpoqaHanSansNeo-Medium.ttf') format('truetype');*/
+/*}*/
+
+/*body {*/
+/*	font-family: 'SpoqaHanSansNeo-Medium';*/
+/*  background-color: rgba(0,0,0,.03);*/
+/*  overflow-y: hidden;*/
+/*}*/
+
+/*.control {*/
+/*  width: 100%;*/
+/*  color: #343a40;*/
+/*  border-color: #343a40;*/
+/*  text-align: center;*/
+/*  line-height: 1.5;*/
+/*  font-size: 0.8vw;*/
+/*  padding: 0;*/
+/*  !* font-weight: bold; *!*/
+/*}*/
+
+/*.control p {*/
+/*  margin-bottom: 0;*/
+/*}*/
+
+/*.kvm {*/
+/*  width: 100%;*/
+/*  overflow: hidden;*/
+/*  text-overflow: ellipsis;*/
+/*  white-space: nowrap;*/
+/*  text-align: center;*/
+/*  margin-top: 10px;*/
+/*}*/
+
+/*.matrix-card {*/
+/*  width: 100%;*/
+/*  margin-top: 10px;*/
+/*  height: auto;*/
+/*  text-align: center;*/
+/*}*/
+
+/*.matrix-card .card-body {*/
+/*  padding-top: 0.75rem;*/
+/*}*/
+
+/*.matrix-card .col-3 {*/
+/*  padding-left: 1vw;*/
+/*  padding-right: 1vw;*/
+/*}*/
+
+/*.matrix-card p {*/
+/*  font-weight: bold;*/
+/*}*/
+
+/*.matrix-card button {*/
+/*  margin-top: 0;*/
+/*  font-size: 0.8vw;*/
+/*  padding: 0;*/
+/*  font-weight: bold;*/
+/*  border-color: #ced4da;*/
+/*}*/
+
+/*.matrix-card .control {*/
+/*  margin-top: 0.2rem;*/
+/*}*/
+
+/*.matrix-card img {*/
+/*  width: 3vw;*/
+/*}*/
+
+/*.profile-card {*/
+/*  width: 100%;*/
+/*  margin-top: 10px;*/
+/*  height: auto;*/
+/*}*/
+
+/*.card-title {*/
+/*  font-size: 2vh;*/
+/*  margin-bottom: 0.2rem;*/
+/*}*/
+
+/*.profile-card button {*/
+/*  width: 100%;*/
+/*  font-size: 0.8vw;*/
+/*  margin-top: 1%;*/
+/*  text-overflow: ellipsis;*/
+/*  white-space: nowrap;*/
+/*  overflow: hidden;*/
+/*  border-color: #ced4da;*/
+/*}*/
+
+/*.profile-card h5 {*/
+/*  width: 100%;*/
+/*  margin-top: 1%;*/
+/*  text-overflow: ellipsis;*/
+/*  white-space: nowrap;*/
+/*  overflow: hidden;*/
+/*}*/
+
+/*!* 테블릿 세로 (해상도 768px ~ 1024px)*!*/
+/*@media all and (min-width: 768px) and (max-width: 1024px) {*/
+/*  .profile-card h5 {*/
+/*    font-size: 2vw;*/
+/*    margin-top: 1%;*/
+/*    text-overflow: ellipsis;*/
+/*    white-space: nowrap;*/
+/*    overflow: hidden;*/
+/*  }*/
+
+/*  .matrix-card .kvm {*/
+/*    font-size: 1.8vw;*/
+/*  }*/
+
+/*  .matrix-card img {*/
+/*    width: 5vw;*/
+/*  }*/
+/*}*/
+
+/*@media (max-width: 767px) {*/
+/*  .matrix-card .kvm {*/
+/*  margin-top: 0;*/
+/*  font-size: 2.8vw;*/
+/*  }*/
+
+/*  .matrix-card img {*/
+/*    width: 7vw;*/
+/*  }*/
+/*}*/
+
+/*.main .form-group {*/
+/*  margin-bottom: 0.1rem;*/
+/*}*/
+
+/*table tr {*/
+/*  overflow: hidden;*/
+/*  text-overflow: ellipsis;*/
+/*  white-space: nowrap;*/
+/*  max-width: 120px;*/
+/*  text-align: center;*/
+/*}*/
+
+/*select option {*/
+/*  font-size: 0.5rem;*/
+/*}*/
+
+/*.mobile-profile-row {*/
+/*  margin-top: 0.5rem;*/
+/*}*/
+
+/*.mobile-profile-row button {*/
+/*  display: block;*/
+/*  margin: auto;*/
+/*}*/
+
+/*.mobile-card-header {*/
+/*  padding: 0.25rem 1rem;*/
+/*  background-color: rgba(0, 0, 0, 0);*/
+/*  border-bottom: none;*/
+/*  font-weight: 500;*/
+/*}*/
+
+/*.mobile-matrix-card img {*/
+/*  width: 3vw;*/
+/*}*/
+
+/*.my-custom-scrollbar {*/
+/*  position: relative;*/
+/*  width: 800px;*/
+/*  height: 400px;*/
+/*  overflow: auto;*/
+/*}*/
+
+/* ===================================
+   1. 기본 레이아웃 및 컨테이너
+   =================================== */
+html, body {
+  height: 100% !important;
+  overflow-x: auto !important;
+  overflow-y: auto !important;
 }
 
-.control {
-  width: 100%;
-  color: #007bff;
-  border-color: #007bff;
-  text-align: center;
-  line-height: 1.5;
-  font-size: 0.8vw;
-  padding: 0;
-  font-weight: bold;
+body > .container-fluid {
+  min-height: 100vh !important;
 }
 
-.control p {
-  margin-bottom: 0;
+.container-fluid.matrix-list {
+  background-color: #f6f8ff;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  width: 100% !important;
+  margin-left: 0 !important;
+  padding: 1rem;
+  overflow-x: hidden !important;
+  overflow-y: auto;
+  max-height: calc(100vh - 80px);
 }
 
-.kvm {
-  width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  text-align: center;
+.container-fluid {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+.main .form-group {
+  margin-bottom: 0.1rem;
+}
+
+.my-custom-scrollbar {
+  position: relative;
+  width: 800px;
+  height: 400px;
+  overflow: auto;
+}
+
+/* ===================================
+   2. 카드 스타일
+   =================================== */
+.card-container {
+  border-radius: 12px;
+  background-color: #ffffff;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+}
+
+.card-title {
+  font-size: 100px;
+  margin-bottom: 0.2rem;
+}
+
+.matrix-card .card-title {
+  text-align: center !important;
+  margin-bottom: 32px !important;
+  color: #000000;
+  font-size: 100px;
 }
 
 .matrix-card {
@@ -32,9 +239,11 @@
   margin-top: 10px;
   height: auto;
   text-align: center;
+  overflow-x: auto;
 }
 
 .matrix-card .card-body {
+  min-width: 700px;
   padding-top: 0.75rem;
 }
 
@@ -47,22 +256,20 @@
   font-weight: bold;
 }
 
-.matrix-card button {
-  font-size: 0.8vw;
-  padding: 0;
-  font-weight: bold;
+.matrix-card button,
+.kvm {
+  margin-top: 0;
+  font-size: clamp(0.625rem, 0.8vw + 0.25rem, 0.875rem);
+  padding: 3px 2px;
+  border-color: #ced4da;
 }
 
 .matrix-card .control {
   margin-top: 0.2rem;
 }
 
-.matrix-card .kvm {
-  margin-top: 0;
-}
-
 .matrix-card img {
-  width: 2vw;
+  width: 3vw;
 }
 
 .profile-card {
@@ -71,18 +278,46 @@
   height: auto;
 }
 
-.card-title {
-  font-size: 2vh;
+.profile-card .card-header {
+  padding: 0.75rem 1rem;
+  background-color: rgba(0, 0, 0, 0.03);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.profile-card .card-title {
+  text-align: center;
+  margin-bottom: 0;
+}
+
+h5.card-title {
+  font-size: 20px !important;
   margin-bottom: 0.2rem;
+  padding-top: 15px;
+}
+
+.profile-card .card-body {
+  overflow: auto;
+  max-height: clamp(300px, 70vh, 100vh);
+  padding: 0.5rem;
+}
+
+.profile-card .list-group {
+  margin-bottom: 0;
+}
+
+.profile-card .list-group-item {
+  padding: 0.5rem;
+  border: 1px solid rgba(0, 0, 0, 0.125);
 }
 
 .profile-card button {
   width: 100%;
-  font-size: 0.8vw;
-  margin-top: 1%;
+  font-size: clamp(0.75rem, 1vw + 0.25rem, 1rem);
+  padding: 0.5rem 1rem;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
+  border-color: #ced4da;
 }
 
 .profile-card h5 {
@@ -93,21 +328,408 @@
   overflow: hidden;
 }
 
-/* 테블릿 세로 (해상도 768px ~ 1023px)*/
-@media all and (min-width: 768px) and (max-width: 1023px) {
-  .profile-card h5 {
-    font-size: 2vw;
-    margin-top: 1%;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
-  }
+.profile-column {
+  padding-left: 0;
 }
 
-.main .form-group {
-  margin-bottom: 0.1rem;
+/* ===================================
+   3. 컨트롤 및 KVM 스타일
+   =================================== */
+.control {
+  width: 100%;
+  color: #343a40;
+  border-color: #343a40;
+  text-align: center;
+  line-height: 1.5;
+  font-size: clamp(0.75rem, 1vw + 0.25rem, 1rem);
+  padding: 0;
 }
 
+.control p {
+  font-size: 16px !important;
+  margin-bottom: 0.25rem;
+}
+
+.control p,
+.monitor-label {
+  font-size: 16px !important;
+  margin-bottom: 0.25rem;
+}
+
+.kvm, .monitor-label, .monitor-select {
+  display: block;
+  width: 100%;
+  margin-top: .25rem;
+  padding: .375rem .75rem;
+  border: 1px solid #d1d5db;
+  border-radius: .375rem;
+  background-color: #fff;
+  color: #000000;
+  font-weight: 500;
+  text-align: center;
+  line-height: 1.5;
+  box-shadow: none;
+}
+
+.control img {
+  width: clamp(30px, 4vw, 60px);
+  height: auto;
+}
+
+.kvm {
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+  margin-top: 10px;
+  font-size: 16px !important;
+  padding: 4px 2px;
+}
+
+.matrix-card .kvm {
+  font-size: 0.8vw;
+}
+
+/* ===================================
+   4. 매트릭스 리스트
+   =================================== */
+.matrix-list {
+  background-color: #f6f8ff;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  width: 100% !important;
+  margin-left: 0 !important;
+  overflow-x: hidden !important;
+  padding: 1rem;
+}
+
+/* ===================================
+   5. 드래그앤드롭 및 모니터 아이템
+   =================================== */
+.monitor-item {
+  min-width: 0;
+  cursor: default !important;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  padding: 8px;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  position: relative;
+}
+
+.monitor-item:hover {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  transform: translateY(-2px);
+}
+
+.monitor-item.dragging {
+  opacity: 0.7;
+  transform: rotate(5deg) scale(1.05);
+  z-index: 1000;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+  cursor: move;
+}
+
+.monitor-item.hidden {
+  opacity: 0.3;
+  transform: scale(0.9);
+}
+
+.monitor-item.hidden button[name=kvm_button],
+.monitor-item.hidden select[name=input_select] {
+  pointer-events: none !important;
+  opacity: 0.5;
+  cursor: not-allowed !important;
+  background-color: #f5f5f5 !important;
+}
+
+.monitor-item.hidden .monitor-controls {
+  pointer-events: auto !important;
+  opacity: 1 !important;
+}
+
+/* 정렬 가능한 행 */
+.sortable-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  min-height: 140px;
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+}
+
+.sortable-row.drag-over {
+  border: 2px dashed #007bff;
+  background-color: #e3f2fd;
+  transform: scale(1.02);
+}
+
+/* ===================================
+   6. 편집 모드
+   =================================== */
+.editing-mode .matrix-card {
+  border: 2px dashed #667eea;
+  background: rgba(102, 126, 234, 0.05);
+}
+
+.editing-mode .sortable-row {
+  background: rgba(102, 126, 234, 0.1);
+  border: 1px dashed #667eea;
+}
+
+.editing-mode .monitor-item {
+  cursor: move !important;
+  animation: shake 2s infinite;
+  transform-origin: center;
+}
+
+.editing-mode .monitor-item:nth-child(even) {
+  animation-delay: 0.1s;
+}
+
+.editing-mode .monitor-item:nth-child(3n) {
+  animation-delay: 0.2s;
+}
+
+.editing-mode .monitor-item.dragging {
+  animation: none;
+}
+
+.editing-mode .monitor-controls {
+  opacity: 1;
+}
+
+.monitor-controls {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 10;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.monitor-controls .btn {
+  width: clamp(24px, 4vw, 32px);
+  height: clamp(24px, 4vw, 32px);
+  padding: 0;
+  font-size: clamp(10px, 1.5vw, 14px);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #ddd;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.monitor-controls .btn:hover {
+  background: #fff;
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.btn-toggle-visibility {
+  width: clamp(20px, 4vw, 32px);
+  height: clamp(20px, 4vw, 32px);
+  padding: 0;
+  font-size: clamp(8px, 1.5vw, 14px);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #ddd;
+  transition: all 0.2s ease;
+}
+
+.btn-toggle-visibility:hover {
+  background: #fff;
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* ===================================
+   7. 레이아웃 토글 버튼 및 컨트롤
+   =================================== */
+.layout-toggle-btn {
+  position: fixed;
+  bottom: clamp(20px, 4vw, 40px);
+  right: clamp(15px, 3vw, 30px);
+  width: clamp(45px, 8vw, 70px);
+  height: clamp(45px, 8vw, 70px);
+  font-size: clamp(14px, 3vw, 24px);
+  z-index: 1051;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  color: white;
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  cursor: pointer;
+}
+
+.layout-toggle-btn:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 12px 35px rgba(102, 126, 234, 0.6);
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+.layout-toggle-btn:active {
+  transform: translateY(-1px) scale(0.98);
+}
+
+.layout-toggle-btn.editing {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+  animation: pulse 2s infinite;
+}
+
+.layout-toggle-btn.editing:hover {
+  background: linear-gradient(135deg, #ee5a24 0%, #ff6b6b 100%);
+}
+
+/* 레이아웃 컨트롤 패널 */
+.layout-controls {
+  position: fixed;
+  bottom: clamp(80px, 15vw, 120px);
+  right: clamp(15px, 3vw, 30px);
+  width: clamp(220px, 42vw, 300px);
+  z-index: 1050;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+  padding: 24px 20px;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.3s ease;
+}
+
+.layout-controls.show {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.layout-controls.hidden {
+  display: none;
+}
+
+.layout-controls h6 {
+  color: #1e1e1e;
+  font-weight: 700;
+  margin-bottom: 4px;
+  font-size: clamp(0.875rem, 1.2vw + 0.35rem, 1.125rem);
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+
+.layout-controls-title {
+  margin-bottom: 16px;
+}
+
+.layout-controls-subtitle {
+  font-size: clamp(0.625rem, 0.8vw + 0.25rem, 0.875rem);
+  color: #555;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.layout-controls hr {
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  margin: 18px 0;
+}
+
+.layout-controls .btn {
+  margin: 6px 4px;
+  border-radius: 10px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  font-size: clamp(0.625rem, 0.8vw + 0.25rem, 0.875rem);
+  padding: 8px 14px;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+}
+
+.layout-controls .btn:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+}
+
+.layout-controls .btn-save {
+  background-color: #43a047;
+  color: #fff;
+}
+
+.layout-controls .btn-reset {
+  background-color: #f9a825;
+  color: #fff;
+}
+
+.layout-controls .btn-close {
+  background-color: #78909c;
+  color: #fff;
+}
+
+#hiddenMonitors {
+  background-color: rgba(255, 255, 255, 0.08);
+  padding: 10px;
+  border-radius: 12px;
+  max-height: 140px;
+  overflow-y: auto;
+  font-size: clamp(0.625rem, 0.8vw + 0.25rem, 0.875rem);
+}
+
+#hiddenMonitors small {
+  color: #666;
+}
+
+.hidden-monitor-item {
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  border: 1px solid rgba(200, 200, 200, 0.3);
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.hidden-monitor-item .d-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.restore-monitor {
+  padding: 4px 10px;
+  font-size: 12px;
+  border-radius: 6px;
+  background-color: #43a047;
+  color: white;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.restore-monitor:hover {
+  background-color: #388e3c;
+  transform: translateY(-1px);
+}
+
+/* ===================================
+   8. 기타 UI 요소
+   =================================== */
 table tr {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -116,6 +738,956 @@ table tr {
   text-align: center;
 }
 
+/* 폼 요소 */
 select option {
   font-size: 0.5rem;
+}
+
+.form-control-sm,
+.form-control-sm option,
+.monitor-select {
+  font-size: 16px !important;
+  padding: 2px 4px;
+  height: auto;
+  min-height: 24px;
+  text-align-last: center;
+  text-align: center;
+}
+
+.monitor-select {
+  text-align: center !important;
+  text-align-last: center !important;
+  background-position: calc(100% - 12px) center !important;
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+  background-position: calc(100% - 12px) center !important;
+  background-size: 12px !important;
+}
+
+.monitor-select option {
+  text-align: center;
+  padding: 4px 8px;
+}
+
+@media (max-width: 1200px) {
+  .monitor-select {
+    font-size: 11px;
+    padding: 2px 20px 2px 8px !important;
+  }
+}
+
+.fav.fav--glass .fav-btn{
+  background: rgba(255,255,255,.65);
+  border: 1px solid rgba(0,0,0,.15) !important;
+  box-shadow: 0 8px 24px rgba(15,23,42,.08), inset 0 1px 0 rgba(255,255,255,.6);
+  backdrop-filter: blur(8px);
+  color:#0f172a;
+}
+
+.fav.fav--glass .fav-btn:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 12px 28px rgba(15,23,42,.12);
+  border-color: rgba(55, 60, 62, 0.6) !important;
+}
+
+.fav.fav--glass .fav-btn:focus{
+  outline:none;
+  box-shadow: 0 0 0 .2rem rgba(59,130,246,.18);
+}
+
+.modal-body .form-control {
+  text-align: left !important;
+  padding-left: 12px !important;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  height: 42px;
+  font-size: 14px;
+}
+
+/* ✅ 모달 내 SELECT 드롭다운만 가운데 정렬 (input, textarea는 왼쪽 정렬 유지) */
+.modal-body select.form-control {
+  text-align: center !important;
+  text-align-last: center !important;
+  padding-left: 0.5rem !important;
+  padding-right: 2rem !important;
+}
+
+.modal-body select.form-control option {
+  text-align: center !important;
+}
+
+/* ✅ 드롭다운 옵션 방향 및 정렬 강화 */
+.modal-body select.form-control {
+  direction: ltr !important;
+  text-indent: 0 !important;
+}
+
+.modal-body select.form-control option {
+  direction: ltr !important;
+  text-indent: 0 !important;
+}
+
+/* ✅ ID 기반으로 더 구체적으로 타겟팅 */
+#profile-create select.form-control,
+#profile-update select.form-control {
+  text-align: center !important;
+  text-align-last: center !important;
+  -moz-text-align-last: center !important;
+  -webkit-text-align-last: center !important;
+}
+
+#profile-create select.form-control option,
+#profile-update select.form-control option {
+  text-align: center !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+.modal-body .form-control:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  outline: 0;
+}
+
+.modal-body .form-label {
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #495057;
+  font-size: 14px;
+}
+
+.modal-body .mb-3 {
+  margin-bottom: 1.5rem !important;
+}
+
+.modal-body .form-control::placeholder {
+  color: #6c757d;
+  opacity: 0.7;
+}
+
+#updateNamesModal .modal-body {
+  padding: 24px;
+}
+
+.dropdown-toggle {
+  font-size: 16px !important;
+  padding: 0.5rem 1rem !important;
+  text-align-last: center;
+}
+
+.dropdown-menu {
+  font-size: 16px !important;
+  text-align-last: center;
+  padding: 0.5rem 1rem !important;
+}
+
+.dropdown-item {
+  padding: 0.5rem 1rem !important;
+  font-size: clamp(0.75rem, 1vw + 0.25rem, 1rem) !important;
+  text-align: left !important;
+}
+
+.mobile-profile-row {
+  margin-top: 0.5rem;
+}
+
+.mobile-profile-row button {
+  display: block;
+  margin: auto;
+}
+
+.mobile-card-header {
+  padding: 0.25rem 1rem;
+  background-color: rgba(0, 0, 0, 0);
+  border-bottom: none;
+  font-weight: 500;
+}
+
+.mobile-matrix-card img {
+  width: 3vw;
+}
+
+/* ===================================
+   9. 하드웨어 알림
+   =================================== */
+.hardware-changed {
+  animation: hardware-update 1s ease;
+}
+
+select.changed {
+  border-color: #4CAF50;
+  box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+}
+
+.hardware-notification {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  background: #333;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transform: translateX(-120%);
+  transition: transform 0.3s ease;
+  z-index: 1000;
+  font-size: clamp(0.75rem, 1vw + 0.25rem, 1rem);
+}
+
+.hardware-notification.show {
+  transform: translateX(0);
+}
+
+.hardware-notification .icon {
+  font-size: 20px;
+}
+
+.hardware-notification .time {
+  font-size: clamp(0.625rem, 0.8vw + 0.25rem, 0.75rem);
+  opacity: 0.7;
+}
+
+/* ===================================
+   10. 애니메이션
+   =================================== */
+@keyframes shake {
+  0%, 100% {
+    transform: rotate(0deg) scale(1);
+  }
+  25% {
+    transform: rotate(0.5deg) scale(1.01);
+  }
+  50% {
+    transform: rotate(0deg) scale(1);
+  }
+  75% {
+    transform: rotate(-0.5deg) scale(1.01);
+  }
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4); }
+  50% { box-shadow: 0 8px 25px rgba(255, 107, 107, 0.8); }
+  100% { box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4); }
+}
+
+@keyframes hardware-update {
+  0% { background-color: transparent; }
+  50% { background-color: #4CAF50; opacity: 0.3; }
+  100% { background-color: transparent; }
+}
+
+/* ===================================
+   11. 반응형 미디어 쿼리
+   =================================== */
+/* 태블릿 세로 (768px ~ 1024px) */
+@media all and (min-width: 768px) and (max-width: 1024px) {
+  .profile-card h5 {
+    font-size: clamp(0.875rem, 1.5vw + 0.5rem, 1.25rem);
+    margin-top: 1%;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .profile-card .card-body {
+    max-height: 60vh;
+  }
+
+  .profile-card button {
+    font-size: clamp(0.75rem, 1vw + 0.25rem, 1rem);
+    padding: 0.4rem 0.8rem;
+  }
+
+  .matrix-card .kvm {
+    font-size: clamp(0.625rem, 0.8vw + 0.25rem, 0.875rem);
+  }
+
+  .matrix-card img {
+    width: 5vw;
+  }
+
+  .col-10 {
+    min-width: 0 !important;
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+
+  .col-2 {
+    flex: 0 0 25%;
+    max-width: 25%;
+  }
+
+  .sortable-row {
+    gap: 6px;
+    padding: 8px;
+  }
+
+  .form-control-sm {
+    font-size: 16px !important;
+  }
+}
+
+.modal-body .form-control {
+  text-align: left !important;
+  padding-left: 12px !important;
+  height: 42px;
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  .sortable-row {
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 6px;
+    padding: 8px;
+  }
+
+  .matrix-card .card-body {
+    min-width: auto !important;
+  }
+}
+
+/* 모바일 (767px 이하) */
+@media (max-width: 767px) {
+  .matrix-card .kvm {
+    margin-top: 0;
+    font-size: clamp(0.625rem, 0.8vw + 0.25rem, 0.875rem);
+  }
+
+  .matrix-card img {
+    width: 7vw;
+  }
+
+  .container-fluid .row {
+    flex-direction: column;
+  }
+
+  .col-10, .col-2 {
+
+    flex: 0 0 100%;
+    max-width: 100%;
+    padding: 0 0.5rem;
+  }
+
+  .profile-column {
+    padding: 0 0.5rem;
+  }
+
+  .profile-card {
+    margin-top: 15px;
+    order: -1;
+  }
+
+  .profile-card .card-body {
+    max-height: 40vh;
+  }
+
+  .profile-card button {
+    font-size: clamp(0.75rem, 1vw + 0.25rem, 1rem);
+    padding: 0.75rem 1rem;
+  }
+
+  .sortable-row {
+    gap: 4px;
+    padding: 6px;
+    min-height: 100px;
+  }
+
+  .layout-toggle-btn {
+    bottom: 15px;
+    right: 15px;
+    width: 50px;
+    height: 50px;
+    font-size: 16px;
+  }
+
+  .layout-controls {
+    bottom: 75px;
+    right: 15px;
+    left: 15px;
+    width: auto;
+  }
+}
+
+/* 작은 모바일 (480px 이하) */
+@media screen and (max-width: 480px) {
+  .monitor-item {
+    padding: 4px;
+  }
+
+  .sortable-row {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 4px;
+    padding: 6px;
+  }
+
+  .matrix-card .card-body {
+    min-width: auto !important;
+  }
+
+  .control {
+    display: flex;
+    align-items: center;
+    text-align: left;
+    padding: 4px;
+  }
+
+  .control img {
+    width: 30px;
+  }
+
+  .layout-controls {
+    bottom: 60px;
+    padding: 15px;
+  }
+}
+
+/* 대형 화면 (1200px 이상) */
+@media screen and (min-width: 1200px) {
+  .monitor-item {
+    flex: 0 0 calc(24% - 12px);
+    min-width: 180px;
+  }
+
+  .sortable-row {
+    grid-template-columns: repeat(4, minmax(150px, 1fr));
+  }
+
+  .layout-toggle-btn {
+    width: 70px;
+    height: 70px;
+    font-size: 24px;
+  }
+
+  .layout-controls {
+    width: 300px;
+    padding: 25px;
+  }
+}
+
+/* 세로 모드 (Portrait) */
+@media screen and (orientation: portrait) {
+  .layout-toggle-btn {
+    bottom: clamp(15px, 3vh, 30px);
+    right: clamp(10px, 2vw, 20px);
+  }
+
+  .layout-controls {
+    bottom: clamp(70px, 12vh, 100px);
+    right: clamp(10px, 2vw, 20px);
+    left: clamp(10px, 2vw, 20px);
+    width: auto;
+  }
+}
+
+/* 가로 모드 (Landscape) */
+@media screen and (orientation: landscape) and (max-height: 600px) {
+  .matrix-card {
+    margin-top: 5px;
+  }
+
+  .sortable-row {
+    min-height: 80px;
+    padding: 5px;
+  }
+
+  .layout-toggle-btn {
+    width: clamp(35px, 6vh, 50px);
+    height: clamp(35px, 6vh, 50px);
+    font-size: clamp(12px, 2.5vh, 18px);
+  }
+}
+
+/* ===================================
+   12. 접근성 및 성능 최적화
+   =================================== */
+/* 애니메이션 감소 선호 */
+@media (prefers-reduced-motion: reduce) {
+  .monitor-item,
+  .layout-toggle-btn,
+  .layout-controls {
+    transition: none;
+  }
+
+  .editing-mode .monitor-item {
+    animation: none;
+  }
+}
+
+/* 고해상도 디스플레이 */
+@media (-webkit-min-device-pixel-ratio: 2),
+(min-resolution: 192dpi),
+(min-resolution: 2dppx) {
+  .control img,
+  .matrix-card img,
+  .mobile-matrix-card img {
+    image-rendering: auto;
+    /*image-rendering: crisp-edges;*/
+    transform: translateZ(0);
+    backface-visibility: hidden;
+  }
+}
+
+.hardware-changed {
+  animation: hardware-update 1s ease;
+}
+
+@keyframes hardware-update {
+  0% { background-color: transparent; }
+  50% { background-color: #ffeb3b; opacity: 0.3; }
+  100% { background-color: transparent; }
+}
+
+.hardware-sync-status {
+  position: fixed;
+  bottom: 55px;
+  right: 150px;
+  background: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: clamp(0.625rem, 0.8vw + 0.25rem, 0.75rem);
+  z-index: 100;
+}
+
+.sync-icon {
+  color: #4CAF50;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.hardware-notification {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  background: #333;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transform: translateX(-120%);
+  transition: transform 0.3s ease;
+  z-index: 1000;
+}
+
+.hardware-notification.show {
+  transform: translateX(0);
+}
+
+.btn.kvm.active-kvm {
+  background-color: #2196F3;
+  color: white;
+  animation: kvm-flash 0.5s ease;
+}
+
+@keyframes kvm-flash {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.btn-modal-primary {
+  background-color: #8a8a8a;
+  color: #333333;
+  font-weight: 600;
+  border: none;
+  border-radius: 0.6rem;
+  padding: 0.5rem 1.2rem;
+  transition: background-color 0.2s ease;
+}
+.btn-modal-primary:hover {
+  background-color: #c4b1e7;
+}
+
+/* 취소 버튼: 라이트 그레이 톤 */
+.btn-modal-secondary {
+  background-color: #e0e0e0;
+  color: #333333;
+  border: none;
+  font-weight: 500;
+  border-radius: 0.6rem;
+  padding: 0.5rem 1.2rem;
+}
+.btn-modal-secondary:hover {
+  background-color: #d5d5d5;
+}
+
+.btn-modal-danger {
+  background-color: #ff1700;
+  color: white;
+  font-weight: 600;
+  border: none;
+  border-radius: 0.6rem;
+  padding: 0.5rem 1.2rem;
+  transition: background-color 0.2s ease;
+}
+
+.btn-modal-danger:hover {
+  background-color: #bd0f00;
+}
+
+.matrix-card::-webkit-scrollbar,
+.container-fluid.matrix-list::-webkit-scrollbar {
+  height: 8px;
+}
+
+.matrix-card::-webkit-scrollbar-track,
+.container-fluid.matrix-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.matrix-card::-webkit-scrollbar-thumb,
+.container-fluid.matrix-list::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.matrix-card::-webkit-scrollbar-thumb:hover,
+.container-fluid.matrix-list::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* ===================================
+   16포트 레이아웃 편집 기능
+   =================================== */
+
+/* 레이아웃 토글 버튼 */
+.layout-toggle-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  z-index: 1000;
+  font-size: 18px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  background: linear-gradient(45deg, #667eea, #764ba2);
+  border: none;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.layout-toggle-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+  color: white;
+}
+
+.layout-toggle-btn.editing {
+  background: linear-gradient(45deg, #dc3545, #c82333);
+  animation: pulse 2s infinite;
+}
+
+/* 레이아웃 제어 패널 */
+.layout-controls {
+  position: fixed;
+  bottom: 90px;
+  right: 20px;
+  width: 280px;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  z-index: 999;
+  transform: translateY(20px);
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.layout-controls.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.layout-controls.hidden {
+  display: none;
+}
+
+.layout-controls .btn {
+  margin: 2px;
+  font-size: 12px;
+  padding: 6px 12px;
+}
+
+.btn-save { background: #28a745; color: white; border: none; }
+.btn-reset { background: #ffc107; color: black; border: none; }
+.btn-close { background: #6c757d; color: white; border: none; }
+
+/* 16포트 그리드 시스템 */
+.sortable-row {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 10px;
+  padding: 10px;
+  min-height: 60px;
+}
+
+.monitor-item {
+  position: relative;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  padding: 8px;
+  background: #f8f9fa;
+}
+
+.monitor-item.hidden {
+  opacity: 0.3;
+  filter: grayscale(100%);
+}
+
+.monitor-item.dragging {
+  opacity: 0.8;
+  transform: scale(1.05);
+  z-index: 1000;
+}
+
+/* 편집 모드 컨트롤 */
+.monitor-controls {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  display: none;
+  gap: 5px;
+  z-index: 10;
+}
+
+.editing-mode .monitor-controls {
+  display: flex;
+}
+
+.monitor-controls .btn {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  font-size: 12px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #ddd;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.monitor-controls .btn:hover {
+  background: #fff;
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.btn-edit-names {
+  display: none;
+}
+
+.editing-mode .btn-edit-names {
+  display: inline-flex;
+}
+
+/* 드래그 앤 드롭 효과 */
+.drag-over {
+  background-color: rgba(102, 126, 234, 0.1);
+  border: 2px dashed #667eea;
+  border-radius: 8px;
+}
+
+.drag-over-element {
+  border: 2px solid #667eea;
+  border-radius: 8px;
+}
+
+/* 16포트 반응형 조정 */
+@media (max-width: 1200px) {
+  .sortable-row {
+    grid-template-columns: repeat(8, 1fr) !important;
+    gap: 6px !important;
+    padding: 6px !important;
+  }
+
+  .monitor-label,
+  .monitor-select,
+  .kvm {
+    font-size: 10px !important;
+    padding: 3px 2px !important;
+  }
+
+  .col-10 {
+    min-width: 0 !important;
+  }
+
+  .matrix-card .card-body {
+    min-width: auto !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .sortable-row {
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 6px;
+    padding: 8px;
+  }
+
+  .matrix-card .card-body {
+    min-width: auto; /* 고정 너비 제거 */
+  }
+
+  .layout-toggle-btn {
+    width: 50px;
+    height: 50px;
+    font-size: 16px;
+  }
+
+  .layout-controls {
+    right: 10px;
+    left: 10px;
+    width: auto;
+  }
+}
+
+.monitor-placeholder {
+  background-color: rgba(0, 123, 255, 0.2);
+  border: 2px dashed #007bff;
+  border-radius: 8px;
+  height: 120px;
+  margin: 5px;
+  animation: pulse-placeholder 1s infinite;
+}
+
+@keyframes pulse-placeholder {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.7; }
+}
+
+/* 드래그 중인 아이템 */
+.monitor-item.ui-sortable-helper {
+  transform: rotate(5deg);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  opacity: 0.9;
+}
+
+/* 드래그 가능 영역 */
+.sortable-row.ui-sortable {
+  min-height: 120px;
+  transition: all 0.3s ease;
+}
+
+.sortable-row.ui-sortable-over {
+  background-color: rgba(0, 123, 255, 0.1);
+  border: 2px dashed #007bff;
+  border-radius: 8px;
+}
+
+/* 편집 모드에서의 sortable 영역 강조 */
+.editing-mode .sortable-row {
+  border: 1px dashed rgba(102, 126, 234, 0.5);
+  background: rgba(102, 126, 234, 0.05);
+  position: relative;
+}
+
+.editing-mode .sortable-row::before {
+  content: "여기로 드래그하세요";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: rgba(102, 126, 234, 0.6);
+  font-size: 14px;
+  font-weight: 500;
+  pointer-events: none;
+  z-index: 0;
+  display: none;
+}
+
+.editing-mode .sortable-row:empty::before {
+  display: block;
+}
+
+/* 드래그 상태의 모니터 아이템 */
+.monitor-item.ui-sortable-helper {
+  cursor: move !important;
+}
+
+/* 토스트 메시지 스타일 */
+.toast-message {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 12px 20px;
+  border-radius: 4px;
+  color: white;
+  font-weight: 500;
+  z-index: 10000;
+  display: none;
+  min-width: 200px;
+  text-align: center;
+}
+
+.toast-message.success {
+  background-color: #28a745;
+}
+
+.toast-message.error {
+  background-color: #dc3545;
+}
+
+/* 숨겨진 모니터 스타일 개선 */
+.monitor-item.hidden {
+  opacity: 0.4;
+  transform: scale(0.95);
+  filter: grayscale(50%);
+  transition: all 0.3s ease;
+}
+
+.monitor-item.hidden .monitor-select,
+.monitor-item.hidden .kvm {
+  pointer-events: none;
+  background-color: #f8f9fa !important;
+  color: #6c757d !important;
+}
+
+/* 편집 모드에서 숨겨진 아이템도 드래그 가능 */
+.editing-mode .monitor-item.hidden {
+  opacity: 0.6;
+  cursor: move;
+}
+
+/* 드래그 중 행 하이라이트 */
+.sortable-row.drag-over {
+  background-color: rgba(40, 167, 69, 0.1);
+  border-color: #28a745;
+  transform: scale(1.02);
+}
+
+/* 빈 행 스타일 */
+.sortable-row:empty {
+  min-height: 100px;
+  border-style: dashed;
+  background: repeating-linear-gradient(
+          45deg,
+          transparent,
+          transparent 10px,
+          rgba(102, 126, 234, 0.1) 10px,
+          rgba(102, 126, 234, 0.1) 20px
+  );
+}
+
+@media (max-width: 992px) {
+  .matrix-list {
+    width: 100% !important;
+    margin-left: 0 !important;
+  }
 }

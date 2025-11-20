@@ -33,6 +33,5 @@ urlpatterns = [
     path('profile_control/', views.profile_control, name='profile_control'),
     path('system_template/', views.system_template, name='system_template'),
     path('profile_template/', views.profile_template, name='profile_template'),
-    path('test/', views.test, name='test'),
     re_path(r'^media/(?P<path>.*)$', serve, {'document_root':settings.MEDIA_ROOT}),
 ]
