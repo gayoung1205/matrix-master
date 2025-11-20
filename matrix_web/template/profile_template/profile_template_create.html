@@ -14,7 +14,7 @@
 
             <div class="modal-header">
                 <h5 class="modal-title" id="create-modal-title">즐겨찾기 추가</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -238,7 +238,7 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-modal-secondary" data-dismiss="modal">취소</button>
+                    <button type="button" class="btn btn-modal-secondary" data-bs-dismiss="modal">취소</button>
                     <button type="button" class="btn btn-modal-primary" onClick="profileCreate()">생성</button>
                 </div>
             </form>
@@ -250,6 +250,8 @@
     select.form-control {
         padding-right: 2rem !important;
         background-position: right 0.75rem center !important;
+        text-align: center !important;
+        text-align-last: center !important;
     }
 
     select.form-control-sm {
@@ -269,7 +271,9 @@
         padding: 0.5rem 0.75rem !important;
     }
 
-    select.form-control option {
-        padding: 5px;
+    #profile-create select.form-control option {
+        padding: 5px !important;
+        text-align: center !important;
+        text-align-last: center !important;
     }
 </style>
