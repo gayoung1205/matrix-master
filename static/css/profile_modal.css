@@ -11,7 +11,7 @@
 
 .modal-header {
     background-color: #FFFFFF !important;
-    padding: 0.5rem 1rem;
+    padding: 0.5rem 1rem;  /* ✅ 높이 더 줄임 */
     border-bottom: 1px solid #e7e5df;
 }
 
@@ -46,20 +46,15 @@
     background-color: #ffffff;
 }
 
-/* ✅ 드롭다운 스타일 통합 및 가운데 정렬 강화 */
 select.form-control {
     appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg fill='gray' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 1rem center;
     background-size: 1rem;
-    font-size: 16px !important;
-    border-radius: 0.6rem;
-    /* ✅ 가운데 정렬 !important 추가 */
-    text-align: center !important;
-    text-align-last: center !important;
-    padding-left: 0.5rem !important;
-    padding-right: 2rem !important;
+    font-size: clamp(0.75rem, 1vw + 0.25rem, 1rem) !important;
+    text-align: center;
+    text-align-last: center;
 }
 
 h5 {
@@ -68,9 +63,15 @@ h5 {
     margin-bottom: 0.5rem;
 }
 
-/* ✅ option 태그도 가운데 정렬 !important 추가 */
+select.form-control {
+    font-size: 16px !important;
+    border-radius: 0.6rem;
+}
+
 select.form-control option {
     font-size: 16px !important;
-    text-align: center !important;
-    padding: 5px;
+    text-align: center;
 }
+
+#profile-tbody tr.dragging { opacity: .6; }
+#profile-tbody tr.drop-target { outline: 2px dashed #6c757d; }

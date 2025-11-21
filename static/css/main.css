@@ -1,179 +1,3 @@
-/*@font-face {*/
-/*  font-family: 'SpoqaHanSansNeo-Medium';*/
-/*  src: url('../fonts/SpoqaHanSansNeo_TTF_original/SpoqaHanSansNeo-Medium.ttf') format('truetype');*/
-/*}*/
-
-/*body {*/
-/*	font-family: 'SpoqaHanSansNeo-Medium';*/
-/*  background-color: rgba(0,0,0,.03);*/
-/*  overflow-y: hidden;*/
-/*}*/
-
-/*.control {*/
-/*  width: 100%;*/
-/*  color: #343a40;*/
-/*  border-color: #343a40;*/
-/*  text-align: center;*/
-/*  line-height: 1.5;*/
-/*  font-size: 0.8vw;*/
-/*  padding: 0;*/
-/*  !* font-weight: bold; *!*/
-/*}*/
-
-/*.control p {*/
-/*  margin-bottom: 0;*/
-/*}*/
-
-/*.kvm {*/
-/*  width: 100%;*/
-/*  overflow: hidden;*/
-/*  text-overflow: ellipsis;*/
-/*  white-space: nowrap;*/
-/*  text-align: center;*/
-/*  margin-top: 10px;*/
-/*}*/
-
-/*.matrix-card {*/
-/*  width: 100%;*/
-/*  margin-top: 10px;*/
-/*  height: auto;*/
-/*  text-align: center;*/
-/*}*/
-
-/*.matrix-card .card-body {*/
-/*  padding-top: 0.75rem;*/
-/*}*/
-
-/*.matrix-card .col-3 {*/
-/*  padding-left: 1vw;*/
-/*  padding-right: 1vw;*/
-/*}*/
-
-/*.matrix-card p {*/
-/*  font-weight: bold;*/
-/*}*/
-
-/*.matrix-card button {*/
-/*  margin-top: 0;*/
-/*  font-size: 0.8vw;*/
-/*  padding: 0;*/
-/*  font-weight: bold;*/
-/*  border-color: #ced4da;*/
-/*}*/
-
-/*.matrix-card .control {*/
-/*  margin-top: 0.2rem;*/
-/*}*/
-
-/*.matrix-card img {*/
-/*  width: 3vw;*/
-/*}*/
-
-/*.profile-card {*/
-/*  width: 100%;*/
-/*  margin-top: 10px;*/
-/*  height: auto;*/
-/*}*/
-
-/*.card-title {*/
-/*  font-size: 2vh;*/
-/*  margin-bottom: 0.2rem;*/
-/*}*/
-
-/*.profile-card button {*/
-/*  width: 100%;*/
-/*  font-size: 0.8vw;*/
-/*  margin-top: 1%;*/
-/*  text-overflow: ellipsis;*/
-/*  white-space: nowrap;*/
-/*  overflow: hidden;*/
-/*  border-color: #ced4da;*/
-/*}*/
-
-/*.profile-card h5 {*/
-/*  width: 100%;*/
-/*  margin-top: 1%;*/
-/*  text-overflow: ellipsis;*/
-/*  white-space: nowrap;*/
-/*  overflow: hidden;*/
-/*}*/
-
-/*!* 테블릿 세로 (해상도 768px ~ 1024px)*!*/
-/*@media all and (min-width: 768px) and (max-width: 1024px) {*/
-/*  .profile-card h5 {*/
-/*    font-size: 2vw;*/
-/*    margin-top: 1%;*/
-/*    text-overflow: ellipsis;*/
-/*    white-space: nowrap;*/
-/*    overflow: hidden;*/
-/*  }*/
-
-/*  .matrix-card .kvm {*/
-/*    font-size: 1.8vw;*/
-/*  }*/
-
-/*  .matrix-card img {*/
-/*    width: 5vw;*/
-/*  }*/
-/*}*/
-
-/*@media (max-width: 767px) {*/
-/*  .matrix-card .kvm {*/
-/*  margin-top: 0;*/
-/*  font-size: 2.8vw;*/
-/*  }*/
-
-/*  .matrix-card img {*/
-/*    width: 7vw;*/
-/*  }*/
-/*}*/
-
-/*.main .form-group {*/
-/*  margin-bottom: 0.1rem;*/
-/*}*/
-
-/*table tr {*/
-/*  overflow: hidden;*/
-/*  text-overflow: ellipsis;*/
-/*  white-space: nowrap;*/
-/*  max-width: 120px;*/
-/*  text-align: center;*/
-/*}*/
-
-/*select option {*/
-/*  font-size: 0.5rem;*/
-/*}*/
-
-/*.mobile-profile-row {*/
-/*  margin-top: 0.5rem;*/
-/*}*/
-
-/*.mobile-profile-row button {*/
-/*  display: block;*/
-/*  margin: auto;*/
-/*}*/
-
-/*.mobile-card-header {*/
-/*  padding: 0.25rem 1rem;*/
-/*  background-color: rgba(0, 0, 0, 0);*/
-/*  border-bottom: none;*/
-/*  font-weight: 500;*/
-/*}*/
-
-/*.mobile-matrix-card img {*/
-/*  width: 3vw;*/
-/*}*/
-
-/*.my-custom-scrollbar {*/
-/*  position: relative;*/
-/*  width: 800px;*/
-/*  height: 400px;*/
-/*  overflow: auto;*/
-/*}*/
-
-/* ===================================
-   1. 기본 레이아웃 및 컨테이너
-   =================================== */
 html, body {
   height: 100% !important;
   overflow-x: auto !important;
@@ -286,7 +110,7 @@ body > .container-fluid {
 
 .profile-card .card-title {
   text-align: center;
-  margin-bottom: 0;
+  margin-bottom: 15px;
 }
 
 h5.card-title {
@@ -354,21 +178,6 @@ h5.card-title {
 .monitor-label {
   font-size: 16px !important;
   margin-bottom: 0.25rem;
-}
-
-.kvm, .monitor-label, .monitor-select {
-  display: block;
-  width: 100%;
-  margin-top: .25rem;
-  padding: .375rem .75rem;
-  border: 1px solid #d1d5db;
-  border-radius: .375rem;
-  background-color: #fff;
-  color: #000000;
-  font-weight: 500;
-  text-align: center;
-  line-height: 1.5;
-  box-shadow: none;
 }
 
 .control img {
@@ -760,7 +569,6 @@ select option {
   background-position: calc(100% - 12px) center !important;
   padding-left: 8px !important;
   padding-right: 8px !important;
-  background-position: calc(100% - 12px) center !important;
   background-size: 12px !important;
 }
 
@@ -776,25 +584,6 @@ select option {
   }
 }
 
-.fav.fav--glass .fav-btn{
-  background: rgba(255,255,255,.65);
-  border: 1px solid rgba(0,0,0,.15) !important;
-  box-shadow: 0 8px 24px rgba(15,23,42,.08), inset 0 1px 0 rgba(255,255,255,.6);
-  backdrop-filter: blur(8px);
-  color:#0f172a;
-}
-
-.fav.fav--glass .fav-btn:hover{
-  transform: translateY(-1px);
-  box-shadow: 0 12px 28px rgba(15,23,42,.12);
-  border-color: rgba(55, 60, 62, 0.6) !important;
-}
-
-.fav.fav--glass .fav-btn:focus{
-  outline:none;
-  box-shadow: 0 0 0 .2rem rgba(59,130,246,.18);
-}
-
 .modal-body .form-control {
   text-align: left !important;
   padding-left: 12px !important;
@@ -802,45 +591,6 @@ select option {
   border-radius: 4px;
   height: 42px;
   font-size: 14px;
-}
-
-/* ✅ 모달 내 SELECT 드롭다운만 가운데 정렬 (input, textarea는 왼쪽 정렬 유지) */
-.modal-body select.form-control {
-  text-align: center !important;
-  text-align-last: center !important;
-  padding-left: 0.5rem !important;
-  padding-right: 2rem !important;
-}
-
-.modal-body select.form-control option {
-  text-align: center !important;
-}
-
-/* ✅ 드롭다운 옵션 방향 및 정렬 강화 */
-.modal-body select.form-control {
-  direction: ltr !important;
-  text-indent: 0 !important;
-}
-
-.modal-body select.form-control option {
-  direction: ltr !important;
-  text-indent: 0 !important;
-}
-
-/* ✅ ID 기반으로 더 구체적으로 타겟팅 */
-#profile-create select.form-control,
-#profile-update select.form-control {
-  text-align: center !important;
-  text-align-last: center !important;
-  -moz-text-align-last: center !important;
-  -webkit-text-align-last: center !important;
-}
-
-#profile-create select.form-control option,
-#profile-update select.form-control option {
-  text-align: center !important;
-  padding-left: 0 !important;
-  padding-right: 0 !important;
 }
 
 .modal-body .form-control:focus {
@@ -1689,5 +1439,77 @@ select.changed {
   .matrix-list {
     width: 100% !important;
     margin-left: 0 !important;
+  }
+}
+
+/* ===================================
+   화면 크기별 반응형 레이아웃
+   =================================== */
+
+/* 1600px 이하 */
+@media (max-width: 1600px) {
+  .col-10 {
+    flex: 0 0 80% !important;
+    max-width: 80% !important;
+  }
+
+  .col-2 {
+    flex: 0 0 20% !important;
+    max-width: 20% !important;
+  }
+}
+
+/* 1400px 이하 */
+@media (max-width: 1400px) {
+  .col-10 {
+    flex: 0 0 78% !important;
+    max-width: 78% !important;
+  }
+
+  .col-2 {
+    flex: 0 0 22% !important;
+    max-width: 22% !important;
+  }
+}
+
+/* 1200px 이하 */
+@media (max-width: 1200px) {
+  .col-10 {
+    flex: 0 0 75% !important;
+    max-width: 75% !important;
+  }
+
+  .col-2 {
+    flex: 0 0 25% !important;
+    max-width: 25% !important;
+  }
+}
+
+/* 992px 이하 */
+@media (max-width: 992px) {
+  .col-10 {
+    flex: 0 0 70% !important;
+    max-width: 70% !important;
+  }
+
+  .col-2 {
+    flex: 0 0 30% !important;
+    max-width: 30% !important;
+  }
+}
+
+/* 768px 이하: 세로 배치 */
+@media (max-width: 768px) {
+  .row {
+    flex-direction: column !important;
+  }
+
+  .col-10, .col-2 {
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+  }
+
+  .col-2 {
+    margin-top: 1rem;
   }
 }

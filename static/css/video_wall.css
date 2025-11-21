@@ -1,0 +1,246 @@
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.bg-gradient-success {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+}
+
+.bg-gradient-info {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+/* 비디오월 그리드 */
+.videowall-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    padding: 20px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: inset 0 2px 10px rgba(0,0,0,0.05);
+}
+
+/* 모니터 셀 */
+.monitor-cell {
+    position: relative;
+    aspect-ratio: 16/9;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    border-radius: 12px;
+    border: 3px solid #e0e0e0;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.monitor-cell:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+    border-color: #667eea;
+}
+
+.monitor-cell.selected {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-color: #667eea;
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.5);
+    transform: translateY(-3px);
+}
+
+.monitor-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 5px;
+    transition: all 0.3s ease;
+}
+
+.monitor-cell.selected .monitor-number {
+    color: white;
+    transform: scale(1.2);
+}
+
+.monitor-label {
+    font-size: 0.75rem;
+    color: #666;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.monitor-cell.selected .monitor-label {
+    color: rgba(255,255,255,0.9);
+}
+
+.monitor-status {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 1.2rem;
+    color: #999;
+    transition: all 0.3s ease;
+}
+
+.monitor-cell.selected .monitor-status {
+    color: white;
+}
+
+.selection-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(102, 126, 234, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.selection-overlay i {
+    font-size: 3rem;
+    color: white;
+    transform: scale(0);
+    transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.monitor-cell.selected .selection-overlay {
+    opacity: 1;
+}
+
+.monitor-cell.selected .selection-overlay i {
+    transform: scale(1);
+}
+
+/* 선택 정보 */
+.selection-info {
+    animation: slideIn 0.5s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ✅ 드롭다운 스타일 - 글씨 크기 증가 */
+#videoWallName.form-control {
+    font-size: 18px !important;
+    padding: 12px 16px !important;
+    border-radius: 10px !important;
+    border: 2px solid #e0e0e0 !important;
+}
+
+#inputSourceSelect.form-select {
+    font-size: 18px !important;
+    padding: 12px 16px !important;
+    border-radius: 10px !important;
+    border: 2px solid #e0e0e0 !important;
+    text-align: center !important;
+    text-align-last: center !important;
+}
+
+#inputSourceSelect.form-select option {
+    font-size: 18px !important;
+    text-align: center !important;
+    padding: 8px !important;
+}
+
+#videoWallName.form-control:focus,
+#inputSourceSelect.form-select:focus {
+    border-color: #667eea !important;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+}
+
+/* 버튼 스타일 */
+.btn {
+    border-radius: 10px;
+    padding: 12px 20px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    border: none;
+}
+
+.btn-success:hover:not(:disabled) {
+    background: linear-gradient(135deg, #0d7a6f 0%, #2dd167 100%);
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+    .videowall-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        padding: 10px;
+    }
+
+    .monitor-number {
+        font-size: 1.5rem;
+    }
+
+    .monitor-label {
+        font-size: 0.65rem;
+    }
+}
+
+/* 저장된 비디오월 아이템 */
+.videowall-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background 0.2s ease;
+}
+
+.videowall-item:hover {
+    background: #f8f9fa;
+}
+
+.videowall-item-info {
+    flex: 1;
+}
+
+.videowall-item-name {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.videowall-item-details {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.videowall-item-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.videowall-item-actions .btn {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+}

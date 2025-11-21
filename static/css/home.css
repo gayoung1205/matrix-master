@@ -1,0 +1,219 @@
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(100px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+@keyframes borderPulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.8;
+    }
+}
+
+.kvm, .monitor-label, .monitor-select {
+    display: block;
+    width: 100%;
+    margin-top: .25rem;
+    padding: .375rem .75rem;
+    border: 1px solid #d1d5db;
+    border-radius: .375rem;
+    background-color: #fff;
+    color: #000000;
+    font-weight: 500;
+    text-align: center;
+    line-height: 1.5;
+    box-shadow: none;
+}
+
+.monitor-select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    background-size: 16px;
+    padding-right: 32px;
+    outline: 0;
+}
+.monitor-select:focus,
+.monitor-select:hover {
+    border-color: #cfd4da;
+    box-shadow: none;
+}
+.monitor-select:disabled {
+    background-color: #f8f9fa;
+    color: #9ca3af;
+    border-style: dashed;
+    cursor: not-allowed;
+}
+.kvm-active-border {
+    border: 3px solid #343a40;
+    border-radius: 12px;
+    padding: 4px;
+}
+
+/* ===== 그라디언트 버튼 (main.css에 없음) ===== */
+.btn-gradient {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    border: none;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.btn-gradient:hover {
+    background: linear-gradient(45deg, #764ba2, #667eea);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
+}
+
+.btn-gradient:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(102, 126, 234, 0.4);
+}
+
+.btn-gradient:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+}
+
+.btn-outline-gradient {
+    background: transparent;
+    border: 2px solid transparent;
+    background-image: linear-gradient(white, white),
+    linear-gradient(45deg, #667eea, #764ba2);
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+    color: #000000;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-gradient:hover {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
+}
+
+.btn-outline-gradient:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+}
+
+.kvm-active-border-gradient {
+    position: relative;
+    border: 3px solid transparent;
+    background-image: linear-gradient(white, white),
+    linear-gradient(45deg, #667eea, #764ba2);
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+    animation: borderPulse 2s ease-in-out infinite;
+    border-radius: 10px;
+}
+
+/* ===== home_pc.html 전용 오버라이드 ===== */
+.sortable-row {
+    /* main.css 기본값: repeat(4, 1fr) */
+    grid-template-columns: repeat(8, minmax(0, 1fr)) !important;
+    gap: 8px;
+    padding: 8px;
+}
+
+/* ===== 프로필 카드 스타일 개선 (home만) ===== */
+.fav {
+    --gap: 10px;
+    --radius: 12px;
+    --padY: 10px;
+    --padX: 14px;
+    --h: 42px;
+    margin: 0;
+    padding: 8px;
+    list-style: none;
+}
+
+.fav .list-group-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 4px;
+    border: 0;
+    background: transparent;
+}
+
+.fav .list-group-item + .list-group-item {
+    margin-top: var(--gap);
+}
+
+.fav .fav-btn {
+    flex: 1 1 auto;
+    width: 100%;
+    height: var(--h);
+    padding: var(--padY) var(--padX);
+    border-radius: var(--radius);
+    border: 1px solid transparent;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    text-align: center;
+    transition: 0.15s ease;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    line-height: 1 !important;
+}
+
+.fav.fav--glass .fav-btn {
+    background: rgba(255, 255, 255, 0.65);
+    border: 1px solid rgba(0, 0, 0, 0.15) !important;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(8px);
+    color: #0f172a;
+}
+
+.fav.fav--glass .fav-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
+    border-color: rgba(55, 60, 62, 0.6) !important;
+}
+
+.fav.fav--glass .fav-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.18);
+}
+
+.col-1_5 {
+    flex: 0 0 12.5%;
+    max-width: 12.5%;
+    padding-right: 7.5px;
+    padding-left: 7.5px;
+}
+
+.form-row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: -5px;
+    margin-left: -5px;
+}
+
+.form-row .form-group {
+    padding-right: 5px;
+    padding-left: 5px;
+}

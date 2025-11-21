@@ -1,91 +1,3 @@
-# from django import template
-#
-# register = template.Library()
-#
-# @register.filter(name='range_tag')
-# def range_tag(start_val, end_val):
-#     return range(start_val, end_val)
-#
-# @register.filter(name='list_index')
-# def list_index(list, num):
-#     if num == 0:
-#         return "-"
-#     elif 0 < num < 10:
-#         return "PC"+str(num)
-#     elif 10 <= num < 21:
-#         return "PC"+str(num)
-#     else:
-#         return "T"
-#
-#
-# @register.filter
-# def kvm_index(list, num):
-#     if num == 0:
-#         return "-"
-#     elif 0 < num < 10:
-#         return "PC0"+str(num)
-#     elif 10 <= num < 21:
-#         return "PC"+str(num)
-#     else:
-#         return "T"
-#
-#
-# @register.filter(name='option_selected')
-# def option_selected(main, num):
-#     if num == 1:
-#         return int(main.input_a)
-#     elif num == 2:
-#         return int(main.input_b)
-#     elif num == 3:
-#         return int(main.input_c)
-#     elif num == 4:
-#         return int(main.input_d)
-#     elif num == 5:
-#         return int(main.input_e)
-#     elif num == 6:
-#         return int(main.input_f)
-#     elif num == 7:
-#         return int(main.input_g)
-#     elif num == 8:
-#         return int(main.input_h)
-#     elif num == 9:
-#         return int(main.input_i)
-#     elif num == 10:
-#         return int(main.input_j)
-#     elif num == 11:
-#         return int(main.input_k)
-#     elif num == 12:
-#         return int(main.input_l)
-#     elif num == 13:
-#         return int(main.input_m)
-#     elif num == 14:
-#         return int(main.input_n)
-#     elif num == 15:
-#         return int(main.input_o)
-#     elif num == 16:
-#         return int(main.input_p)
-#     else:
-#         return "X"
-#
-# @register.filter
-# def remainder(target, num):
-#     return target%num
-#
-# @register.filter
-# def group_index(connect: int, num: int):
-#     if num == 0:
-#         return "-"
-#     else:
-#         if (connect-1)*5+num < 10:
-#             return "PC0"+str((connect-1)*5+num)
-#         else:
-#             return "PC"+str((connect-1)*5+num)
-
-# 가영추가
-
-from django import template
-from django.apps import apps
-
 from django import template
 from django.apps import apps
 
@@ -146,9 +58,18 @@ def option_selected(main, num):
     else:
         return "X"
 
+# @register.filter
+# def remainder(target, num):
+#     return target%num
+
 @register.filter
+@register.filter(name='mod')  # mod라는 이름으로도 등록
 def remainder(target, num):
-    return target%num
+    """나머지 연산 필터 (% 연산)"""
+    try:
+        return int(target) % int(num)
+    except (ValueError, ZeroDivisionError):
+        return 0
 
 @register.filter
 def kvm_index(list, num):
