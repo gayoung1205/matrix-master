@@ -1927,3 +1927,12 @@ def check_hardware_connection(request):
             'success': False,
             'error': str(e)
         }, status=500)
+
+# 비디오월
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def video_wall(request):
+    context = {}
+    return render(request, 'video_wall.html', context)

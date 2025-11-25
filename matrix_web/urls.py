@@ -38,4 +38,5 @@ urlpatterns = [
     path('get_rpi_ip/', views.get_rpi_ip, name='get_rpi_ip'),
     path('api/check_connection/', views.check_hardware_connection, name='check_hardware_connection'),
     path('api/hardware_status/', views.get_hardware_status, name='get_hardware_status'),
+    path('video_wall/', views.video_wall, name='video_wall'),
 ]

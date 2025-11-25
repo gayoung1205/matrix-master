@@ -1,0 +1,476 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load filter_tags %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/video_wall.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <!-- 왼쪽: 비디오월 설정 영역 -->
+        <div class="col-lg-8 col-md-7">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-gradient-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-th"></i> 비디오월 구성
+                    </h4>
+                    <p class="mb-0 small">모니터를 선택하여 하나의 큰 화면을 만드세요</p>
+                </div>
+                <div class="card-body p-4" style="background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);">
+
+                    <!-- 4x4 그리드 -->
+                    <div class="videowall-grid">
+                        {% for i in 1|range_tag:17 %}
+                        <div class="monitor-cell" data-monitor="{{ i }}" data-row="{{ forloop.counter0|divisibleby:4|add:1 }}" data-col="{{ forloop.counter0|mod:4|add:1 }}">
+                            <div class="monitor-number">{{ i }}</div>
+                            <div class="monitor-label">Monitor {{ i }}</div>
+                            <div class="monitor-status">
+                                <i class="fas fa-tv"></i>
+                            </div>
+                            <div class="selection-overlay">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- 선택 정보 표시 -->
+                    <div class="selection-info mt-4 p-3 rounded" style="background: white; border-left: 4px solid #667eea;">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-info-circle text-primary me-2"></i>
+                            <span id="selectionText" class="text-muted">
+                                모니터를 클릭하여 선택하세요 (최소 2개 이상)
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 오른쪽: 설정 패널 -->
+        <div class="col-lg-4 col-md-5">
+            <div class="card shadow-lg border-0 mb-3">
+                <div class="card-header bg-gradient-success text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-cog"></i> 비디오월 설정
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- 비디오월 이름 -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">
+                            <i class="fas fa-tag"></i> 비디오월 이름
+                        </label>
+                        <input type="text" id="videoWallName" class="form-control form-control-lg"
+                               placeholder="예: 메인홀 비디오월" maxlength="50">
+                    </div>
+
+                    <!-- 입력 소스 선택 -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">
+                            <i class="fas fa-plug"></i> 입력 소스
+                        </label>
+                        <select id="inputSourceSelect" class="form-select form-select-lg">
+                            {% for i in 1|range_tag:17 %}
+                            <option value="{{ i }}">Device {{ i|stringformat:"02d" }}</option>
+                            {% endfor %}
+                        </select>
+                        <small class="text-muted">선택한 모니터에 표시할 입력 소스를 선택하세요</small>
+                    </div>
+
+                    <!-- 프리셋 버튼 -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">
+                            <i class="fas fa-magic"></i> 빠른 선택
+                        </label>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-outline-primary" onclick="selectPreset('2x2')">
+                                <i class="fas fa-th-large"></i> 2×2 (4개)
+                            </button>
+                            <button class="btn btn-outline-primary" onclick="selectPreset('3x3')">
+                                <i class="fas fa-th"></i> 3×3 (9개)
+                            </button>
+                            <button class="btn btn-outline-primary" onclick="selectPreset('4x4')">
+                                <i class="fas fa-border-all"></i> 4×4 (16개 전체)
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 액션 버튼 -->
+                    <div class="d-grid gap-2">
+                        <button id="createVideoWallBtn" class="btn btn-success btn-lg" disabled>
+                            <i class="fas fa-plus-circle"></i> 비디오월 생성
+                        </button>
+                        <button id="clearSelectionBtn" class="btn btn-outline-secondary">
+                            <i class="fas fa-eraser"></i> 선택 초기화
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 저장된 비디오월 목록 -->
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-gradient-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list"></i> 저장된 비디오월
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush" id="videoWallList">
+                        <div class="list-group-item text-center text-muted py-4">
+                            <i class="fas fa-inbox fa-2x mb-2"></i>
+                            <p class="mb-0">저장된 비디오월이 없습니다</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block javascript %}
+<style>
+    /* 그라디언트 배경 */
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .bg-gradient-success {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    }
+
+    .bg-gradient-info {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+
+    /* 비디오월 그리드 */
+    .videowall-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 15px;
+        padding: 20px;
+        background: white;
+        border-radius: 15px;
+        box-shadow: inset 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    /* 모니터 셀 */
+    .monitor-cell {
+        position: relative;
+        aspect-ratio: 16/9;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        border-radius: 12px;
+        border: 3px solid #e0e0e0;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .monitor-cell:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        border-color: #667eea;
+    }
+
+    .monitor-cell.selected {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-color: #667eea;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.5);
+        transform: translateY(-3px);
+    }
+
+    .monitor-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 5px;
+        transition: all 0.3s ease;
+    }
+
+    .monitor-cell.selected .monitor-number {
+        color: white;
+        transform: scale(1.2);
+    }
+
+    .monitor-label {
+        font-size: 0.75rem;
+        color: #666;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .monitor-cell.selected .monitor-label {
+        color: rgba(255,255,255,0.9);
+    }
+
+    .monitor-status {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        font-size: 1.2rem;
+        color: #999;
+        transition: all 0.3s ease;
+    }
+
+    .monitor-cell.selected .monitor-status {
+        color: white;
+    }
+
+    .selection-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(102, 126, 234, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+    }
+
+    .selection-overlay i {
+        font-size: 3rem;
+        color: white;
+        transform: scale(0);
+        transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+
+    .monitor-cell.selected .selection-overlay {
+        opacity: 1;
+    }
+
+    .monitor-cell.selected .selection-overlay i {
+        transform: scale(1);
+    }
+
+    /* 선택 정보 */
+    .selection-info {
+        animation: slideIn 0.5s ease;
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* 폼 요소 스타일링 */
+    .form-control, .form-select {
+        border-radius: 10px;
+        border: 2px solid #e0e0e0;
+        padding: 12px 16px;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    /* 버튼 스타일 */
+    .btn {
+        border-radius: 10px;
+        padding: 12px 20px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    .btn-success {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        border: none;
+    }
+
+    .btn-success:hover {
+        background: linear-gradient(135deg, #0d7a6f 0%, #2dd167 100%);
+    }
+
+    /* 반응형 */
+    @media (max-width: 768px) {
+        .videowall-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            padding: 10px;
+        }
+
+        .monitor-number {
+            font-size: 1.5rem;
+        }
+
+        .monitor-label {
+            font-size: 0.65rem;
+        }
+    }
+
+    /* 저장된 비디오월 아이템 */
+    .videowall-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 15px;
+        border-bottom: 1px solid #f0f0f0;
+        transition: background 0.2s ease;
+    }
+
+    .videowall-item:hover {
+        background: #f8f9fa;
+    }
+
+    .videowall-item-info {
+        flex: 1;
+    }
+
+    .videowall-item-name {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 5px;
+    }
+
+    .videowall-item-details {
+        font-size: 0.85rem;
+        color: #666;
+    }
+
+    .videowall-item-actions {
+        display: flex;
+        gap: 5px;
+    }
+
+    .videowall-item-actions .btn {
+        padding: 6px 12px;
+        font-size: 0.85rem;
+    }
+</style>
+
+<script>
+    let selectedMonitors = new Set();
+
+    // 모니터 클릭 이벤트
+    document.querySelectorAll('.monitor-cell').forEach(cell => {
+        cell.addEventListener('click', function() {
+            const monitorId = this.dataset.monitor;
+
+            if (selectedMonitors.has(monitorId)) {
+                selectedMonitors.delete(monitorId);
+                this.classList.remove('selected');
+            } else {
+                selectedMonitors.add(monitorId);
+                this.classList.add('selected');
+            }
+
+            updateSelectionInfo();
+            updateCreateButton();
+        });
+    });
+
+    // 선택 정보 업데이트
+    function updateSelectionInfo() {
+        const count = selectedMonitors.size;
+        const text = document.getElementById('selectionText');
+
+        if (count === 0) {
+            text.innerHTML = '<span class="text-muted">모니터를 클릭하여 선택하세요 (최소 2개 이상)</span>';
+        } else if (count === 1) {
+            text.innerHTML = `<span class="text-warning"><i class="fas fa-exclamation-triangle"></i> ${count}개 선택됨 - 최소 2개 이상 필요합니다</span>`;
+        } else {
+            const layout = detectLayout();
+            text.innerHTML = `<span class="text-success"><i class="fas fa-check-circle"></i> ${count}개 선택됨 - ${layout}</span>`;
+        }
+    }
+
+    // 레이아웃 감지
+    function detectLayout() {
+        if (selectedMonitors.size === 4) return '2×2 비디오월 구성 가능';
+        if (selectedMonitors.size === 9) return '3×3 비디오월 구성 가능';
+        if (selectedMonitors.size === 16) return '4×4 전체 비디오월';
+        return `커스텀 ${selectedMonitors.size}개 모니터 구성`;
+    }
+
+    // 생성 버튼 활성화/비활성화
+    function updateCreateButton() {
+        const btn = document.getElementById('createVideoWallBtn');
+        btn.disabled = selectedMonitors.size < 2;
+    }
+
+    // 프리셋 선택
+    function selectPreset(preset) {
+        clearSelection();
+
+        const presets = {
+            '2x2': [1, 2, 5, 6],
+            '3x3': [1, 2, 3, 5, 6, 7, 9, 10, 11],
+            '4x4': Array.from({length: 16}, (_, i) => i + 1)
+        };
+
+        const monitors = presets[preset];
+        monitors.forEach(id => {
+            selectedMonitors.add(String(id));
+            document.querySelector(`[data-monitor="${id}"]`).classList.add('selected');
+        });
+
+        updateSelectionInfo();
+        updateCreateButton();
+    }
+
+    // 선택 초기화
+    function clearSelection() {
+        selectedMonitors.clear();
+        document.querySelectorAll('.monitor-cell').forEach(cell => {
+            cell.classList.remove('selected');
+        });
+        updateSelectionInfo();
+        updateCreateButton();
+    }
+
+    document.getElementById('clearSelectionBtn').addEventListener('click', clearSelection);
+
+    // 비디오월 생성
+    document.getElementById('createVideoWallBtn').addEventListener('click', function() {
+        const name = document.getElementById('videoWallName').value.trim();
+        const inputSource = document.getElementById('inputSourceSelect').value;
+
+        if (!name) {
+            alert('비디오월 이름을 입력해주세요.');
+            document.getElementById('videoWallName').focus();
+            return;
+        }
+
+        if (selectedMonitors.size < 2) {
+            alert('최소 2개 이상의 모니터를 선택해주세요.');
+            return;
+        }
+
+        // TODO: 좌표 계산 및 서버 전송
+        const monitors = Array.from(selectedMonitors).map(Number);
+        console.log('비디오월 생성:', {
+            name: name,
+            monitors: monitors,
+            inputSource: inputSource
+        });
+
+        alert(`"${name}" 비디오월이 생성되었습니다!\n모니터: ${monitors.length}개\n입력 소스: Device ${inputSource}`);
+    });
+
+    // 초기화
+    updateSelectionInfo();
+</script>
+{% endblock javascript %}
