@@ -1365,25 +1365,61 @@ def scan_kvm_devices(request):
 @require_POST
 def change_hardware_ip(request):
     """하드웨어 장비 IP 변경"""
+    import socket
+    import time
+    import subprocess
+
     try:
         body = json.loads(request.body)
         current_ip = body.get('current_ip')
         new_ip = body.get('new_ip')
 
         if not current_ip or not new_ip:
+            return JsonResponse({'success': False, 'error': 'IP 주소가 올바르지 않습니다.'})
+
+        # ARP 캐시 클리어
+        try:
+            subprocess.run(['sudo', 'ip', '-s', '-s', 'neigh', 'flush', 'all'],
+                           capture_output=True, timeout=5)
+        except:
+            pass
+
+        # IP 변경 실행
+        change_ip(current_ip, new_ip)
+
+        # 10초 대기 후 네트워크 전체 스캔
+        time.sleep(10)
+
+        from .hardware_ip_changer import scan_devices
+        from .rpi_ip_changer import get_current_ip
+
+        rpi_ip = get_current_ip()
+        found_devices = scan_devices(rpi_ip, timeout=0.2)
+
+        if new_ip in found_devices:
+            return JsonResponse({
+                'success': True,
+                'message': f'IP가 {new_ip}로 변경되었습니다.',
+                'found_devices': found_devices
+            })
+        elif current_ip in found_devices:
             return JsonResponse({
                 'success': False,
-                'error': 'IP 주소가 올바르지 않습니다.'
+                'error': f'IP 변경이 적용되지 않았습니다. 발견된 장비: {found_devices}'
+            })
+        elif len(found_devices) > 0:
+            return JsonResponse({
+                'success': False,
+                'error': f'예상치 못한 상황: {found_devices}가 발견되었습니다. 이 중 하나가 하드웨어일 수 있습니다.'
+            })
+        else:
+            return JsonResponse({
+                'success': False,
+                'error': '하드웨어를 찾을 수 없습니다. 물리적으로 전원을 확인하거나 15초 더 기다려주세요.'
             })
 
-        change_ip(current_ip, new_ip)
-        return JsonResponse({'success': True})
-
     except Exception as e:
-        return JsonResponse({
-            'success': False,
-            'error': str(e)
-        })
+        return JsonResponse({'success': False, 'error': str(e)})
 
 @login_required(login_url='login_auth')
 @require_http_methods(["GET"])
