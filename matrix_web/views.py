@@ -1397,10 +1397,39 @@ def change_hardware_ip(request):
         found_devices = scan_devices(rpi_ip, timeout=0.2)
 
         if new_ip in found_devices:
+            # ✅ DB 업데이트 추가 - 이전 IP를 가진 모든 Matrix 찾아서 업데이트
+            updated_matrices = []
+
+            # matrix_ip_address 업데이트
+            matrices_by_matrix_ip = Mat.objects.filter(matrix_ip_address=current_ip)
+            for mat in matrices_by_matrix_ip:
+                mat.matrix_ip_address = new_ip
+                mat.save()
+                updated_matrices.append(f"{mat.name}(matrix_ip)")
+
+            # kvm_ip_address 업데이트
+            matrices_by_kvm_ip = Mat.objects.filter(kvm_ip_address=current_ip)
+            for mat in matrices_by_kvm_ip:
+                mat.kvm_ip_address = new_ip
+                mat.save()
+                if f"{mat.name}(kvm_ip)" not in updated_matrices:
+                    updated_matrices.append(f"{mat.name}(kvm_ip)")
+
+            # kvm_ip_address2 업데이트
+            matrices_by_kvm_ip2 = Mat.objects.filter(kvm_ip_address2=current_ip)
+            for mat in matrices_by_kvm_ip2:
+                mat.kvm_ip_address2 = new_ip
+                mat.save()
+                if f"{mat.name}(kvm_ip2)" not in updated_matrices:
+                    updated_matrices.append(f"{mat.name}(kvm_ip2)")
+
+            print(f"✅ DB 업데이트 완료: {updated_matrices}")
+
             return JsonResponse({
                 'success': True,
-                'message': f'IP가 {new_ip}로 변경되었습니다.',
-                'found_devices': found_devices
+                'message': f'IP가 {new_ip}로 변경되었습니다. DB 업데이트: {len(updated_matrices)}건',
+                'found_devices': found_devices,
+                'updated_matrices': updated_matrices
             })
         elif current_ip in found_devices:
             return JsonResponse({
