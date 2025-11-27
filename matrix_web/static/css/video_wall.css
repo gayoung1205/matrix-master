@@ -330,7 +330,7 @@
 /* 드롭다운 (입력 소스) 스타일 강제 */
 #inputSourceSelect {
     font-size: 16px !important;
-    padding: 12px 16px !important;
+    padding: 8px 16px !important;
     height: auto !important;
     line-height: 1.5 !important;
 }
