@@ -61,7 +61,10 @@
                     <a class="nav-link {% if permission and permission > 1 %}disabled{% endif %}" href="{% url 'profile_template' %}">즐겨찾기</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'video_wall' %}">비디오월</a>
+                    <a class="nav-link" href="{% url 'video_wall' %}" id="videoWallNavBtn">
+                        <i class="fas fa-th"></i> 비디오월
+                        <span class="badge bg-secondary ms-1" id="deviceModeBadge" style="font-size: 0.7em;">-</span>
+                    </a>
                 </li>
 
                 <li class="nav-item dropdown">
@@ -142,6 +145,25 @@
                 }
             });
         });
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // 현재 모드 조회
+        fetch('/api/device_mode/')
+            .then(response => response.json())
+            .then(data => {
+                const badge = document.getElementById('deviceModeBadge');
+                if (badge && data.success) {
+                    badge.textContent = data.mode_name;
+                    badge.className = data.mode === 1
+                        ? 'badge bg-success ms-1'
+                        : 'badge bg-secondary ms-1';
+                    badge.style.fontSize = '0.7em';
+                }
+            })
+            .catch(err => {
+                console.log('모드 조회 실패:', err);
+            });
     });
 </script>
 

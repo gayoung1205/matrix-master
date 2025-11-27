@@ -38,5 +38,13 @@ urlpatterns = [
     path('get_rpi_ip/', views.get_rpi_ip, name='get_rpi_ip'),
     path('api/check_connection/', views.check_hardware_connection, name='check_hardware_connection'),
     path('api/hardware_status/', views.get_hardware_status, name='get_hardware_status'),
+    # 비디오월 API
     path('video_wall/', views.video_wall, name='video_wall'),
+    path('device_mode/', views.get_device_mode, name='get_device_mode'),
+    path('toggle_mode/', views.toggle_device_mode, name='toggle_device_mode'),
+    path('video_wall/list/', views.video_wall_list, name='video_wall_list'),
+    path('video_wall/create/', views.video_wall_create, name='video_wall_create'),
+    path('video_wall/delete/<int:video_wall_id>/', views.video_wall_delete, name='video_wall_delete'),
+    path('video_wall/apply/<int:video_wall_id>/', views.video_wall_apply, name='video_wall_apply'),
+    path('video_wall/release/', views.video_wall_release, name='video_wall_release'),
 ]

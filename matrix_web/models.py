@@ -1,127 +1,11 @@
-# from django.db import models
-# from django.contrib.auth.models import User
-# from django.db.models.signals import post_save
-# from django.dispatch import receiver
-#
-# # Create your models here.
-# class Matrix(models.Model):
-#     id = models.AutoField(primary_key=True)
-#     name = models.CharField(max_length=200, null=True, blank=True)
-#     matrix_ip_address = models.GenericIPAddressField(null=True, blank=True)
-#     kvm_ip_address = models.GenericIPAddressField(null=True, blank=True)
-#     kvm_ip_address2 = models.GenericIPAddressField(null=True, blank=True)
-#     port = models.IntegerField(null=True, blank=True)
-#     is_main = models.BooleanField(default=False)
-#     main_connect = models.IntegerField(default=0, null=True, blank=True)
-#     input_a = models.CharField(max_length=50, default="01")
-#     input_b = models.CharField(max_length=50, default="02")
-#     input_c = models.CharField(max_length=50, default="03")
-#     input_d = models.CharField(max_length=50, default="04")
-#     input_e = models.CharField(max_length=50, default="05")
-#     input_f = models.CharField(max_length=50, default="06")
-#     input_g = models.CharField(max_length=50, default="07")
-#     input_h = models.CharField(max_length=50, default="08")
-#     input_i = models.CharField(max_length=50, default="09")
-#     input_j = models.CharField(max_length=50, default="10")
-#     input_k = models.CharField(max_length=50, default="11")
-#     input_l = models.CharField(max_length=50, default="12")
-#     input_m = models.CharField(max_length=50, default="13")
-#     input_n = models.CharField(max_length=50, default="14")
-#     input_o = models.CharField(max_length=50, default="15")
-#     input_p = models.CharField(max_length=50, default="16")
-#     updated_date = models.DateTimeField(auto_now=True, null=True, blank=True)
-#     created_date = models.DateTimeField(auto_now_add=True, null=True, blank=True)
-#
-#
-# class Profile(models.Model):
-#     id = models.AutoField(primary_key=True)
-#     name = models.CharField(max_length=200, null=True, blank=True)
-#     updated_date = models.DateTimeField(auto_now=True, null=True, blank=True)
-#     created_date = models.DateTimeField(auto_now_add=True, null=True, blank=True)
-#
-#
-# class MatrixSetting(models.Model):
-#     """
-#         input_a ~ input_kvm
-#             - 값이 "00"이면 실행안하고 넘어감
-#     """
-#     id = models.AutoField(primary_key=True)
-#     profile = models.ForeignKey(
-#         Profile,
-#         on_delete=models.CASCADE,
-#         related_name="profile_sets",
-#         related_query_name="profile_set",
-#     )
-#     matrix = models.ForeignKey(
-#         Matrix,
-#         on_delete=models.CASCADE,
-#         related_name="matrix_sets",
-#         related_query_name="matrix_set",
-#     )
-#     input_a = models.CharField(max_length=50, default="00")
-#     input_b = models.CharField(max_length=50, default="00")
-#     input_c = models.CharField(max_length=50, default="00")
-#     input_d = models.CharField(max_length=50, default="00")
-#     input_e = models.CharField(max_length=50, default="00")
-#     input_f = models.CharField(max_length=50, default="00")
-#     input_g = models.CharField(max_length=50, default="00")
-#     input_h = models.CharField(max_length=50, default="00")
-#     input_i = models.CharField(max_length=50, default="00")
-#     input_j = models.CharField(max_length=50, default="00")
-#     input_k = models.CharField(max_length=50, default="00")
-#     input_l = models.CharField(max_length=50, default="00")
-#     input_m = models.CharField(max_length=50, default="00")
-#     input_n = models.CharField(max_length=50, default="00")
-#     input_o = models.CharField(max_length=50, default="00")
-#     input_p = models.CharField(max_length=50, default="00")
-#     input_kvm = models.CharField(max_length=50, default="00")
-#     updated_date = models.DateTimeField(auto_now=True, null=True, blank=True)
-#     created_date = models.DateTimeField(auto_now_add=True, null=True, blank=True)
-#
-# class License(models.Model):
-#     id = models.AutoField(primary_key=True)
-#     key = models.TextField(default="")
-#
-# class UserPermission(models.Model):
-#     user = models.OneToOneField(User, on_delete=models.CASCADE)
-#
-#     """
-#     유저 권한 설정
-#         0 : aisol 관리자 System 설정 권한 O, Profile 설정 권한 O
-#         1 : 유저 관리자 System 설정 권한 X, Profile 설정 권한 O
-#         2 : 유저 사용자 System 설정 권한 X, Profile 설정 권한 X
-#         3 : 학생 그룹1 사용자 System 설정 권한 X, Profile 설정 권한 X
-#         4 : 학생 그룹2 사용자 System 설정 권한 X, Profile 설정 권한 X
-#         5 : 학생 그룹3 사용자 System 설정 권한 X, Profile 설정 권한 X
-#         6 : 학생 그룹4 사용자 System 설정 권한 X, Profile 설정 권한 X
-#     """
-#     permission = models.IntegerField(default=2)
-#
-# @receiver(post_save, sender=User)
-# def create_user_permission(sender, instance, created, **kwargs):
-#     if created:
-#         UserPermission.objects.create(user=instance)
-#
-# @receiver(post_save, sender=User)
-# def save_user_permission(sender, instance, **kwargs):
-#     instance.userpermission.save()
-#
-# class Document(models.Model):
-#     title = models.CharField(max_length = 200)
-#     upload_file = models.FileField(upload_to = "Uploaded Files/")
-#     upload_date = models.DateTimeField(auto_now = True)
-
-
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-# PostgreSQL의 경우 django.contrib.postgres.fields.JSONField 사용
 try:
     from django.db.models import JSONField
 except ImportError:
-    # Django 3.1 미만 버전
     from django.contrib.postgres.fields import JSONField
 
 
@@ -221,7 +105,7 @@ class Profile(models.Model):
     created_date = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
     class Meta:
-        db_table = 'matrix_web_profile'  # 기존 테이블 이름 유지
+        db_table = 'matrix_web_profile'
         verbose_name = "프로필"
         verbose_name_plural = "프로필들"
 
@@ -268,7 +152,7 @@ class MatrixSetting(models.Model):
     created_date = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
     class Meta:
-        db_table = 'matrix_web_matrixsetting'  # 기존 테이블 이름 유지
+        db_table = 'matrix_web_matrixsetting'
         constraints = [
             models.UniqueConstraint(fields=['profile', 'matrix'], name='uq_profile_matrix')
         ]
@@ -284,7 +168,7 @@ class License(models.Model):
     key = models.TextField(default="")
 
     class Meta:
-        db_table = 'matrix_web_license'  # 기존 테이블 이름 유지
+        db_table = 'matrix_web_license'
         verbose_name = "라이센스"
         verbose_name_plural = "라이센스들"
 
@@ -304,7 +188,7 @@ class UserPermission(models.Model):
     permission = models.IntegerField(default=2)
 
     class Meta:
-        db_table = 'matrix_web_userpermission'  # 기존 테이블 이름 유지
+        db_table = 'matrix_web_userpermission'
         verbose_name = "유저 권한"
         verbose_name_plural = "유저 권한들"
 
@@ -318,17 +202,12 @@ class Document(models.Model):
     upload_date = models.DateTimeField(auto_now=True)
 
     class Meta:
-        db_table = 'matrix_web_document'  # 기존 테이블 이름 유지
+        db_table = 'matrix_web_document'
         verbose_name = "문서"
         verbose_name_plural = "문서들"
 
     def __str__(self):
         return self.title
-
-
-# ============================================
-# 16포트 확장 고급 기능 모델들 (신규)
-# ============================================
 
 class MonitorLayout(models.Model):
     """사용자별 모니터 레이아웃 설정 (16포트 지원)"""
@@ -429,11 +308,6 @@ class DeviceNameConfig(models.Model):
     def __str__(self):
         return f"{self.user.username} - {self.device_type}: {self.device_name}"
 
-
-# ============================================
-# 시그널 핸들러들 (16포트 지원)
-# ============================================
-
 @receiver(post_save, sender=User)
 def create_user_permission(sender, instance, created, **kwargs):
     if created:
@@ -506,3 +380,66 @@ def create_default_monitor_layout(sender, instance, created, **kwargs):
                     'col_position': (i % 8) + 1
                 }
             )
+
+#  비디오월
+# ============================================
+
+class VideoWall(models.Model):
+    """비디오월 설정 저장"""
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=100, verbose_name="비디오월 이름")
+    matrix = models.ForeignKey(
+        Matrix,
+        on_delete=models.CASCADE,
+        related_name="video_walls",
+        verbose_name="매트릭스 장비"
+    )
+
+    # 직사각형 영역 좌표 (0-3)
+    start_x = models.IntegerField(default=0, verbose_name="시작 X좌표")
+    start_y = models.IntegerField(default=0, verbose_name="시작 Y좌표")
+    end_x = models.IntegerField(default=0, verbose_name="끝 X좌표")
+    end_y = models.IntegerField(default=0, verbose_name="끝 Y좌표")
+
+    # 입력 소스 (1-16)
+    input_source = models.IntegerField(default=1, verbose_name="입력 소스")
+
+    created_date = models.DateTimeField(auto_now_add=True)
+    updated_date = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'matrix_web_videowall'
+        verbose_name = "비디오월"
+        verbose_name_plural = "비디오월들"
+        ordering = ['-created_date']
+
+    def __str__(self):
+        return f"{self.name} ({self.get_size_display()})"
+
+    def get_size_display(self):
+        """비디오월 크기 표시 (예: 2x2)"""
+        width = self.end_x - self.start_x + 1
+        height = self.end_y - self.start_y + 1
+        return f"{width}x{height}"
+
+    def get_monitor_list(self):
+        """선택된 모니터 번호 목록 반환"""
+        monitors = []
+        for y in range(self.start_y, self.end_y + 1):
+            for x in range(self.start_x, self.end_x + 1):
+                monitor_num = y * 4 + x + 1
+                monitors.append(monitor_num)
+        return monitors
+
+def get_splicer_command(self):
+    """Splicer 명령 생성"""
+    # 좌표 바이트: (x1<<6) | (y1<<4) | (x2<<2) | y2
+    coord_byte = (self.start_x << 6) | (self.start_y << 4) | (self.end_x << 2) | self.end_y
+
+    # 그룹+입력 바이트: (1<<4) | (input_source - 1)
+    group_byte = (1 << 4) | (self.input_source - 1)
+
+    # 체크섬 계산 (55 AA 제외!)
+    checksum = (0x05 + 0x0F + coord_byte + group_byte) & 0xFF
+
+    return bytes([0x55, 0xAA, 0x05, 0x0F, coord_byte, group_byte, checksum, 0xEE])
