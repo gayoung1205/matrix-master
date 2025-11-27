@@ -292,3 +292,11 @@ def range_16(start_val):
 def port_range(start, end):
     """포트 범위 생성"""
     return range(start, end + 1)
+
+@register.filter
+def intdiv(value, arg):
+    """정수 나눗셈 (몫)"""
+    try:
+        return int(value) // int(arg)
+    except (ValueError, ZeroDivisionError):
+        return 0

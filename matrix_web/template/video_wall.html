@@ -7,92 +7,70 @@
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid mt-4">
-    <!-- 모드 상태 표시 -->
-    <div class="alert alert-info d-flex align-items-center justify-content-between mb-4" id="modeAlert">
+<div class="container-fluid py-4">
+    <!-- 헤더 -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <i class="fas fa-info-circle me-2"></i>
-            <span>현재 모드: </span>
-            <strong id="currentModeText">확인 중...</strong>
+            <h4 class="mb-1 fw-bold text-dark">
+                <i class="fas fa-th me-2"></i>비디오월 설정
+            </h4>
+            <p class="text-muted mb-0 small">모니터를 드래그하여 비디오월 영역을 선택하세요</p>
         </div>
-        <div>
-            <button class="btn btn-sm btn-outline-primary me-2" id="switchToMatrixBtn">
-                <i class="fas fa-th-large"></i> Matrix 모드
-            </button>
-            <button class="btn btn-sm btn-primary" id="switchToSplicerBtn">
-                <i class="fas fa-th"></i> Splicer 모드
-            </button>
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge" id="modeBadge">
+                <i class="fas fa-circle me-1"></i>
+                <span id="currentModeText">확인 중...</span>
+            </span>
         </div>
     </div>
 
-    <div class="row">
-        <!-- 왼쪽: 비디오월 설정 영역 -->
-        <div class="col-lg-8 col-md-7">
-            <div class="card shadow-lg border-0">
-                <div class="card-header bg-gradient-primary text-white">
-                    <h4 class="mb-0">
-                        <i class="fas fa-th"></i> 비디오월 구성
-                    </h4>
-                    <p class="mb-0 small">드래그하여 영역을 선택하세요</p>
-                </div>
-                <div class="card-body p-4" style="background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);">
-
+    <div class="row g-4">
+        <!-- 왼쪽: 모니터 그리드 -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
                     <!-- 4x4 그리드 -->
                     <div class="videowall-grid" id="videowallGrid">
                         {% for i in 1|range_tag:17 %}
                         <div class="monitor-cell"
                              data-monitor="{{ i }}"
                              data-x="{{ forloop.counter0|mod:4 }}"
-                             data-y="{{ forloop.counter0|divisibleby:4 }}">
-                            <div class="monitor-number">{{ i }}</div>
-                            <div class="monitor-label">Monitor {{ i }}</div>
-                            <div class="monitor-status">
-                                <i class="fas fa-tv"></i>
-                            </div>
-                            <div class="selection-overlay">
-                                <i class="fas fa-check-circle"></i>
-                            </div>
+                             data-y="{{ forloop.counter0|intdiv:4 }}">
+                            <span class="monitor-number">{{ i }}</span>
                         </div>
                         {% endfor %}
                     </div>
 
-                    <!-- 선택 정보 표시 -->
-                    <div class="selection-info mt-4 p-3 rounded" style="background: white; border-left: 4px solid #667eea;">
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-info-circle text-primary me-2"></i>
-                            <span id="selectionText" class="text-muted">
-                                드래그하여 영역을 선택하세요 (직사각형 형태)
-                            </span>
-                        </div>
+                    <!-- 선택 정보 -->
+                    <div class="selection-info mt-3">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <span id="selectionText">드래그하여 영역을 선택하세요</span>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- 오른쪽: 설정 패널 -->
-        <div class="col-lg-4 col-md-5">
-            <div class="card shadow-lg border-0 mb-3">
-                <div class="card-header bg-gradient-success text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-cog"></i> 비디오월 설정
-                    </h5>
+        <div class="col-lg-4">
+            <!-- 설정 카드 -->
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="card-header bg-white border-0 py-3">
+                    <h6 class="mb-0 fw-bold">
+                        <i class="fas fa-sliders-h me-2 text-primary"></i>설정
+                    </h6>
                 </div>
                 <div class="card-body">
                     <!-- 비디오월 이름 -->
-                    <div class="mb-4">
-                        <label class="form-label fw-bold">
-                            <i class="fas fa-tag"></i> 비디오월 이름
-                        </label>
-                        <input type="text" id="videoWallName" class="form-control form-control-lg"
-                               placeholder="예: 메인홀 비디오월" maxlength="50">
+                    <div class="mb-3">
+                        <label class="form-label small text-muted">비디오월 이름</label>
+                        <input type="text" id="videoWallName" class="form-control"
+                               placeholder="예: 메인홀 비디오월">
                     </div>
 
-                    <!-- 입력 소스 선택 -->
-                    <div class="mb-4">
-                        <label class="form-label fw-bold">
-                            <i class="fas fa-plug"></i> 입력 소스
-                        </label>
-                        <select id="inputSourceSelect" class="form-select form-select-lg">
+                    <!-- 입력 소스 -->
+                    <div class="mb-3">
+                        <label class="form-label small text-muted">입력 소스</label>
+                        <select id="inputSourceSelect" class="form-select">
                             {% for i in 1|range_tag:17 %}
                             <option value="{{ i }}">Device {{ i|stringformat:"02d" }}</option>
                             {% endfor %}
@@ -100,53 +78,63 @@
                     </div>
 
                     <!-- 프리셋 버튼 -->
-                    <div class="mb-4">
-                        <label class="form-label fw-bold">
-                            <i class="fas fa-magic"></i> 빠른 선택
-                        </label>
-                        <div class="d-grid gap-2">
-                            <button class="btn btn-outline-primary btn-sm" onclick="selectPreset('2x2')">
-                                <i class="fas fa-th-large"></i> 2×2 (좌상단)
-                            </button>
-                            <button class="btn btn-outline-primary btn-sm" onclick="selectPreset('2x4')">
-                                <i class="fas fa-grip-horizontal"></i> 2×4 (상단 2줄)
-                            </button>
-                            <button class="btn btn-outline-primary btn-sm" onclick="selectPreset('4x4')">
-                                <i class="fas fa-border-all"></i> 4×4 (전체)
-                            </button>
+                    <div class="mb-3">
+                        <label class="form-label small text-muted">빠른 선택</label>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-outline-secondary btn-sm flex-fill" onclick="selectPreset('2x2')">2×2</button>
+                            <button class="btn btn-outline-secondary btn-sm flex-fill" onclick="selectPreset('2x4')">4×2</button>
+                            <button class="btn btn-outline-secondary btn-sm flex-fill" onclick="selectPreset('4x4')">4×4</button>
                         </div>
                     </div>
 
                     <!-- 액션 버튼 -->
                     <div class="d-grid gap-2">
-                        <button id="createVideoWallBtn" class="btn btn-success btn-lg" disabled>
-                            <i class="fas fa-plus-circle"></i> 비디오월 저장
-                        </button>
                         <button id="applyDirectBtn" class="btn btn-primary" disabled>
-                            <i class="fas fa-play"></i> 바로 적용 (저장 안함)
+                            <i class="fas fa-play me-2"></i>적용
                         </button>
-                        <button id="clearSelectionBtn" class="btn btn-outline-secondary">
-                            <i class="fas fa-eraser"></i> 선택 초기화
+                        <button id="createVideoWallBtn" class="btn btn-outline-primary" disabled>
+                            <i class="fas fa-save me-2"></i>저장
+                        </button>
+                        <button id="clearSelectionBtn" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-times me-2"></i>선택 초기화
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 모드 전환 카드 -->
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="card-header bg-white border-0 py-3">
+                    <h6 class="mb-0 fw-bold">
+                        <i class="fas fa-exchange-alt me-2 text-primary"></i>모드 전환
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-dark flex-fill" id="switchToMatrixBtn">
+                            <i class="fas fa-th-large me-1"></i>Matrix
+                        </button>
+                        <button class="btn btn-outline-dark flex-fill" id="switchToSplicerBtn">
+                            <i class="fas fa-th me-1"></i>Splicer
                         </button>
                     </div>
                 </div>
             </div>
 
             <!-- 저장된 비디오월 목록 -->
-            <div class="card shadow-lg border-0">
-                <div class="card-header bg-gradient-info text-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">
-                        <i class="fas fa-list"></i> 저장된 비디오월
-                    </h5>
-                    <button class="btn btn-sm btn-outline-light" id="releaseVideoWallBtn">
-                        <i class="fas fa-times"></i> 해제
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 fw-bold">
+                        <i class="fas fa-list me-2 text-primary"></i>저장된 비디오월
+                    </h6>
+                    <button class="btn btn-outline-danger btn-sm" id="releaseVideoWallBtn">
+                        <i class="fas fa-stop me-1"></i>해제
                     </button>
                 </div>
                 <div class="card-body p-0">
-                    <div class="list-group list-group-flush" id="videoWallList">
-                        <div class="list-group-item text-center text-muted py-4">
-                            <i class="fas fa-spinner fa-spin fa-2x mb-2"></i>
-                            <p class="mb-0">불러오는 중...</p>
+                    <div class="videowall-list" id="videoWallList">
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-spinner fa-spin"></i>
                         </div>
                     </div>
                 </div>
@@ -156,14 +144,10 @@
 </div>
 
 <!-- Toast 알림 -->
-<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1100">
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
     <div id="toastNotification" class="toast" role="alert">
-        <div class="toast-header">
-            <i class="fas fa-bell me-2 text-primary"></i>
-            <strong class="me-auto">알림</strong>
-            <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+        <div class="toast-body d-flex align-items-center" id="toastMessage">
         </div>
-        <div class="toast-body" id="toastMessage"></div>
     </div>
 </div>
 {% endblock content %}

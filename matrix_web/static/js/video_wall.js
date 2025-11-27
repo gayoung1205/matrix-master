@@ -1,8 +1,12 @@
+// ========================================
+// 비디오월 JavaScript
+// ========================================
+
 let selection = { startX: -1, startY: -1, endX: -1, endY: -1 };
 let isDragging = false;
 let dragStartCell = null;
 
-// CSRF 토큰 (쿠키에서 읽기)
+// CSRF 토큰
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -18,7 +22,7 @@ function getCookie(name) {
     return cookieValue;
 }
 
-const csrfToken = getCookie('csrftoken');  // ✅ 여기서 한 번만 선언
+const csrfToken = getCookie('csrftoken');
 
 // 초기화
 document.addEventListener('DOMContentLoaded', function() {
@@ -34,43 +38,35 @@ function showToast(message, type = 'info') {
     const toastBody = document.getElementById('toastMessage');
     if (!toast || !toastBody) return;
 
-    toastBody.textContent = message;
+    toastBody.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} me-2"></i>${message}`;
 
     toast.classList.remove('bg-success', 'bg-danger', 'bg-info');
-    if (type === 'success') toast.classList.add('bg-success', 'text-white');
-    else if (type === 'error') toast.classList.add('bg-danger', 'text-white');
+    if (type === 'success') toast.classList.add('bg-success');
+    else if (type === 'error') toast.classList.add('bg-danger');
 
     const bsToast = new bootstrap.Toast(toast);
     bsToast.show();
 }
 
-// 모드 조회 중복 방지
+// 모드 조회
 let isModeLoading = false;
 
 function updateModeDisplay() {
-    if (isModeLoading) return;  // 이미 로딩 중이면 무시
+    if (isModeLoading) return;
     isModeLoading = true;
 
     fetch('/api/device_mode/')
         .then(response => response.json())
         .then(data => {
             const modeText = document.getElementById('currentModeText');
-            const alert = document.getElementById('modeAlert');
+            const badge = document.getElementById('modeBadge');
 
-            if (data.success) {
+            if (data.success && modeText) {
                 modeText.textContent = data.mode_name + ' 모드';
-                alert.className = data.mode === 1
-                    ? 'alert alert-success d-flex align-items-center justify-content-between mb-4'
-                    : 'alert alert-info d-flex align-items-center justify-content-between mb-4';
-
-                const badge = document.getElementById('deviceModeBadge');
                 if (badge) {
-                    badge.textContent = data.mode_name;
-                    badge.className = data.mode === 1
-                        ? 'badge bg-success ms-1'
-                        : 'badge bg-secondary ms-1';
+                    badge.className = 'badge ' + (data.mode === 1 ? 'splicer-mode' : 'matrix-mode');
                 }
-            } else {
+            } else if (modeText) {
                 modeText.textContent = '연결 실패';
             }
         })
@@ -80,7 +76,7 @@ function updateModeDisplay() {
             console.log('모드 조회 실패:', err);
         })
         .finally(() => {
-            isModeLoading = false;  // 완료 후 플래그 해제
+            isModeLoading = false;
         });
 }
 
@@ -108,14 +104,13 @@ function switchMode(mode) {
         });
 }
 
-// 모니터 좌표 → 번호
+// 좌표 → 모니터 번호
 function coordToMonitor(x, y) {
     return y * 4 + x + 1;
 }
 
 // 선택 영역 업데이트
 function updateSelection() {
-    // 모든 셀 선택 해제
     document.querySelectorAll('.monitor-cell').forEach(cell => {
         cell.classList.remove('selected');
     });
@@ -125,13 +120,13 @@ function updateSelection() {
     const applyBtn = document.getElementById('applyDirectBtn');
 
     if (selection.startX < 0) {
-        if (selectionText) selectionText.textContent = '드래그하여 영역을 선택하세요 (직사각형 형태)';
+        if (selectionText) selectionText.textContent = '드래그하여 영역을 선택하세요';
         if (createBtn) createBtn.disabled = true;
         if (applyBtn) applyBtn.disabled = true;
         return;
     }
 
-    // 정규화 (시작점이 끝점보다 클 수 있음)
+    // 정규화
     const minX = Math.min(selection.startX, selection.endX);
     const maxX = Math.max(selection.startX, selection.endX);
     const minY = Math.min(selection.startY, selection.endY);
@@ -152,10 +147,10 @@ function updateSelection() {
     const width = maxX - minX + 1;
     const height = maxY - minY + 1;
     if (selectionText) {
-        selectionText.textContent = `${width}×${height} 비디오월 (모니터: ${selectedMonitors.join(', ')})`;
+        selectionText.textContent = `${width}×${height} 비디오월 선택됨 (모니터: ${selectedMonitors.join(', ')})`;
     }
 
-    // 버튼 활성화 (최소 2개 이상)
+    // 버튼 활성화
     const isValid = selectedMonitors.length >= 2;
     if (createBtn) createBtn.disabled = !isValid;
     if (applyBtn) applyBtn.disabled = !isValid;
@@ -231,31 +226,18 @@ function clearSelection() {
 
 // 버튼 이벤트 초기화
 function initButtons() {
-    // 선택 초기화
     const clearBtn = document.getElementById('clearSelectionBtn');
-    if (clearBtn) {
-        clearBtn.addEventListener('click', clearSelection);
-    }
+    if (clearBtn) clearBtn.addEventListener('click', clearSelection);
 
-    // 비디오월 저장
     const createBtn = document.getElementById('createVideoWallBtn');
-    if (createBtn) {
-        createBtn.addEventListener('click', createVideoWall);
-    }
+    if (createBtn) createBtn.addEventListener('click', createVideoWall);
 
-    // 바로 적용
     const applyBtn = document.getElementById('applyDirectBtn');
-    if (applyBtn) {
-        applyBtn.addEventListener('click', applyDirect);
-    }
+    if (applyBtn) applyBtn.addEventListener('click', applyDirect);
 
-    // 비디오월 해제
     const releaseBtn = document.getElementById('releaseVideoWallBtn');
-    if (releaseBtn) {
-        releaseBtn.addEventListener('click', releaseVideoWall);
-    }
+    if (releaseBtn) releaseBtn.addEventListener('click', releaseVideoWall);
 
-    // 모드 전환 버튼
     const matrixBtn = document.getElementById('switchToMatrixBtn');
     const splicerBtn = document.getElementById('switchToSplicerBtn');
     if (matrixBtn) matrixBtn.addEventListener('click', () => switchMode(0));
@@ -309,7 +291,6 @@ function createVideoWall() {
 function applyDirect() {
     const inputSource = parseInt(document.getElementById('inputSourceSelect')?.value || 1);
 
-    // 임시 생성 후 바로 적용
     fetch('/api/video_wall/create/', {
         method: 'POST',
         headers: {
@@ -378,9 +359,9 @@ function loadVideoWallList() {
 
             if (!data.success || data.video_walls.length === 0) {
                 list.innerHTML = `
-                    <div class="list-group-item text-center text-muted py-4">
-                        <i class="fas fa-inbox fa-2x mb-2"></i>
-                        <p class="mb-0">저장된 비디오월이 없습니다</p>
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-inbox mb-2" style="font-size: 1.5rem;"></i>
+                        <p class="mb-0 small">저장된 비디오월이 없습니다</p>
                     </div>
                 `;
                 return;
@@ -391,15 +372,14 @@ function loadVideoWallList() {
                     <div class="videowall-item-info">
                         <div class="videowall-item-name">${escapeHtml(vw.name)}</div>
                         <div class="videowall-item-details">
-                            ${vw.size} · Device ${String(vw.input_source).padStart(2, '0')} · 
-                            모니터 ${vw.monitors.join(',')}
+                            ${vw.size} · Device ${String(vw.input_source).padStart(2, '0')}
                         </div>
                     </div>
                     <div class="videowall-item-actions">
-                        <button class="btn btn-primary btn-sm" onclick="applyVideoWall(${vw.id})">
+                        <button class="btn btn-primary btn-sm" onclick="applyVideoWall(${vw.id})" title="적용">
                             <i class="fas fa-play"></i>
                         </button>
-                        <button class="btn btn-outline-danger btn-sm" onclick="deleteVideoWall(${vw.id}, '${escapeHtml(vw.name)}')">
+                        <button class="btn btn-outline-danger btn-sm" onclick="deleteVideoWall(${vw.id}, '${escapeHtml(vw.name)}')" title="삭제">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>

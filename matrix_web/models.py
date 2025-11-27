@@ -382,8 +382,6 @@ def create_default_monitor_layout(sender, instance, created, **kwargs):
             )
 
 #  비디오월
-# ============================================
-
 class VideoWall(models.Model):
     """비디오월 설정 저장"""
     id = models.AutoField(primary_key=True)
@@ -431,15 +429,13 @@ class VideoWall(models.Model):
                 monitors.append(monitor_num)
         return monitors
 
-def get_splicer_command(self):
-    """Splicer 명령 생성"""
-    # 좌표 바이트: (x1<<6) | (y1<<4) | (x2<<2) | y2
-    coord_byte = (self.start_x << 6) | (self.start_y << 4) | (self.end_x << 2) | self.end_y
+    def get_splicer_command(self):
+        """Splicer 명령 생성"""
 
-    # 그룹+입력 바이트: (1<<4) | (input_source - 1)
-    group_byte = (1 << 4) | (self.input_source - 1)
+        coord_byte = (self.start_y << 6) | (self.start_x << 4) | (self.end_y << 2) | self.end_x
 
-    # 체크섬 계산 (55 AA 제외!)
-    checksum = (0x05 + 0x0F + coord_byte + group_byte) & 0xFF
+        group_byte = (1 << 4) | (self.input_source - 1)
 
-    return bytes([0x55, 0xAA, 0x05, 0x0F, coord_byte, group_byte, checksum, 0xEE])
+        checksum = (0x05 + 0x0F + coord_byte + group_byte) & 0xFF
+
+        return bytes([0x55, 0xAA, 0x05, 0x0F, coord_byte, group_byte, checksum, 0xEE])
