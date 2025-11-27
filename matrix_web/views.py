@@ -1994,15 +1994,83 @@ def check_hardware_connection(request):
         }, status=500)
 
 # ============================================
-# 비디오월 관련 Views
+# 비디오월 관련 Views - 수정된 버전
+# ============================================
+#
+# 중요! 프로토콜 문서와 실제 장비 동작이 반대입니다:
+#   - 명령 0x00 → 실제로 Splicer 모드
+#   - 명령 0x01 → 실제로 Matrix 모드
+#   - DeviceMode 응답 0 → Splicer
+#   - DeviceMode 응답 1 → Matrix
+#
+# 이 파일의 함수들로 views.py의 해당 함수들을 교체하세요.
 # ============================================
 
-from .models import VideoWall
+import socket
+import time
 import json
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
 
+
+# ============================================
+# 모드 전환 명령어 상수 (실제 장비 동작 기준!)
+# ============================================
+CMD_TO_MATRIX = bytes([0x55, 0xAA, 0x04, 0x0B, 0x01, 0x10, 0xEE])   # 실제 Matrix 전환
+CMD_TO_SPLICER = bytes([0x55, 0xAA, 0x04, 0x0B, 0x00, 0x0F, 0xEE])  # 실제 Splicer 전환
+CMD_QUERY = bytes([0x55, 0xAA, 0x05, 0x08, 0x11, 0x00, 0x1E, 0xEE]) # 상태 조회
+
+
+def parse_device_mode(response):
+    """
+    Device Info 응답에서 모드 파싱
+    실제 장비: DeviceMode 1=Matrix, 0=Splicer
+    """
+    if not response or len(response) < 5:
+        return None, None
+
+    raw_value = response[4]
+    # 실제 장비 동작: 1=Matrix, 0=Splicer
+    if raw_value == 1:
+        return 0, "Matrix"   # mode=0은 UI에서 Matrix를 의미
+    else:
+        return 1, "Splicer"  # mode=1은 UI에서 Splicer를 의미
+
+
+def send_command(ip, port, command, timeout=5):
+    """
+    장비에 명령 전송 및 응답 수신
+    """
+    try:
+        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client_socket.settimeout(timeout)
+        client_socket.connect((ip, port))
+
+        client_socket.sendall(command)
+        time.sleep(0.3)
+
+        response = b''
+        try:
+            response = client_socket.recv(1024)
+        except socket.timeout:
+            pass
+
+        client_socket.close()
+        return response
+    except Exception as e:
+        print(f"[ERROR] send_command 실패: {e}")
+        return None
+
+
+# ============================================
+# 비디오월 페이지
+# ============================================
 @login_required
 def video_wall(request):
     """비디오월 페이지"""
+    from .models import Matrix as Mat, VideoWall
+    from django.shortcuts import render
+
     mat = Mat.objects.first()
     video_walls = VideoWall.objects.filter(matrix=mat) if mat else []
 
@@ -2012,51 +2080,77 @@ def video_wall(request):
     }
     return render(request, 'video_wall.html', context)
 
+
+# ============================================
+# 장비 모드 조회 (수정됨)
+# ============================================
 @login_required
 def get_device_mode(request):
-    """현재 장비 모드 조회"""
+    """
+    현재 장비 모드 조회
+
+    실제 장비 응답:
+      - DeviceMode = 1 → Matrix
+      - DeviceMode = 0 → Splicer
+
+    UI 반환값:
+      - mode = 0 → Matrix
+      - mode = 1 → Splicer
+    """
+    from .models import Matrix as Mat
+
     mat = Mat.objects.first()
     if not mat:
         return JsonResponse({'success': False, 'error': '장비가 없습니다.'}, status=404)
 
     try:
-        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        client_socket.settimeout(3)
-        client_socket.connect((mat.matrix_ip_address, mat.port))
+        response = send_command(mat.matrix_ip_address, mat.port, CMD_QUERY, timeout=3)
 
-        # N to N 명령 (Device Info 받기)
-        command = bytes([0x55, 0xAA, 0x05, 0x08, 0x11, 0x00, 0x1E, 0xEE])
-        client_socket.sendall(command)
+        if response and len(response) >= 5:
+            mode, mode_name = parse_device_mode(response)
 
-        response = client_socket.recv(1024)
-        client_socket.close()
+            if mode is not None:
+                print(f"[DEBUG] 모드 조회: raw={response[4]}, mode={mode}, name={mode_name}")
+                return JsonResponse({
+                    'success': True,
+                    'mode': mode,
+                    'mode_name': mode_name
+                })
 
-        if len(response) >= 5:
-            raw_value = response[4]
-
-            # 실제 장비 값: 1=Matrix, 0=Splicer (문서와 반대!)
-            if raw_value == 1:
-                mode = 0  # Matrix
-                mode_name = "Matrix"
-            else:
-                mode = 1  # Splicer
-                mode_name = "Splicer"
-
-            return JsonResponse({
-                'success': True,
-                'mode': mode,
-                'mode_name': mode_name
-            })
-
-        return JsonResponse({'success': True, 'mode': 0, 'mode_name': 'Matrix'})
+        # 응답이 없거나 파싱 실패 시 기본값
+        return JsonResponse({
+            'success': True,
+            'mode': 0,
+            'mode_name': 'Matrix'
+        })
 
     except Exception as e:
         print(f"[WARN] 모드 조회 실패: {e}")
-        return JsonResponse({'success': True, 'mode': 0, 'mode_name': 'Matrix'})
+        return JsonResponse({
+            'success': True,
+            'mode': 0,
+            'mode_name': 'Matrix'
+        })
 
+
+# ============================================
+# 장비 모드 전환 (수정됨)
+# ============================================
 @login_required
 def toggle_device_mode(request):
-    """장비 모드 전환 (Matrix ↔ Splicer)"""
+    """
+    장비 모드 전환 (Matrix ↔ Splicer)
+
+    UI 요청:
+      - target_mode = 0 → Matrix로 전환
+      - target_mode = 1 → Splicer로 전환
+
+    실제 명령:
+      - Matrix 전환: 0x01 (문서와 반대!)
+      - Splicer 전환: 0x00 (문서와 반대!)
+    """
+    from .models import Matrix as Mat
+
     if request.method != 'POST':
         return JsonResponse({'success': False, 'error': 'POST 요청만 허용'}, status=405)
 
@@ -2068,26 +2162,35 @@ def toggle_device_mode(request):
         data = json.loads(request.body)
         target_mode = data.get('mode', 0)  # 0: Matrix, 1: Splicer
 
-        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        client_socket.settimeout(5)
-        client_socket.connect((mat.matrix_ip_address, mat.port))
-
-        # 성공했던 코드!
+        # 실제 장비 동작 기준 명령어 선택!
         if target_mode == 0:
-            command = bytes.fromhex('55AA040B000FEE')  # Matrix: 체크섬 04+0B+00=0F
+            # Matrix로 전환 → 실제로는 0x01 전송
+            command = CMD_TO_MATRIX
+            mode_name = "Matrix"
         else:
-            command = bytes.fromhex('55AA040B0110EE')  # Splicer: 체크섬 04+0B+01=10
+            # Splicer로 전환 → 실제로는 0x00 전송
+            command = CMD_TO_SPLICER
+            mode_name = "Splicer"
 
-        print(f"[DEBUG] 모드 전환 명령: {command.hex()}")
+        print(f"[DEBUG] 모드 전환: target={target_mode}({mode_name}), cmd={command.hex().upper()}")
 
-        client_socket.sendall(command)
-        time.sleep(0.3)
-        client_socket.sendall(command)
-        time.sleep(0.3)
+        # 명령 전송 (2회 전송으로 안정성 확보)
+        response = send_command(mat.matrix_ip_address, mat.port, command)
+        time.sleep(0.2)
+        response = send_command(mat.matrix_ip_address, mat.port, command)
 
-        client_socket.close()
+        # 응답 확인
+        if response and len(response) >= 5:
+            actual_mode, actual_name = parse_device_mode(response)
+            print(f"[DEBUG] 전환 결과: raw={response[4]}, mode={actual_mode}, name={actual_name}")
 
-        mode_name = "Splicer" if target_mode == 1 else "Matrix"
+            return JsonResponse({
+                'success': True,
+                'mode': actual_mode if actual_mode is not None else target_mode,
+                'mode_name': actual_name if actual_name else mode_name,
+                'message': f'{actual_name if actual_name else mode_name} 모드로 전환되었습니다!'
+            })
+
         return JsonResponse({
             'success': True,
             'mode': target_mode,
@@ -2100,9 +2203,138 @@ def toggle_device_mode(request):
         print(f"[ERROR] {traceback.format_exc()}")
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
+
+# ============================================
+# 비디오월 적용 (수정됨)
+# ============================================
+@login_required
+def video_wall_apply(request, video_wall_id):
+    """
+    비디오월 하드웨어에 적용
+
+    1. Splicer 모드로 전환 (0x00 전송)
+    2. Splicer 좌표 명령 전송
+    """
+    from .models import Matrix as Mat, VideoWall
+
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'POST 요청만 허용'}, status=405)
+
+    try:
+        video_wall = VideoWall.objects.get(id=video_wall_id)
+        mat = video_wall.matrix
+
+        print(f"[DEBUG] ===== 비디오월 적용 시작 =====")
+        print(f"[DEBUG] 비디오월: {video_wall.name}")
+        print(f"[DEBUG] 영역: ({video_wall.start_x},{video_wall.start_y}) ~ ({video_wall.end_x},{video_wall.end_y})")
+        print(f"[DEBUG] 입력 소스: {video_wall.input_source}")
+
+        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client_socket.settimeout(5)
+        client_socket.connect((mat.matrix_ip_address, mat.port))
+
+        # 1. Splicer 모드로 전환 (실제로는 0x00 전송!)
+        mode_command = CMD_TO_SPLICER
+        print(f"[DEBUG] 1. Splicer 모드 전환 명령: {mode_command.hex().upper()}")
+        client_socket.sendall(mode_command)
+        time.sleep(0.3)
+
+        # 응답 읽기
+        try:
+            resp = client_socket.recv(1024)
+            print(f"[DEBUG] 모드 전환 응답: {len(resp)} bytes")
+        except:
+            pass
+
+        time.sleep(0.3)
+
+        # 2. Splicer 명령 전송 (좌표 설정)
+        splicer_command = video_wall.get_splicer_command()
+        print(f"[DEBUG] 2. Splicer 명령: {splicer_command.hex().upper()}")
+        client_socket.sendall(splicer_command)
+        time.sleep(0.3)
+
+        # 응답 읽기
+        try:
+            resp = client_socket.recv(1024)
+            print(f"[DEBUG] Splicer 응답: {len(resp)} bytes")
+        except:
+            pass
+
+        client_socket.close()
+
+        print(f"[DEBUG] ===== 비디오월 적용 완료 =====")
+
+        return JsonResponse({
+            'success': True,
+            'message': f'"{video_wall.name}" 비디오월이 적용되었습니다.',
+            'command_hex': splicer_command.hex().upper()
+        })
+
+    except VideoWall.DoesNotExist:
+        return JsonResponse({'success': False, 'error': '비디오월을 찾을 수 없습니다.'}, status=404)
+    except Exception as e:
+        import traceback
+        print(f"[ERROR] {traceback.format_exc()}")
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
+# ============================================
+# 비디오월 해제 (수정됨)
+# ============================================
+@login_required
+def video_wall_release(request):
+    """
+    비디오월 해제 (Matrix 모드로 복귀)
+
+    실제 장비: Matrix 전환은 0x01 전송!
+    """
+    from .models import Matrix as Mat
+
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'POST 요청만 허용'}, status=405)
+
+    mat = Mat.objects.first()
+    if not mat:
+        return JsonResponse({'success': False, 'error': '장비가 없습니다.'}, status=404)
+
+    try:
+        print(f"[DEBUG] ===== Matrix 모드 복귀 시작 =====")
+
+        # Matrix 모드로 전환 (실제로는 0x01 전송!)
+        command = CMD_TO_MATRIX
+        print(f"[DEBUG] Matrix 모드 전환 명령: {command.hex().upper()}")
+
+        # 2회 전송으로 안정성 확보
+        response = send_command(mat.matrix_ip_address, mat.port, command)
+        time.sleep(0.2)
+        response = send_command(mat.matrix_ip_address, mat.port, command)
+
+        if response and len(response) >= 5:
+            mode, mode_name = parse_device_mode(response)
+            print(f"[DEBUG] 전환 결과: mode={mode}, name={mode_name}")
+
+        print(f"[DEBUG] ===== Matrix 모드 복귀 완료 =====")
+
+        return JsonResponse({
+            'success': True,
+            'message': '비디오월이 해제되고 Matrix 모드로 복귀했습니다.'
+        })
+
+    except Exception as e:
+        import traceback
+        print(f"[ERROR] {traceback.format_exc()}")
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
+# ============================================
+# 비디오월 목록 조회 (변경 없음)
+# ============================================
 @login_required
 def video_wall_list(request):
     """저장된 비디오월 목록 조회"""
+    from .models import Matrix as Mat, VideoWall
+
     mat = Mat.objects.first()
     if not mat:
         return JsonResponse({'success': False, 'error': '장비가 없습니다.'}, status=404)
@@ -2126,9 +2358,14 @@ def video_wall_list(request):
     return JsonResponse({'success': True, 'video_walls': data})
 
 
+# ============================================
+# 비디오월 생성 (변경 없음)
+# ============================================
 @login_required
 def video_wall_create(request):
     """비디오월 생성"""
+    from .models import Matrix as Mat, VideoWall
+
     if request.method != 'POST':
         return JsonResponse({'success': False, 'error': 'POST 요청만 허용'}, status=405)
 
@@ -2163,9 +2400,14 @@ def video_wall_create(request):
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 
+# ============================================
+# 비디오월 삭제 (변경 없음)
+# ============================================
 @login_required
 def video_wall_delete(request, video_wall_id):
     """비디오월 삭제"""
+    from .models import VideoWall
+
     if request.method != 'DELETE':
         return JsonResponse({'success': False, 'error': 'DELETE 요청만 허용'}, status=405)
 
@@ -2182,84 +2424,4 @@ def video_wall_delete(request, video_wall_id):
     except VideoWall.DoesNotExist:
         return JsonResponse({'success': False, 'error': '비디오월을 찾을 수 없습니다.'}, status=404)
     except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)}, status=500)
-
-@login_required
-def video_wall_apply(request, video_wall_id):
-    """비디오월 하드웨어에 적용"""
-    if request.method != 'POST':
-        return JsonResponse({'success': False, 'error': 'POST 요청만 허용'}, status=405)
-
-    try:
-        video_wall = VideoWall.objects.get(id=video_wall_id)
-        mat = video_wall.matrix
-
-        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        client_socket.settimeout(5)
-        client_socket.connect((mat.matrix_ip_address, mat.port))
-
-        # 1. Splicer 모드로 전환 (성공했던 코드!)
-        mode_command = bytes.fromhex('55AA040B0110EE')
-        print(f"[DEBUG] 모드 전환 명령: {mode_command.hex()}")
-        client_socket.sendall(mode_command)
-        time.sleep(0.3)
-        client_socket.sendall(mode_command)
-        time.sleep(0.3)
-
-        # 2. Splicer 명령 전송
-        splicer_command = video_wall.get_splicer_command()
-        print(f"[DEBUG] Splicer 명령: {splicer_command.hex()}")
-        client_socket.sendall(splicer_command)
-        time.sleep(0.3)
-        client_socket.sendall(splicer_command)
-        time.sleep(0.3)
-
-        client_socket.close()
-
-        return JsonResponse({
-            'success': True,
-            'message': f'"{video_wall.name}" 비디오월이 적용되었습니다.',
-            'command_hex': splicer_command.hex()
-        })
-
-    except VideoWall.DoesNotExist:
-        return JsonResponse({'success': False, 'error': '비디오월을 찾을 수 없습니다.'}, status=404)
-    except Exception as e:
-        import traceback
-        print(f"[ERROR] {traceback.format_exc()}")
-        return JsonResponse({'success': False, 'error': str(e)}, status=500)
-
-@login_required
-def video_wall_release(request):
-    """비디오월 해제 (Matrix 모드로 복귀)"""
-    if request.method != 'POST':
-        return JsonResponse({'success': False, 'error': 'POST 요청만 허용'}, status=405)
-
-    mat = Mat.objects.first()
-    if not mat:
-        return JsonResponse({'success': False, 'error': '장비가 없습니다.'}, status=404)
-
-    try:
-        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        client_socket.settimeout(5)
-        client_socket.connect((mat.matrix_ip_address, mat.port))
-
-        # Matrix 모드로 전환
-        command = bytes.fromhex('55AA040B000FEE')
-        print(f"[DEBUG] Matrix 모드 전환 명령: {command.hex()}")
-        client_socket.sendall(command)
-        time.sleep(0.3)
-        client_socket.sendall(command)
-        time.sleep(0.3)
-
-        client_socket.close()
-
-        return JsonResponse({
-            'success': True,
-            'message': '비디오월이 해제되고 Matrix 모드로 복귀했습니다.'
-        })
-
-    except Exception as e:
-        import traceback
-        print(f"[ERROR] {traceback.format_exc()}")
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
