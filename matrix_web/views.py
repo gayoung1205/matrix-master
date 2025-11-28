@@ -2136,20 +2136,83 @@ def get_device_mode(request):
 # ============================================
 # 장비 모드 전환 (수정됨)
 # ============================================
+# @login_required
+# def toggle_device_mode(request):
+#     """
+#     장비 모드 전환 (Matrix ↔ Splicer)
+#
+#     UI 요청:
+#       - target_mode = 0 → Matrix로 전환
+#       - target_mode = 1 → Splicer로 전환
+#
+#     실제 명령:
+#       - Matrix 전환: 0x01 (문서와 반대!)
+#       - Splicer 전환: 0x00 (문서와 반대!)
+#     """
+#     from .models import Matrix as Mat
+#
+#     if request.method != 'POST':
+#         return JsonResponse({'success': False, 'error': 'POST 요청만 허용'}, status=405)
+#
+#     mat = Mat.objects.first()
+#     if not mat:
+#         return JsonResponse({'success': False, 'error': '장비가 없습니다.'}, status=404)
+#
+#     try:
+#         data = json.loads(request.body)
+#         target_mode = data.get('mode', 0)  # 0: Matrix, 1: Splicer
+#
+#         # 실제 장비 동작 기준 명령어 선택!
+#         if target_mode == 0:
+#             # Matrix로 전환 → 실제로는 0x01 전송
+#             command = CMD_TO_MATRIX
+#             mode_name = "Matrix"
+#         else:
+#             # Splicer로 전환 → 실제로는 0x00 전송
+#             command = CMD_TO_SPLICER
+#             mode_name = "Splicer"
+#
+#         print(f"[DEBUG] 모드 전환: target={target_mode}({mode_name}), cmd={command.hex().upper()}")
+#
+#         # 명령 전송 (2회 전송으로 안정성 확보)
+#         response = send_command(mat.matrix_ip_address, mat.port, command)
+#         time.sleep(0.2)
+#         response = send_command(mat.matrix_ip_address, mat.port, command)
+#
+#         # 응답 확인
+#         if response and len(response) >= 5:
+#             actual_mode, actual_name = parse_device_mode(response)
+#             print(f"[DEBUG] 전환 결과: raw={response[4]}, mode={actual_mode}, name={actual_name}")
+#
+#             return JsonResponse({
+#                 'success': True,
+#                 'mode': actual_mode if actual_mode is not None else target_mode,
+#                 'mode_name': actual_name if actual_name else mode_name,
+#                 'message': f'{actual_name if actual_name else mode_name} 모드로 전환되었습니다!'
+#             })
+#
+#         return JsonResponse({
+#             'success': True,
+#             'mode': target_mode,
+#             'mode_name': mode_name,
+#             'message': f'{mode_name} 모드로 전환되었습니다!'
+#         })
+#
+#     except Exception as e:
+#         import traceback
+#         print(f"[ERROR] {traceback.format_exc()}")
+#         return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
 @login_required
 def toggle_device_mode(request):
     """
-    장비 모드 전환 (Matrix ↔ Splicer)
+    장비 모드 전환 (Matrix ↔ Splicer ↔ Splitter)
 
     UI 요청:
       - target_mode = 0 → Matrix로 전환
       - target_mode = 1 → Splicer로 전환
-
-    실제 명령:
-      - Matrix 전환: 0x01 (문서와 반대!)
-      - Splicer 전환: 0x00 (문서와 반대!)
+      - target_mode = 2 → Splitter로 전환 (테스트)
     """
-    from .models import Matrix as Mat
 
     if request.method != 'POST':
         return JsonResponse({'success': False, 'error': 'POST 요청만 허용'}, status=405)
@@ -2160,17 +2223,24 @@ def toggle_device_mode(request):
 
     try:
         data = json.loads(request.body)
-        target_mode = data.get('mode', 0)  # 0: Matrix, 1: Splicer
+        target_mode = data.get('mode', 0)  # 0: Matrix, 1: Splicer, 2: Splitter
 
-        # 실제 장비 동작 기준 명령어 선택!
+        # 모드별 명령어 선택
         if target_mode == 0:
             # Matrix로 전환 → 실제로는 0x01 전송
             command = CMD_TO_MATRIX
             mode_name = "Matrix"
-        else:
+        elif target_mode == 1:
             # Splicer로 전환 → 실제로는 0x00 전송
             command = CMD_TO_SPLICER
             mode_name = "Splicer"
+        elif target_mode == 2:
+            # Splitter로 전환 → 0x02 테스트
+            # CRC: 0x55 + 0xAA + 0x04 + 0x0B + 0x02 = 0x110 → 0x10
+            command = bytes([0x55, 0xAA, 0x04, 0x0B, 0x02, 0x10, 0xEE])
+            mode_name = "Splitter"
+        else:
+            return JsonResponse({'success': False, 'error': f'알 수 없는 모드: {target_mode}'}, status=400)
 
         print(f"[DEBUG] 모드 전환: target={target_mode}({mode_name}), cmd={command.hex().upper()}")
 
@@ -2179,17 +2249,12 @@ def toggle_device_mode(request):
         time.sleep(0.2)
         response = send_command(mat.matrix_ip_address, mat.port, command)
 
-        # 응답 확인
-        if response and len(response) >= 5:
-            actual_mode, actual_name = parse_device_mode(response)
-            print(f"[DEBUG] 전환 결과: raw={response[4]}, mode={actual_mode}, name={actual_name}")
-
-            return JsonResponse({
-                'success': True,
-                'mode': actual_mode if actual_mode is not None else target_mode,
-                'mode_name': actual_name if actual_name else mode_name,
-                'message': f'{actual_name if actual_name else mode_name} 모드로 전환되었습니다!'
-            })
+        # 응답 로그
+        if response:
+            response_hex = ' '.join(f'{b:02X}' for b in response)
+            print(f"[DEBUG] 응답: {response_hex} ({len(response)} bytes)")
+            if len(response) >= 5:
+                print(f"[DEBUG] DeviceMode raw: {response[4]}")
 
         return JsonResponse({
             'success': True,
@@ -2425,3 +2490,236 @@ def video_wall_delete(request, video_wall_id):
         return JsonResponse({'success': False, 'error': '비디오월을 찾을 수 없습니다.'}, status=404)
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+# ============================================
+# Splitter 테스트 API
+# ============================================
+@login_required
+def splitter(request):
+    """Splitter 페이지"""
+    from .models import Matrix as Mat
+    from django.shortcuts import render
+
+    mat = Mat.objects.first()
+
+    context = {
+        'matrix': mat,
+    }
+    return render(request, 'splitter.html', context)
+
+@login_required
+def splitter_test(request):
+    """
+    Splitter 테스트 명령 전송 (길이 5 버전)
+    """
+    from .models import Matrix as Mat
+    import socket
+    import time
+
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'POST 요청만 허용'}, status=405)
+
+    mat = Mat.objects.first()
+    if not mat:
+        return JsonResponse({'success': False, 'error': '장비가 없습니다.'}, status=404)
+
+    try:
+        data = json.loads(request.body)
+        mode = int(data.get('mode', 0))          # 0~3
+        input_source = int(data.get('input_source', 1))  # 1~16
+
+        # 데이터 바이트 계산
+        input_value = input_source - 1  # 0-based
+        data_byte = (mode << 4) | input_value
+
+        # ===== 테스트: 길이 5 버전 =====
+        bytes_list = [0x55, 0xAA, 0x05, 0x15, 0x00, data_byte]
+        crc = sum(bytes_list) & 0xFF
+        command = bytes([0x55, 0xAA, 0x05, 0x15, 0x00, data_byte, crc, 0xEE])
+
+        command_hex = ' '.join(f'{b:02X}' for b in command)
+
+        print(f"[DEBUG] ===== Splitter 테스트 (길이 5) =====")
+        print(f"[DEBUG] 모드: {mode} (윈도우: {[1,2,4,16][mode]}분할)")
+        print(f"[DEBUG] 입력: {input_source} (값: {input_value})")
+        print(f"[DEBUG] 데이터 바이트: 0x{data_byte:02X}")
+        print(f"[DEBUG] 명령어: {command_hex}")
+
+        # 장비에 전송
+        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client_socket.settimeout(5)
+        client_socket.connect((mat.matrix_ip_address, mat.port))
+
+        client_socket.sendall(command)
+        time.sleep(0.5)
+
+        # 응답 수신
+        response = b''
+        try:
+            response = client_socket.recv(1024)
+        except socket.timeout:
+            pass
+
+        client_socket.close()
+
+        response_hex = ' '.join(f'{b:02X}' for b in response) if response else 'No response'
+        print(f"[DEBUG] 응답: {response_hex} ({len(response)} bytes)")
+        print(f"[DEBUG] ===== Splitter 테스트 완료 =====")
+
+        return JsonResponse({
+            'success': True,
+            'message': 'Splitter 명령 전송 완료',
+            'command_hex': command_hex,
+            'response_hex': response_hex,
+            'response_length': len(response),
+        })
+
+    except Exception as e:
+        import traceback
+        print(f"[ERROR] {traceback.format_exc()}")
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+# ============================================
+# Splitter 모드 전환 테스트 API
+# ============================================
+@login_required
+def splitter_switch_mode(request):
+    """
+    모드 전환 테스트
+
+    명령: 55 AA 04 0B XX CRC EE
+    XX: 0x00=Splicer?, 0x01=Matrix?, 0x02=Splitter?
+    """
+    from .models import Matrix as Mat
+    import socket
+    import time
+
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'POST 요청만 허용'}, status=405)
+
+    mat = Mat.objects.first()
+    if not mat:
+        return JsonResponse({'success': False, 'error': '장비가 없습니다.'}, status=404)
+
+    try:
+        data = json.loads(request.body)
+        mode_value = int(data.get('mode_value', 0))
+        mode_name = data.get('mode_name', 'Unknown')
+
+        # CRC 계산
+        bytes_list = [0x55, 0xAA, 0x04, 0x0B, mode_value]
+        crc = sum(bytes_list) & 0xFF
+        command = bytes([0x55, 0xAA, 0x04, 0x0B, mode_value, crc, 0xEE])
+        command_hex = ' '.join(f'{b:02X}' for b in command)
+
+        print(f"[DEBUG] ===== 모드 전환 테스트 =====")
+        print(f"[DEBUG] 모드: {mode_name} (값: 0x{mode_value:02X})")
+        print(f"[DEBUG] 명령어: {command_hex}")
+
+        # 장비에 전송
+        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client_socket.settimeout(5)
+        client_socket.connect((mat.matrix_ip_address, mat.port))
+
+        client_socket.sendall(command)
+        time.sleep(0.5)
+
+        # 응답 수신
+        response = b''
+        try:
+            response = client_socket.recv(1024)
+        except socket.timeout:
+            pass
+
+        client_socket.close()
+
+        response_hex = ' '.join(f'{b:02X}' for b in response) if response else 'No response'
+        print(f"[DEBUG] 응답: {response_hex} ({len(response)} bytes)")
+
+        # DeviceMode 파싱 (응답이 있으면)
+        device_mode_raw = None
+        if response and len(response) >= 5:
+            device_mode_raw = response[4]
+            print(f"[DEBUG] DeviceMode raw: {device_mode_raw}")
+
+        print(f"[DEBUG] ===== 모드 전환 테스트 완료 =====")
+
+        return JsonResponse({
+            'success': True,
+            'message': f'{mode_name} 모드 전환 명령 전송 완료',
+            'command_hex': command_hex,
+            'response_hex': response_hex,
+            'response_length': len(response),
+            'device_mode_raw': device_mode_raw
+        })
+
+    except socket.error as e:
+        print(f"[ERROR] 소켓 오류: {e}")
+        return JsonResponse({'success': False, 'error': f'통신 오류: {e}'}, status=500)
+    except Exception as e:
+        import traceback
+        print(f"[ERROR] {traceback.format_exc()}")
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+@login_required
+def debug_device_info(request):
+    """Device Info 전체 응답 분석"""
+    from .models import Matrix as Mat
+    import socket
+    import time
+
+    mat = Mat.objects.first()
+    if not mat:
+        return JsonResponse({'success': False, 'error': '장비 없음'})
+
+    try:
+        # 상태 조회 명령
+        command = bytes([0x55, 0xAA, 0x05, 0x08, 0x11, 0x00, 0x1E, 0xEE])
+
+        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client_socket.settimeout(5)
+        client_socket.connect((mat.matrix_ip_address, mat.port))
+        client_socket.sendall(command)
+        time.sleep(0.5)
+
+        response = b''
+        try:
+            response = client_socket.recv(1024)
+        except:
+            pass
+        client_socket.close()
+
+        if response and len(response) >= 60:
+            # Device Info 파싱
+            info = {
+                'raw_hex': ' '.join(f'{b:02X}' for b in response),
+                'length': len(response),
+                'DeviceMode': response[4],           # 바이트 4
+                'SplitterFrameIndex': response[56] if len(response) > 56 else None,  # 추정
+                'SplitterSwitchState': response[57] if len(response) > 57 else None,  # 추정
+                # 주요 바이트들
+                'byte_52': response[52] if len(response) > 52 else None,
+                'byte_53': response[53] if len(response) > 53 else None,
+                'byte_54': response[54] if len(response) > 54 else None,
+                'byte_55': response[55] if len(response) > 55 else None,
+                'byte_56': response[56] if len(response) > 56 else None,
+                'byte_57': response[57] if len(response) > 57 else None,
+                'byte_58': response[58] if len(response) > 58 else None,
+            }
+
+            print(f"[DEBUG] ===== Device Info 분석 =====")
+            print(f"[DEBUG] DeviceMode: {info['DeviceMode']}")
+            print(f"[DEBUG] byte_52: {info['byte_52']} (0x{info['byte_52']:02X})" if info['byte_52'] else "")
+            print(f"[DEBUG] byte_53: {info['byte_53']} (0x{info['byte_53']:02X})" if info['byte_53'] else "")
+            print(f"[DEBUG] byte_54: {info['byte_54']} (0x{info['byte_54']:02X})" if info['byte_54'] else "")
+            print(f"[DEBUG] byte_55: {info['byte_55']} (0x{info['byte_55']:02X})" if info['byte_55'] else "")
+            print(f"[DEBUG] byte_56: {info['byte_56']} (0x{info['byte_56']:02X})" if info['byte_56'] else "")
+            print(f"[DEBUG] byte_57: {info['byte_57']} (0x{info['byte_57']:02X})" if info['byte_57'] else "")
+            print(f"[DEBUG] ================================")
+
+            return JsonResponse({'success': True, **info})
+
+        return JsonResponse({'success': False, 'error': 'No response'})
+
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})

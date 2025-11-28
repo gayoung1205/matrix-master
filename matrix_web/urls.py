@@ -47,4 +47,10 @@ urlpatterns = [
     path('video_wall/delete/<int:video_wall_id>/', views.video_wall_delete, name='video_wall_delete'),
     path('video_wall/apply/<int:video_wall_id>/', views.video_wall_apply, name='video_wall_apply'),
     path('video_wall/release/', views.video_wall_release, name='video_wall_release'),
+    # Splitter API
+    path('splitter/', views.splitter, name='splitter'),
+    path('splitter/test/', views.splitter_test, name='splitter_test'),
+    path('splitter/switch-mode/', views.splitter_switch_mode, name='splitter_switch_mode'),
+    path('debug/device-info/', views.debug_device_info, name='debug_device_info'),
+
 ]
